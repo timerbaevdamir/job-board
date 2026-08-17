@@ -171,17 +171,25 @@ export function InlineSearch({
             className="min-w-0 flex-1 bg-transparent text-base leading-[22px] text-foreground placeholder:text-faint focus:outline-none"
             {...inputProps}
           />
-          {draft.length > 0 && (
-            <button
-              type="button"
-              aria-label="Очистить поиск"
-              onClick={() => commit("")}
-              className={ICON_BUTTON}
-            >
-              <XIcon className="size-5" />
-            </button>
-          )}
-          <CityDrawer />
+          {/* The row's own `gap-3` separates the query from what follows it.
+              These two belong to each other — clear this search, scope this
+              search — so they get a group of their own, and no gap inside it:
+              both are already carrying their own padding, and any spacing added
+              between the boxes lands on top of that rather than instead of it.
+              Their edges meet; what the eye reads as the gap is the padding. */}
+          <div className="flex shrink-0 items-center">
+            {draft.length > 0 && (
+              <button
+                type="button"
+                aria-label="Очистить поиск"
+                onClick={() => commit("")}
+                className={ICON_BUTTON}
+              >
+                <XIcon className="size-5" />
+              </button>
+            )}
+            <CityDrawer />
+          </div>
         </label>
 
         {/* One animated height for the whole body: filters ⇄ suggestions is a
