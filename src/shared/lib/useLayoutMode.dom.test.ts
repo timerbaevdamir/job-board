@@ -22,17 +22,30 @@ describe("useLayoutMode", () => {
     resizeTo(768)
     expect(result.current).toBe("tablet")
 
-    // 64rem = 1024px, the `lg:` boundary.
-    resizeTo(1023)
+    // 80rem = 1280px, the `xl:` boundary — not `lg:`. At 1024 the three columns
+    // do not fit: expanded rail, feed, and discovery panel leave the feed about
+    // 430px. The rail stays collapsed through that range.
+    resizeTo(1279)
     expect(result.current).toBe("tablet")
-    resizeTo(1024)
+    resizeTo(1280)
     expect(result.current).toBe("desktop")
+  })
+
+  it("keeps the rail collapsed across the range the discovery column shares", () => {
+    resizeTo(1024)
+    const { result } = renderHook(() => useLayoutMode())
+    // The panel appears at `lg`, so between there and `xl` three columns are on
+    // screen at once and only two of them can afford to be wide.
+    for (const width of [1024, 1100, 1200, 1279]) {
+      resizeTo(width)
+      expect(result.current).toBe("tablet")
+    }
   })
 
   it("reads the mode during render, not after an effect", () => {
     // `useSyncExternalStore` rather than state-plus-effect: a first paint in the
     // wrong mode would render a bottom bar on a desktop and then swap it.
-    resizeTo(1280)
+    resizeTo(1440)
     const { result } = renderHook(() => useLayoutMode())
     expect(result.current).toBe("desktop")
   })

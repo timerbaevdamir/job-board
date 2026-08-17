@@ -16,7 +16,10 @@ export type LayoutMode = "mobile" | "tablet" | "desktop"
  * browser too old for `width >=` fails to match here *and* fails to apply the
  * `md:` rules, which lands both on the mobile layout together.
  */
-function breakpoint(name: "sm" | "md" | "lg", fallback: string): MediaQueryList {
+function breakpoint(
+  name: "sm" | "md" | "lg" | "xl",
+  fallback: string,
+): MediaQueryList {
   const declared = getComputedStyle(document.documentElement)
     .getPropertyValue(`--breakpoint-${name}`)
     .trim()
@@ -28,7 +31,21 @@ function breakpoint(name: "sm" | "md" | "lg", fallback: string): MediaQueryList 
 // The fallbacks only apply if the stylesheet has not been applied yet, which
 // would be a larger problem than this module's.
 const tablet = breakpoint("md", "48rem")
-const desktop = breakpoint("lg", "64rem")
+
+/**
+ * `xl`, not `lg`, and the extra 256px are the discovery column's.
+ *
+ * The three columns do not fit at 1024 the way the mode names suggest: the rail
+ * expanded to labels takes 260, the discovery panel takes 336, and the feed is
+ * left with about 430 — a card whose every line wraps and a filter strip with
+ * one chip visible. The layout was calling itself a desktop while measuring
+ * like a tablet.
+ *
+ * So the rail holds its collapsed form through that range and its labels stay
+ * in the panel that opens over the page — the tablet behaviour, applied where
+ * the width actually is tablet-like. The feed gets those 180px back.
+ */
+const desktop = breakpoint("xl", "80rem")
 
 function subscribe(onChange: () => void) {
   tablet.addEventListener("change", onChange)
