@@ -61,11 +61,12 @@ const SearchContext = createContext<SearchContextValue | null>(null)
  * goes through here and re-runs the request, so the feed, the filter bar and
  * the toolbar all read one consistent picture instead of keeping private copies.
  *
- * It lives on the entity layer rather than inside the search feature because
- * more than one feature owns part of the same session — `job-search` writes the
- * query and city, `job-filters` writes the filters. Keeping it in either one
- * would force the other to import a sibling feature, which is the coupling FSD
- * exists to prevent.
+ * It is internal to this feature, which is the point. It spent a while on the
+ * entity layer instead, because the field and the filters were two slices and
+ * neither could hold state the other needed without importing a sibling. That
+ * bought a "search entity" that was not an entity — nothing in the domain is a
+ * Search — and which had to reach sideways into `job` to run a query. Merging
+ * the two slices removed the reason for it to be anywhere else.
  */
 export function SearchProvider({ children }: { children: ReactNode }) {
   const [query, setQueryState] = useState("")

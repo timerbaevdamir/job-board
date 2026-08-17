@@ -7,7 +7,7 @@ import { JobList } from "@/widgets/job-list"
 import { JobDetailView } from "@/widgets/job-detail"
 import { DiscoveryPanel } from "@/widgets/discovery-panel"
 import { InterestingRoles } from "@/widgets/interesting"
-import { useSearch } from "@/entities/search"
+import { useSearch } from "@/features/job-search"
 import { navigate } from "@/shared/lib/router"
 import { useScrollRestoration } from "@/shared/lib/useScrollRestoration"
 

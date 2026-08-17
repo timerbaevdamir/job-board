@@ -1,6 +1,6 @@
 import { HeaderFade } from "@/shared/ui/HeaderFade"
 import { SearchField } from "@/features/job-search"
-import { FilterBar } from "@/features/job-filters"
+import { FilterBar } from "@/features/job-search"
 
 /**
  * Sticky search bar composing the search combobox with the in-field filter bar.

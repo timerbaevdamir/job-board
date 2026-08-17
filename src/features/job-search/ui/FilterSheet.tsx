@@ -11,7 +11,7 @@ import { Button } from "@/shared/ui/Button"
 import { XIcon } from "@/shared/ui/icons"
 import { vacancies } from "@/shared/lib/plural"
 import { selectJobs } from "@/entities/job"
-import { useSearch } from "@/entities/search"
+import { useSearch } from "../model/store"
 import type { Filter, FilterOption } from "@/shared/config/filters"
 import { FilterOptionList, type CountedOption } from "./FilterOptionList"
 

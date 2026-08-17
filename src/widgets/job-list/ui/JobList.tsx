@@ -2,7 +2,7 @@ import { Fragment, useEffect, useRef, useState, type ReactNode } from "react"
 import { JobCard, JobCardSkeleton, type SortId } from "@/entities/job"
 import { useSaved } from "@/features/save-job"
 import { useApplications } from "@/features/apply"
-import { useSearch } from "@/entities/search"
+import { useSearch } from "@/features/job-search"
 import {
   BellIcon,
   CheckIcon,

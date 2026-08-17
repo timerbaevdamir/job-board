@@ -11,7 +11,7 @@ import {
 } from "@/shared/ui/Drawer"
 import { CheckIcon, NavigationIcon, SearchIcon } from "@/shared/ui/icons"
 import { useLayoutMode } from "@/shared/lib/useLayoutMode"
-import { useSearch } from "@/entities/search"
+import { useSearch } from "../model/store"
 
 /**
  * City picker for the search field. The trigger reads as plain text until

@@ -4,7 +4,7 @@ import { AppealsPage } from "@/pages/appeals"
 import { DevPage } from "@/pages/dev"
 import { ApplicationsProvider } from "@/features/apply"
 import { SavedProvider } from "@/features/save-job"
-import { SearchProvider } from "@/entities/search"
+import { SearchProvider } from "@/features/job-search"
 import { useRoute } from "@/shared/lib/router"
 
 // Seed favourites from the mock data; kept here so the feature stays data-agnostic.

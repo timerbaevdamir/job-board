@@ -9,7 +9,7 @@ import { SUGGESTION_POOL } from "@/entities/job"
 import { ClockIcon, SearchIcon, SparklesIcon, XIcon } from "@/shared/ui/icons"
 import { cn } from "@/shared/lib/cn"
 import { useSearchField, type Overlay } from "../model/useSearchField"
-import { useSearch } from "@/entities/search"
+import { useSearch } from "../model/store"
 import { CityDrawer } from "./CityDrawer"
 import { SearchRow } from "./SearchRow"
 

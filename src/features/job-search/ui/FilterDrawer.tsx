@@ -5,7 +5,7 @@ import {
   type FilterOption,
 } from "@/shared/config/filters"
 import { countOptions, selectJobs } from "@/entities/job"
-import { useSearch } from "@/entities/search"
+import { useSearch } from "../model/store"
 import {
   Drawer,
   DrawerClose,

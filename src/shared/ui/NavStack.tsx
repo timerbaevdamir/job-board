@@ -2,8 +2,7 @@ import { useRef, useState, type ReactNode } from "react"
 import { cn } from "@/shared/lib/cn"
 import { useLayoutMode } from "@/shared/lib/useLayoutMode"
 import { useNavDirection } from "@/shared/lib/router"
-
-type Phase = "idle" | "entering" | "shown" | "leaving"
+import { nextPhase, type NavPhase } from "@/shared/lib/navPhase"
 
 /**
  * Two screens in one box: a base that stays, and an overlay that slides in over
@@ -49,8 +48,8 @@ export function NavStack({
   // Starts settled, never entering: an overlay that is already there on the
   // first render was deep-linked to, and animating it in would claim a
   // navigation that never happened.
-  const [phase, setPhase] = useState<Phase>(open ? "shown" : "idle")
-  const settled: Phase = open ? "shown" : "idle"
+  const [phase, setPhase] = useState<NavPhase>(open ? "shown" : "idle")
+  const settled: NavPhase = open ? "shown" : "idle"
 
   // Derived during render rather than in an effect. An effect would settle the
   // phase one frame after the overlay's presence changed, and that frame is
@@ -58,17 +57,14 @@ export function NavStack({
   // frame at its final position before jumping back out to start. Updating
   // state during render of the same component re-renders before the commit, so
   // the first frame the overlay is painted in is already the right one.
+  //
+  // The decision itself is in `nextPhase`, where it can be tested; what is left
+  // here is noticing that `open` moved and handing that over.
   const prevOpen = useRef(open)
-  if (prevOpen.current !== open) {
-    prevOpen.current = open
-    // `replace` is a correction of the current entry, not a journey — nothing
-    // was navigated to, so nothing should move.
-    setPhase(!enabled || direction === "replace" ? settled : open ? "entering" : "leaving")
-  } else if (!enabled && phase !== settled) {
-    // A resize mid-slide leaves an animation belonging to a layout that no
-    // longer exists.
-    setPhase(settled)
-  }
+  const flipped = prevOpen.current !== open
+  prevOpen.current = open
+  const resolved = nextPhase(phase, { open, flipped, enabled, direction })
+  if (resolved !== phase) setPhase(resolved)
 
   return (
     <div className={cn("relative overflow-hidden", className)}>

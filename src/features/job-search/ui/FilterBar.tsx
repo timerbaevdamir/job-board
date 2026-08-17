@@ -14,7 +14,7 @@ import {
   type FilterOption,
 } from "@/shared/config/filters"
 import { countOptions } from "@/entities/job"
-import { useSearch } from "@/entities/search"
+import { useSearch } from "../model/store"
 import { orderFilters } from "../lib/orderFilters"
 import { useFilterScroller } from "../model/useFilterScroller"
 import { FilterChip } from "./FilterChip"
