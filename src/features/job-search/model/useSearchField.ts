@@ -137,6 +137,7 @@ export function useSearchField({
 
   return {
     draft,
+    setDraft,
     overlay,
     showFilters,
     suggestions,

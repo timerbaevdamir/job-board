@@ -40,6 +40,11 @@
   --ease-nav: cubic-bezier(0.32, 0.72, 0, 1);
   --duration-nav: 350ms;
 
+  /* The search field at rest. One token because the field is drawn twice — the
+     combobox on a wide screen and the button that opens the sheet on a phone —
+     and they are the same card at the same height. */
+  --shadow-field: 0 1px 2px rgb(13 21 32 / 0.04), 0 10px 28px -18px rgb(13 21 32 / 0.10);
+
   /* A panel floating free of the page — a popover under a chip, a menu under a
      button. Both are the same object at the same height, so they cast the same
      shadow; written twice, one of them would eventually be adjusted alone. */
