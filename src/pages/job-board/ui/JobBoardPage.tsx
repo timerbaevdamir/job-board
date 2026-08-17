@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useLayoutEffect, useRef } from "react"
 import { JOBS, ANY_CITY } from "@/entities/job"
 import { AppShell } from "@/widgets/app-shell"
 import { NavStack } from "@/shared/ui/NavStack"
@@ -49,12 +49,18 @@ export function JobBoardPage({ openJobId }: { openJobId: string | null }) {
   // A new search replaces the results, so the feed jumps back to the top —
   // instantly (no smooth scroll), the way a swapped result page would.
   //
-  // Compared against the previous id rather than just `searchId > 0`: this
-  // effect also runs on mount, where the id is already non-zero from the search
-  // that ran before the user left. Firing then would scroll to the top the
-  // moment the restoration above had put the feed back where it was.
+  // A layout effect, for the same reason the restoration above is one: it has
+  // to land before the browser paints. `searchId` changes in the render that
+  // first shows the skeletons, and an ordinary effect would run after that
+  // frame — so the skeletons would appear once at the old offset and the feed
+  // would snap up on the next frame.
+  //
+  // Compared against the previous id rather than just `searchId > 0`: this also
+  // runs on mount, where the id is already non-zero from the search that ran
+  // before the user left. Firing then would scroll to the top the moment the
+  // restoration above had put the feed back where it was.
   const lastSearchId = useRef(searchId)
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (searchId === lastSearchId.current) return
     lastSearchId.current = searchId
     feedRef.current?.scrollTo({ top: 0 })

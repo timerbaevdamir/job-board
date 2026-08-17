@@ -73,16 +73,33 @@ describe("search session", () => {
     expect(result.current.total).toBe(3)
   })
 
-  it("bumps searchId once per landed search, not per parameter change", async () => {
+  it("bumps searchId when a search starts, not when it lands", async () => {
     const { result } = mount()
     await respond(0, 1)
     const first = result.current.searchId
 
+    // The results are stale the moment the sort changes; whatever keys off this
+    // — the feed's scroll position — has to act then and not half a second
+    // later when the data happens to arrive.
     act(() => result.current.setSort("date"))
-    expect(result.current.searchId).toBe(first)
+    expect(result.current.searchId).toBe(first + 1)
+    expect(result.current.loading).toBe(true)
 
     await respond(1, 1)
     expect(result.current.searchId).toBe(first + 1)
+  })
+
+  it("counts a superseded search too", async () => {
+    const { result } = mount()
+    await respond(0, 1)
+    const first = result.current.searchId
+
+    // Two changes in quick succession: the first request is abandoned, but the
+    // reader did move away from those results twice, and the second move must
+    // not be swallowed because the first never came back.
+    act(() => result.current.setQuery("а"))
+    act(() => result.current.setQuery("аб"))
+    expect(result.current.searchId).toBe(first + 2)
   })
 
   it("adds and removes options within a multi filter", () => {

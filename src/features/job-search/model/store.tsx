@@ -31,9 +31,15 @@ type SearchContextValue = {
   /** True while a request is in flight — the feed shows skeletons. */
   loading: boolean
   /**
-   * Bumped once per committed search. Effects key off it to react to "a new
-   * search happened" (e.g. resetting the feed scroll) regardless of what
-   * triggered it.
+   * Bumped once per search *started* — not once per search that came back.
+   * Effects key off it to react to "we are looking at something else now"
+   * (resetting the feed scroll, say) regardless of what triggered it.
+   *
+   * Start, because that is when the old results stop being the answer. Tying it
+   * to the response instead meant the skeletons appeared immediately while the
+   * feed stayed parked wherever the reader had scrolled to, and it only jumped
+   * to the top half a second later when the data landed — a scroll that looked
+   * like the page moving on its own rather than like a new list arriving.
    */
   searchId: number
 
@@ -87,13 +93,16 @@ export function SearchProvider({ children }: { children: ReactNode }) {
   const requestId = useRef(0)
   useEffect(() => {
     const id = ++requestId.current
+    // Both of these describe the same moment — a new search is on its way — so
+    // they are set together, in the render that shows the skeletons. A reader
+    // sees one change: the list they were looking at is replaced.
     setLoading(true)
+    setSearchId((n) => n + 1)
     searchJobs({ query, city, filters, sort }).then((res) => {
       if (id !== requestId.current) return
       setResults(res.items)
       setTotal(res.total)
       setLoading(false)
-      setSearchId((n) => n + 1)
     })
   }, [query, city, filters, sort])
 
