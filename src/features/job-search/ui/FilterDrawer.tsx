@@ -15,6 +15,8 @@ import {
   DrawerTitle,
 } from "@/shared/ui/Drawer"
 import { Button } from "@/shared/ui/Button"
+import { cn } from "@/shared/lib/cn"
+import { ICON_BUTTON } from "@/shared/ui/iconButton"
 import { XIcon } from "@/shared/ui/icons"
 import { useLayoutMode } from "@/shared/lib/useLayoutMode"
 import { vacancies } from "@/shared/lib/plural"
@@ -130,7 +132,7 @@ export function FilterDrawer({
             // reader announces for a button whose whole content is a glyph.
             <DrawerClose
               aria-label="Закрыть"
-              className="-mr-1 flex size-9 shrink-0 items-center justify-center rounded-full text-subtle transition-colors hover:bg-chip hover:text-foreground"
+              className={cn("-mr-1", ICON_BUTTON)}
             >
               <XIcon className="size-5" />
             </DrawerClose>

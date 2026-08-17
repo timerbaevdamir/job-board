@@ -8,6 +8,7 @@ import {
 } from "@/shared/ui/Drawer"
 import { SearchIcon, XIcon } from "@/shared/ui/icons"
 import { cn } from "@/shared/lib/cn"
+import { ICON_BUTTON } from "@/shared/ui/iconButton"
 import { useSearch } from "../model/store"
 import { useSearchField } from "../model/useSearchField"
 import { CityDrawer } from "./CityDrawer"
@@ -71,7 +72,7 @@ export function MobileSearch({
               type="button"
               aria-label="Очистить поиск"
               onClick={() => setQuery("")}
-              className="flex size-6 shrink-0 items-center justify-center rounded-full text-subtle transition-colors hover:bg-black/[0.06] hover:text-foreground"
+              className={ICON_BUTTON}
             >
               <XIcon className="size-5" />
             </button>

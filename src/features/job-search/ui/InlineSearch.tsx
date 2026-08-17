@@ -8,6 +8,7 @@ import {
 import { SUGGESTION_POOL } from "@/entities/job"
 import { SearchIcon, XIcon } from "@/shared/ui/icons"
 import { cn } from "@/shared/lib/cn"
+import { ICON_BUTTON } from "@/shared/ui/iconButton"
 import { useSearchField, type Overlay } from "../model/useSearchField"
 import { useSearch } from "../model/store"
 import { CityDrawer } from "./CityDrawer"
@@ -175,7 +176,7 @@ export function InlineSearch({
               type="button"
               aria-label="Очистить поиск"
               onClick={() => commit("")}
-              className="flex size-6 shrink-0 items-center justify-center rounded-full text-subtle transition-colors hover:bg-black/[0.06] hover:text-foreground"
+              className={ICON_BUTTON}
             >
               <XIcon className="size-5" />
             </button>
