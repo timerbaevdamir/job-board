@@ -141,10 +141,20 @@ function install(): void {
     emit()
   })
 
-  // Only fires for hashes we didn't set ourselves — an address-bar edit or an
-  // anchor. `pushState` deliberately doesn't raise it.
   window.addEventListener("hashchange", () => {
-    if (depthOf(history.state) === null) adopt()
+    // Two different events arrive here. `pushState` raises none, so a hash we
+    // set ourselves never reaches this. But traversing *between* two entries
+    // that differ only in their fragment — which, in a hash-routed app, is
+    // every Back and Forward — raises `hashchange` right after `popstate`. That
+    // one is an echo of a move already accounted for, and treating it as a
+    // fresh arrival overwrote every "pop" with "push", so Back animated as if
+    // it were opening something new.
+    //
+    // A stamped entry is one of ours and has already been handled. Only an
+    // unstamped one is genuinely new: a hash typed into the address bar, or an
+    // anchor followed.
+    if (depthOf(history.state) !== null) return
+    adopt()
     direction = "push"
     emit()
   })

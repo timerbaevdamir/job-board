@@ -81,6 +81,28 @@ either language — change the token and both follow.
 bar; tablet opens its labels in a panel; desktop shows them inline). Use classes
 for everything that is only a matter of size.
 
+## Tests
+
+`pnpm test` runs two vitest projects.
+
+- **`logic`** — `*.test.ts`, environment `node`. Pure functions: the search and
+  filter engine, route parsing, ordering, plurals, the nav phase machine. No DOM
+  is built for these, and none of them may start needing one.
+- **`dom`** — `*.dom.test.{ts,tsx}`, environment `jsdom`. The parts whose job is
+  to talk to a browser: hooks with effects and listeners, the session store, the
+  router's history stack.
+
+The suffix is the whole convention — tests stay beside the module either way,
+and `.dom.` says why that one costs more to run.
+
+`vitest.setup.ts` shims what jsdom lacks: `ResizeObserver`, and enough of
+`matchMedia` to answer `(width >= …)` against `window.innerWidth`, so a test can
+resize the window and the breakpoint hooks hear about it. jsdom has no layout
+engine, so anything that reads geometry has to supply its own — see the
+`scrollTop` shim in `useScrollRestoration.dom.test.tsx`. Prefer pure logic and
+the `logic` project where a choice exists: a test that mostly exercises a fake
+layout engine is mostly testing the fake.
+
 ## Code quality
 
 - Use double quotes for strings containing apostrophes (`"We're here to help"`), or escape them in single-quoted strings. An unescaped apostrophe in a single-quoted string breaks the build.
