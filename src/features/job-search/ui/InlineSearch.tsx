@@ -12,6 +12,7 @@ import { useSearchField, type Overlay } from "../model/useSearchField"
 import { useSearch } from "../model/store"
 import { CityDrawer } from "./CityDrawer"
 import { LISTBOX_ID, optionId, SuggestionList } from "./SuggestionList"
+import { SEARCH_CARD } from "./searchCard"
 
 /**
  * Last measured geometry, kept across mounts.
@@ -142,7 +143,8 @@ export function InlineSearch({
     <div className="relative" style={{ height: restingHeight }}>
       <div
         className={cn(
-          "absolute inset-x-0 top-0 z-30 overflow-hidden rounded-[28px] border border-border bg-surface",
+          SEARCH_CARD,
+          "absolute inset-x-0 top-0 z-30",
           "transition-[box-shadow] duration-200 ease-soft motion-reduce:transition-none",
           // At rest the card is one surface among the cards below it, so the
           // lift stays faint. Open, it genuinely floats over the feed and says

@@ -12,6 +12,7 @@ import { useSearch } from "../model/store"
 import { useSearchField } from "../model/useSearchField"
 import { CityDrawer } from "./CityDrawer"
 import { LISTBOX_ID, optionId, SuggestionList } from "./SuggestionList"
+import { SEARCH_CARD } from "./searchCard"
 
 /**
  * Search on a phone: the field in the page is a button, and the search itself
@@ -44,7 +45,7 @@ export function MobileSearch({
       {/* The same card the wide screen draws, minus everything it does not do
           here: no growing over the feed, no measured height, no overlay. What
           is left is a button above the filter chips. */}
-      <div className="rounded-[28px] border border-border bg-surface shadow-field">
+      <div className={cn(SEARCH_CARD, "shadow-field")}>
         <div className="flex min-h-[52px] items-center gap-3 pl-4 pr-2.5">
           <button
             type="button"
