@@ -150,7 +150,6 @@ export function JobDetailView({
                 <JobCard
                   key={r.id}
                   job={r}
-                  selected={false}
                   onSelect={onOpen}
                   saved={isSaved(r.id)}
                   applied={isApplied(r.id)}

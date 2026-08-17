@@ -1,6 +1,24 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import 'tailwindcss';
 
+/* The breakpoint ladder, declared once and read by both languages that need it.
+   Tailwind builds its `sm:` / `md:` / `lg:` variants from these, and
+   `useLayoutMode` reads the same custom properties at runtime to decide which
+   navigation the viewport calls for.
+
+   `static` is what makes that possible: breakpoints are consumed at build time
+   to generate variants, never through `var()`, so Tailwind would otherwise
+   treat them as unused and leave them out of the stylesheet — and there would
+   be nothing for the JS side to read.
+
+   The values are Tailwind's own defaults, restated here to make them a source
+   rather than an assumption. */
+@theme static {
+  --breakpoint-sm: 40rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+}
+
 @theme {
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
 
@@ -21,6 +39,11 @@
      and it arrives without a bounce. */
   --ease-nav: cubic-bezier(0.32, 0.72, 0, 1);
   --duration-nav: 350ms;
+
+  /* A panel floating free of the page — a popover under a chip, a menu under a
+     button. Both are the same object at the same height, so they cast the same
+     shadow; written twice, one of them would eventually be adjusted alone. */
+  --shadow-popover: 0 12px 40px rgb(13 21 32 / 0.16);
 
   /* The lift under a phone's bottom action bar. Cast upward: there is nothing
      below it to fall on. Only the phone uses it — on a wider screen the bar is

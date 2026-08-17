@@ -41,7 +41,3 @@ export function useScrollRestoration<T extends HTMLElement>(key: string) {
   return ref
 }
 
-/** Forget a stored position — for when the content it referred to is gone. */
-export function forgetScroll(key: string) {
-  positions.delete(key)
-}

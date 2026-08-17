@@ -98,16 +98,7 @@ export function JobBoardPage({ openJobId }: { openJobId: string | null }) {
           <div ref={feedRef} className="scroll-area h-full overflow-y-auto">
             <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 pb-6 sm:px-8">
               <SearchHeader />
-              {/* Nothing is ever marked as selected here: a selected row means
-                  "this is the one showing in the pane next to you", and this
-                  board has no such pane — opening a vacancy replaces the feed
-                  rather than standing beside it. The mark was invisible for
-                  that reason until the screens started sliding, and then it
-                  showed up as a coloured edge flashing under the card the
-                  moment it was tapped. (The appeals screen is the two-pane one,
-                  and it has its own list.) */}
               <JobList
-                selectedId={null}
                 onSelect={openJobById}
                 searching={searching}
                 slot={<InterestingRoles />}

@@ -44,7 +44,6 @@ function NeutralTag({ children }: { children: string }) {
  */
 export function JobCard({
   job,
-  selected,
   onSelect,
   saved,
   applied,
@@ -52,7 +51,6 @@ export function JobCard({
   onApply,
 }: {
   job: Job
-  selected: boolean
   onSelect: (id: string) => void
   saved: boolean
   applied: boolean
@@ -77,9 +75,12 @@ export function JobCard({
         // border-strong) rather than jumping to a much darker outline: the
         // cursor is already the primary hover signal, the border only has to
         // confirm which card it is on.
-        selected
-          ? "border-brand"
-          : "border-border-strong/70 hover:border-border-strong",
+        //
+        // There is no "selected" state: that would mean "this is the one open
+        // in the pane beside you", and opening a vacancy replaces this list
+        // rather than standing next to it. The two-pane screen in this project
+        // is Отклики, and it has a card of its own.
+        "border-border-strong/70 hover:border-border-strong",
       )}
     >
       {/* One element for both placements rather than two hidden copies: on a

@@ -41,7 +41,6 @@ type StyledProps<T extends ElementType,> = Omit<ComponentProps<T>, "className"> 
 export const Drawer = Base.Root
 export const DrawerTrigger = Base.Trigger
 export const DrawerClose = Base.Close
-export const DrawerHandle = Base.Handle
 
 /**
  * Opt a drawer into software-keyboard handling: while a field inside it is

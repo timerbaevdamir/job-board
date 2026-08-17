@@ -133,7 +133,7 @@ export function FilterPopover({
       <div
         role="dialog"
         style={{ left, top, width: PANEL_WIDTH }}
-        className="fixed z-50 flex max-h-[70vh] flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-[0_12px_40px_rgba(0,0,0,0.16)]"
+        className="fixed z-50 flex max-h-[70vh] flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-popover"
       >
         {showSearch && (
           <>

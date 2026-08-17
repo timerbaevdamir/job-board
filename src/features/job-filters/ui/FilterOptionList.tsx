@@ -6,7 +6,7 @@ import type { FilterOption } from "@/shared/config/filters"
 export type CountedOption = FilterOption & { counter?: number }
 
 /** A checkbox for `multi` filters, a radio for single-select ones. */
-export function OptionMark({
+function OptionMark({
   checked,
   multi,
 }: {

@@ -1,18 +1,34 @@
 import { useSyncExternalStore } from "react"
 
-/**
- * Tailwind's own breakpoints, restated here because JS has to agree with the
- * classes: `md` = 768, `lg` = 1024.
- */
-const TABLET = "(min-width: 768px)"
-const DESKTOP = "(min-width: 1024px)"
-
 export type LayoutMode = "mobile" | "tablet" | "desktop"
+
+/**
+ * The breakpoint as the stylesheet defines it — not a copy of it.
+ *
+ * These used to be two numbers written here to match two numbers in the CSS,
+ * with nothing holding them together: change one and the apply bar and the tab
+ * bar would disagree about where the phone ends. `--breakpoint-*` is declared
+ * in `index.css` (see the `@theme static` block), Tailwind builds its variants
+ * from it, and this reads the same property back.
+ *
+ * The query is spelled the way Tailwind spells it — range syntax, not
+ * `min-width` — so the two cannot even diverge in how a browser parses them. A
+ * browser too old for `width >=` fails to match here *and* fails to apply the
+ * `md:` rules, which lands both on the mobile layout together.
+ */
+function breakpoint(name: "sm" | "md" | "lg", fallback: string): MediaQueryList {
+  const declared = getComputedStyle(document.documentElement)
+    .getPropertyValue(`--breakpoint-${name}`)
+    .trim()
+  return matchMedia(`(width >= ${declared || fallback})`)
+}
 
 // Created once: `read` runs on every render, and building a MediaQueryList each
 // time would churn objects for a value that two long-lived ones already hold.
-const tablet = matchMedia(TABLET)
-const desktop = matchMedia(DESKTOP)
+// The fallbacks only apply if the stylesheet has not been applied yet, which
+// would be a larger problem than this module's.
+const tablet = breakpoint("md", "48rem")
+const desktop = breakpoint("lg", "64rem")
 
 function subscribe(onChange: () => void) {
   tablet.addEventListener("change", onChange)
@@ -32,7 +48,7 @@ function read(): LayoutMode {
 /**
  * Which navigation shape the viewport calls for.
  *
- * This is deliberately JS rather than `md:` / `lg:` classes: the three modes
+ * This is deliberately JS rather than `md:` / `lg:` classes alone: the three modes
  * differ in *behaviour*, not only in appearance. Mobile has no rail at all and
  * navigates from a bottom bar; tablet keeps a rail whose labels live in a panel
  * that opens over the page; desktop shows those labels inline and never opens a

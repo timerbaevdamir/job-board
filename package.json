@@ -7,7 +7,6 @@
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "preview": "vite preview",
-    "format": "oxfmt",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "oxlint src",

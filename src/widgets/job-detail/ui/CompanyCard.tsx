@@ -40,8 +40,8 @@ export function CompanyCard({ job }: { job: Job }) {
             </span>
           )}
           {job.itAccredited && (
-            <span className="flex items-center gap-1 rounded-lg bg-[#f1ecff] px-2 py-1 text-sm leading-5 text-[#6c47ff]">
-              <span className="flex size-4 items-center justify-center rounded bg-[#6c47ff] text-[10px] font-bold leading-none text-white">
+            <span className="flex items-center gap-1 rounded-lg bg-brand-soft px-2 py-1 text-sm leading-5 text-brand">
+              <span className="flex size-4 items-center justify-center rounded bg-brand text-[10px] font-bold leading-none text-white">
                 IT
               </span>
               ИТ-команда
