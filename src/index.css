@@ -1,0 +1,470 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  /* Shared motion curve for the search field's reveal/handoff choreography, so
+     the filter bar and the suggestions popover move as one system. */
+  --ease-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  /* For motion that folds away rather than reveals. `--ease-soft` is an
+     ease-out: it throws most of the distance in the first moments, which is
+     what makes a reveal feel eager — and what makes a collapse feel like a
+     jerk. This one is symmetric: it leaves rest gently and arrives gently. */
+  --ease-settle: cubic-bezier(0.45, 0, 0.55, 1);
+
+  /* The push/pop curve. Not `--ease-soft`: that one is tuned for a small
+     reveal a few dozen pixels long, and over a full screen width its long tail
+     reads as the screen being dragged rather than thrown. This is the curve a
+     phone's own navigation stack uses — nearly all the travel is spent early,
+     and it arrives without a bounce. */
+  --ease-nav: cubic-bezier(0.32, 0.72, 0, 1);
+  --duration-nav: 350ms;
+
+  /* The lift under a phone's bottom action bar. Cast upward: there is nothing
+     below it to fall on. Only the phone uses it — on a wider screen the bar is
+     one edge of a laid-out page and a hairline says so, while on a phone it is
+     a panel resting on the content and needs to look like it. */
+  --shadow-bar: 0 -4px 16px rgb(13 21 32 / 0.08);
+
+  /* Ground */
+  --color-background: #ffffff;
+  --color-foreground: #0d1520;
+
+  /* Surfaces */
+  --color-surface: #ffffff;
+  --color-surface-muted: #f7f9fb;
+
+  /* Text */
+  --color-muted: #768694;
+  --color-subtle: #6a7885;
+  --color-faint: #aabbca;
+  --color-chip-foreground: #5e6c77;
+
+  /* Structure. Both steps stay deliberately quiet: on a white ground a hairline
+     only has to separate surfaces, and anything darker starts drawing boxes the
+     eye has to parse before it gets to the content. `strong` is the card
+     outline (usually at 70%) and the hover step; `border` is everything else. */
+  --color-border: #e2e8ef;
+  --color-border-strong: #d3dce5;
+
+  /* Neutral chip / fill */
+  --color-chip: #f1f4f9;
+  --color-chip-hover: #e9eef6;
+
+  /* Accents */
+  --color-brand: #6c47ff;
+  --color-brand-soft: #ece7ff;
+  --color-danger: #ff4d3a;
+  /* The blue that markers, checkboxes and selected states already used as a
+     literal in a dozen places. Tokenised here; call sites can migrate as they
+     are touched. */
+  --color-info: #0070ff;
+  --color-success: #00a757;
+  --color-success-soft: #e7f7ee;
+  --color-accent: #883be9;
+  --color-accent-soft: #f7f4ff;
+}
+
+:root {
+  color-scheme: light;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* Required by Base UI's drawer: on iOS Safari its backdrop is absolutely
+     positioned and only covers the viewport if `body` is a positioned
+     ancestor. Harmless everywhere else. */
+  position: relative;
+}
+
+@layer components {
+  /* The dissolve at a scroller's edge, painted over the chips rather than
+     masked into them: a mask would apply to the pinned filters button too, and
+     it is the one thing that must stay solid. Over an exact `surface` backdrop
+     paint and mask look identical anyway.
+
+     The alpha ramp is eased (`t²(3−2t)`), not linear. A constant rate lets the
+     eye catch both ends of the fade — where it starts falling and where it
+     stops — and two soft edges read as a band rather than as a dissolve. */
+  .edge-fade-start {
+    background-image: linear-gradient(
+      to right,
+        color-mix(in srgb, var(--color-surface) 100.0%, transparent) 0.0%,
+        color-mix(in srgb, var(--color-surface) 95.7%, transparent) 12.5%,
+        color-mix(in srgb, var(--color-surface) 84.4%, transparent) 25.0%,
+        color-mix(in srgb, var(--color-surface) 68.4%, transparent) 37.5%,
+        color-mix(in srgb, var(--color-surface) 50.0%, transparent) 50.0%,
+        color-mix(in srgb, var(--color-surface) 31.6%, transparent) 62.5%,
+        color-mix(in srgb, var(--color-surface) 15.6%, transparent) 75.0%,
+        color-mix(in srgb, var(--color-surface) 4.3%, transparent) 87.5%,
+        color-mix(in srgb, var(--color-surface) 0.0%, transparent) 100.0%
+    );
+  }
+
+  .edge-fade-end {
+    background-image: linear-gradient(
+      to left,
+        color-mix(in srgb, var(--color-surface) 100.0%, transparent) 0.0%,
+        color-mix(in srgb, var(--color-surface) 95.7%, transparent) 12.5%,
+        color-mix(in srgb, var(--color-surface) 84.4%, transparent) 25.0%,
+        color-mix(in srgb, var(--color-surface) 68.4%, transparent) 37.5%,
+        color-mix(in srgb, var(--color-surface) 50.0%, transparent) 50.0%,
+        color-mix(in srgb, var(--color-surface) 31.6%, transparent) 62.5%,
+        color-mix(in srgb, var(--color-surface) 15.6%, transparent) 75.0%,
+        color-mix(in srgb, var(--color-surface) 4.3%, transparent) 87.5%,
+        color-mix(in srgb, var(--color-surface) 0.0%, transparent) 100.0%
+    );
+  }
+
+  /* Scrollbars: hidden at rest, revealed only while hovered/scrolling. */
+  .scroll-area {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    /* Reaching the end of a list inside a drawer shouldn't hand the remaining
+       scroll to the page behind it — the page is not what the user is reading,
+       and on a phone that chaining is also what turns a flick into a pull that
+       dismisses the sheet. */
+    overscroll-behavior: contain;
+  }
+  .scroll-area:hover,
+  .scroll-area:focus-within {
+    scrollbar-color: var(--color-border) transparent;
+  }
+  .scroll-area::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  .scroll-area::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    border: 3px solid transparent;
+    border-radius: 9999px;
+    background-clip: content-box;
+  }
+  .scroll-area:hover::-webkit-scrollbar-thumb,
+  .scroll-area:focus-within::-webkit-scrollbar-thumb {
+    background-color: var(--color-border);
+  }
+
+  /* --------------------------------------------------------------- drawer */
+
+  /* The drawer's geometry and motion live here rather than in utility classes
+     because they are keyed on Base UI's own state attributes — swipe
+     direction, `data-swiping`, `data-starting-style` — and the arbitrary
+     variant spelling of that runs to several hundred characters per line. It
+     also closes a hazard: `cn` joins class strings without merging them, so two
+     competing `transition-*` utilities on one element are settled by stylesheet
+     order rather than by choice. Here each property is written once.
+
+     The variants never overlap: `.drawer-sheet` rules are all qualified by a
+     direction, `.drawer-rail` by nothing, so neither can shadow the other. */
+
+  .drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background-color: color-mix(
+      in srgb,
+      var(--color-foreground) 25%,
+      transparent
+    );
+    /* Tied to the gesture rather than to the open flag: drag the sheet a third
+       of the way down and the page behind is a third of the way back. A
+       backdrop that holds full strength until release makes the drag read as
+       being previewed rather than performed. */
+    opacity: calc(1 - var(--drawer-swipe-progress, 0));
+    transition: opacity 300ms var(--ease-soft);
+  }
+
+  .drawer-backdrop[data-starting-style],
+  .drawer-backdrop[data-ending-style] {
+    opacity: 0;
+  }
+
+  .drawer-popup {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-surface);
+    pointer-events: auto;
+    /* Focus is placed here programmatically so the panel's contents are
+       reachable; that is not the user tabbing to the container, so a ring on it
+       is noise. Controls within keep their own. */
+    outline: none;
+  }
+
+  /* -------- sheet: a panel that slides in from an edge and can be thrown out */
+
+  .drawer-sheet {
+    transition: transform 300ms var(--ease-soft);
+  }
+
+  /* While a finger is down the transform already *is* the finger's position;
+     transitioning it as well would make the panel trail the gesture. */
+  .drawer-sheet[data-swiping],
+  .drawer-backdrop[data-swiping] {
+    transition-duration: 0s;
+  }
+
+  .drawer-sheet[data-swiping] {
+    user-select: none;
+  }
+
+  /* A flick closes in proportion to how hard it was thrown — that is what
+     `--drawer-swipe-strength` measures. Floored, because a strength near zero
+     otherwise cuts the panel off within a frame or two, which registers as the
+     sheet vanishing rather than leaving. */
+  .drawer-sheet[data-ending-style],
+  .drawer-backdrop[data-ending-style] {
+    transition-duration: max(
+      140ms,
+      calc(var(--drawer-swipe-strength, 1) * 300ms)
+    );
+  }
+
+  /* Side drawers: full height, fixed width, rounded on the inner edge. */
+  .drawer-sheet[data-swipe-direction="left"],
+  .drawer-sheet[data-swipe-direction="right"] {
+    top: 0;
+    bottom: 0;
+    width: min(420px, 100vw - 3rem);
+    box-shadow: 0 12px 48px -12px rgb(13 21 32 / 0.24);
+    transform: translateX(var(--drawer-swipe-movement-x, 0px));
+  }
+
+  .drawer-sheet[data-swipe-direction="right"] {
+    right: 0;
+    border-top-left-radius: 28px;
+    border-bottom-left-radius: 28px;
+  }
+
+  .drawer-sheet[data-swipe-direction="right"][data-starting-style],
+  .drawer-sheet[data-swipe-direction="right"][data-ending-style] {
+    transform: translateX(100%);
+  }
+
+  .drawer-sheet[data-swipe-direction="left"] {
+    left: 0;
+    border-top-right-radius: 28px;
+    border-bottom-right-radius: 28px;
+  }
+
+  .drawer-sheet[data-swipe-direction="left"][data-starting-style],
+  .drawer-sheet[data-swipe-direction="left"][data-ending-style] {
+    transform: translateX(-100%);
+  }
+
+  /* Bottom sheet. `--bleed` is the strip of panel that lives below the fold:
+     the sheet is built that much taller and pulled down by the same amount, so
+     an overshoot at the top of a drag lifts the spare strip into view instead
+     of lifting the sheet's real bottom edge off the screen and showing the page
+     through the gap. */
+  .drawer-sheet[data-swipe-direction="down"] {
+    --bleed: 3rem;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin-bottom: calc(var(--bleed) * -1);
+    max-height: calc(100dvh - 6rem + var(--bleed));
+    padding-bottom: calc(var(--bleed) + env(safe-area-inset-bottom, 0px));
+    border-top-left-radius: 28px;
+    border-top-right-radius: 28px;
+    box-shadow: 0 -8px 48px -12px rgb(13 21 32 / 0.24);
+    transform: translateY(var(--drawer-swipe-movement-y, 0px));
+  }
+
+  /* Only the visible part travels: the bleed is already off-screen, so a full
+     100% would leave a band of it standing above the bottom edge. */
+  .drawer-sheet[data-swipe-direction="down"][data-starting-style],
+  .drawer-sheet[data-swipe-direction="down"][data-ending-style] {
+    transform: translateY(calc(100% - var(--bleed) + 2px));
+  }
+
+  /* Full-height sheet: pinned under a fixed inset instead of sized to its
+     content, so a strip of the page stays visible above it and the sheet reads
+     as covering the page rather than replacing it. For content that is long or
+     changes height — a content-sized sheet that regrows as sections open shifts
+     everything the user is already reading. The inset clears the status bar on
+     a notched phone and is a plain 32px everywhere else. */
+  .drawer-sheet.drawer-sheet-full[data-swipe-direction="down"] {
+    top: calc(env(safe-area-inset-top, 0px) + 2rem);
+    max-height: none;
+  }
+
+  /* The grab affordance, drawn only where the sheet is actually grabbed by its
+     top edge. The direction is already on the popup, so the handle never has to
+     be told which drawer it is in — one element, no prop to keep in step. */
+  .drawer-grab {
+    display: none;
+  }
+
+  .drawer-sheet[data-swipe-direction="down"] .drawer-grab {
+    display: flex;
+  }
+
+  /* ----------------------------------------------------------- nav stack */
+
+  /* Two screens sliding over one another, the way a phone's navigation stack
+     does it. Both layers fill the same box and are told apart only by which
+     one moves how far.
+
+     The whole effect is that they move at *different rates*: the arriving
+     screen crosses the full width while the one it covers gives up a third of
+     it. Matched speeds read as a single filmstrip scrolling past; a third is
+     enough for the eye to read two surfaces, one behind the other. */
+  .nav-layer {
+    position: absolute;
+    inset: 0;
+  }
+
+  .nav-base {
+    transition: transform var(--duration-nav) var(--ease-nav);
+  }
+
+  .nav-base[data-covered] {
+    transform: translateX(-30%);
+  }
+
+  /* The covered screen also dims, and the shade is part of that screen rather
+     than a layer between the two.
+
+     That is the whole architectural point. A separate scrim element would be a
+     third thing to start, run and stop on the same clock as the slide, with its
+     own mount and unmount to arrange — and two clocks drift, which reads as the
+     shade arriving after the screen has already left. Here there is one state
+     flip, `data-covered`, and both the movement and the shade are declared off
+     it with one duration and one curve. They cannot come apart.
+
+     It also rides along: the pseudo-element sits inside the transformed layer,
+     so the shade travels with the screen it belongs to instead of staying
+     behind as a rectangle over whatever is underneath. */
+  .nav-base::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-color: var(--color-foreground);
+    opacity: 0;
+    transition: opacity var(--duration-nav) var(--ease-nav);
+  }
+
+  .nav-base[data-covered]::after {
+    opacity: 0.12;
+  }
+
+  /* Opaque, and it has to be: the covered screen is still painted underneath,
+     which is the only reason there is anything to parallax.
+
+     The shadow off its leading edge is what separates the two screens into two
+     cards rather than one image sliding over another. It needs no state of its
+     own: the shadow falls outside the box, to the left, so once the screen has
+     arrived it lies past the container's edge and the clip removes it. It is
+     visible exactly while the screen is somewhere in the middle — on the way in
+     and on the way back out alike.
+
+     Deliberately no rounded leading corner. On a phone that corner works
+     because the app *is* the screen, and iOS cuts it to the display's own
+     radius; a page in a browser tab sits below the chrome, nowhere near the
+     physical corner, so the same curve would be decoration in the wrong place —
+     and on a square display it opens a wedge of the dimmed screen behind, which
+     reads as a rendering fault rather than a shape. */
+  /* Two layers rather than one. A single shadow has to be both the edge and the
+     depth, and it can only do one: wide enough to read as depth and it smears,
+     tight enough to look clean and it turns into a dark stripe. So the hairline
+     gives the screen a definite edge — the two surfaces are the same white, and
+     without it the card dissolves into the one behind it — and the wide, faint
+     one does the falling-off. */
+  .nav-overlay {
+    background-color: var(--color-background);
+    box-shadow:
+      -1px 0 1px rgb(13 21 32 / 0.05),
+      -6px 0 16px -2px rgb(13 21 32 / 0.09);
+  }
+
+  /* Keyframes rather than a transition, because these run on mount and unmount.
+     A transition needs the element to paint once at its starting value before
+     the class changes — the two-frame dance every hand-rolled version of this
+     gets wrong. An animation starts from its own first frame. It also ends with
+     an `animationend` event, so the exit unmounts on the animation the browser
+     actually ran instead of on a duration copied into a timer that can drift
+     out of step with the stylesheet. */
+  .nav-overlay[data-state="entering"] {
+    animation: nav-enter var(--duration-nav) var(--ease-nav);
+  }
+
+  .nav-overlay[data-state="leaving"] {
+    animation: nav-leave var(--duration-nav) var(--ease-nav) forwards;
+  }
+
+  /* ------------ rail: a panel that widens in place over a collapsed sidebar */
+
+  /* It shares the rail's left edge and inner geometry, so the icons never move:
+     only the width changes and the labels are revealed. Sliding it in instead
+     makes the icons fly in from off-screen, and the result reads as a second
+     copy of the menu appearing over the first rather than the same one
+     unfolding.
+
+     Closing dissolves rather than running the width backwards. A reverse clip
+     chops the labels from the right, mid-letter; fading uncovers the real rail
+     underneath — whose icons sit at exactly the same x — so the labels melt away
+     while the icons appear to stay put. The two widths must stay in step with
+     `Sidebar`'s own. */
+  .drawer-rail {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 260px;
+    overflow: hidden;
+    border-right: 1px solid var(--color-border);
+    box-shadow: 8px 0 32px -16px rgb(13 21 32 / 0.2);
+    transition:
+      width 200ms var(--ease-soft),
+      opacity 200ms var(--ease-soft);
+  }
+
+  .drawer-rail[data-starting-style] {
+    width: 81px;
+  }
+
+  .drawer-rail[data-ending-style] {
+    opacity: 0;
+  }
+}
+
+/* One direction for both, because this stack is one screen deep: the detail
+   always arrives from the right and always leaves to the right, and the feed
+   below never changes role. A deeper stack would need these mirrored — the page
+   being covered on the way in is the page being uncovered on the way back. */
+@keyframes nav-enter {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes nav-leave {
+  to {
+    transform: translateX(100%);
+  }
+}

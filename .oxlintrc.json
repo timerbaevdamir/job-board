@@ -1,0 +1,25 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "typescript", "jsx-a11y", "import"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "perf": "warn"
+  },
+  "env": { "browser": true, "es2024": true },
+  "rules": {
+    "react/exhaustive-deps": "warn",
+    "react/rules-of-hooks": "error",
+    "no-unused-vars": "warn",
+
+    "react/react-in-jsx-scope": "off",
+
+    "import/no-unassigned-import": "off",
+
+    "react/no-array-index-key": "off",
+
+    "jsx-a11y/prefer-tag-over-role": "off",
+    "jsx-a11y/no-noninteractive-element-to-interactive-role": "off"
+  },
+  "ignorePatterns": ["dist", "node_modules", "imports"]
+}

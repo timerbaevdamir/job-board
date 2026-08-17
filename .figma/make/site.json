@@ -1,0 +1,10 @@
+{
+  "description": "This job board application features a structured interface with a fixed sidebar and distinct scrolling areas, enhancing user navigation and job search efficiency.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
