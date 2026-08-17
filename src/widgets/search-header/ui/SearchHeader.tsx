@@ -15,7 +15,17 @@ export function SearchHeader() {
   return (
     <div className="sticky top-0 z-20 -mx-4 px-4 pt-4 sm:-mx-8 sm:px-8 sm:pt-6">
       <HeaderFade />
-      <SearchField filters={<FilterBar />} />
+      {/* Lifted above the fade here rather than in the field.
+          `HeaderFade` is a positioned layer, so anything static beside it
+          paints underneath — the gradient is opaque at the top, so the field's
+          own top edge washes out while the chips lower down survive. The wide
+          field escaped that by accident: it is absolutely positioned with a
+          z-index for its own reasons, and the phone's, which is a plain card,
+          had no such accident to inherit. Whatever this header carries belongs
+          over its own backdrop, so the header says so once. */}
+      <div className="relative z-10">
+        <SearchField filters={<FilterBar />} />
+      </div>
     </div>
   )
 }
