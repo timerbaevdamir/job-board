@@ -16,6 +16,28 @@ import { LISTBOX_ID, optionId, SuggestionList } from "./SuggestionList"
 import { SEARCH_CARD } from "./searchCard"
 
 /**
+ * Whether this document owns the viewport it is measuring.
+ *
+ * The keyboard provider works out how much of the screen a software keyboard
+ * has taken by reading `visualViewport`. Inside a frame that reading is not
+ * ours to make: engines report the *top-level* page's visual viewport there,
+ * and a frame that is also CSS-scaled hands back numbers scaled with it. The
+ * provider then reserves room for a keyboard that does not exist, and the sheet
+ * stops part-way down the screen — which is exactly what a portfolio embedding
+ * this app at 0.8 scale shows.
+ *
+ * A framed copy is a demonstration; nobody types into it on a phone. Top level
+ * is where the keyboard is real and where the measurement belongs to us.
+ */
+const ownsViewport = window.self === window.top
+
+/** The provider, but only where its premise holds. */
+function KeyboardAware({ children }: { children: ReactNode }) {
+  if (!ownsViewport) return <>{children}</>
+  return <DrawerVirtualKeyboardProvider>{children}</DrawerVirtualKeyboardProvider>
+}
+
+/**
  * Search on a phone: the field in the page is a button, and the search itself
  * happens in a sheet over the whole screen.
  *
@@ -140,7 +162,7 @@ function SearchSheet({
       }}
     >
       {/* The one drawer in the app that exists to be typed into. */}
-      <DrawerVirtualKeyboardProvider>
+      <KeyboardAware>
         <DrawerContent size="full" initialFocus={inputProps.ref}>
           <div className="flex shrink-0 items-center gap-1 px-3 pb-2 pt-1">
             <label className="flex min-w-0 flex-1 items-center gap-2.5 rounded-2xl bg-chip px-3 py-2.5">
@@ -195,7 +217,7 @@ function SearchSheet({
             className="scroll-area min-h-0 flex-1 overflow-y-auto p-2"
           />
         </DrawerContent>
-      </DrawerVirtualKeyboardProvider>
+      </KeyboardAware>
     </Drawer>
   )
 }

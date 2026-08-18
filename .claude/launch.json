@@ -6,6 +6,12 @@
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["run", "dev"],
       "port": 8443
+    },
+    {
+      "name": "portfolio-dev",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--dir", "/Users/damir/Documents/portfolio", "dev"],
+      "port": 5173
     }
   ]
 }
