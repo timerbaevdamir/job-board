@@ -163,7 +163,24 @@ function SearchSheet({
     >
       {/* The one drawer in the app that exists to be typed into. */}
       <KeyboardAware>
-        <DrawerContent size="full" initialFocus={inputProps.ref}>
+        <DrawerContent
+          size="full"
+          // Focused by hand rather than by handing over the ref, for the sake
+          // of one option the ref form cannot carry: `preventScroll`.
+          //
+          // Bringing a focused element into view is something the browser does
+          // through every scrollable ancestor it has — and when this app is
+          // embedded, one of those ancestors is somebody else's page. Opening
+          // the search would jump the host's scroll to wherever the frame sits.
+          // Nothing here needs to be scrolled to: the sheet already covers the
+          // screen, and the field is at the top of it.
+          //
+          // Returning `false` tells Base UI the focus has been handled.
+          initialFocus={() => {
+            inputProps.ref.current?.focus({ preventScroll: true })
+            return false
+          }}
+        >
           <div className="flex shrink-0 items-center gap-1 px-3 pb-2 pt-1">
             <label className="flex min-w-0 flex-1 items-center gap-2.5 rounded-2xl bg-chip px-3 py-2.5">
               <SearchIcon className="size-5 shrink-0 text-subtle" />
