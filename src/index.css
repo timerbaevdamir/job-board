@@ -353,6 +353,24 @@ body {
     display: flex;
   }
 
+  /* Embedded: the same layout, positioned differently.
+   *
+   * A browser mis-rasterises `position: fixed` content inside a frame that has
+   * been CSS-scaled — the box measures and hit-tests at its full size and
+   * paints part of the way down, so a full-height sheet loses its bottom. It is
+   * a paint bug, not a layout one, and it is specific to `fixed`.
+   *
+   * `absolute` is exact here rather than approximate: this app never scrolls
+   * its document (every scroller is internal), `body` is positioned and fills
+   * the viewport, so an absolutely positioned child of it occupies the same box
+   * a fixed one would. Outside a frame nothing changes — `fixed` is still the
+   * honest description, and this override never applies. */
+  [data-framed] .drawer-viewport,
+  [data-framed] .drawer-backdrop,
+  [data-framed] .drawer-popup {
+    position: absolute;
+  }
+
   /* ----------------------------------------------------------- nav stack */
 
   /* Two screens sliding over one another, the way a phone's navigation stack

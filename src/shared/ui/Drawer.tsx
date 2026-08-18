@@ -105,7 +105,7 @@ export function DrawerContent({
       {scrim && <Base.Backdrop className="drawer-backdrop" />}
       <Base.Viewport
         className={cn(
-          "fixed inset-0 z-50",
+          "drawer-viewport fixed inset-0 z-50",
           // Without a scrim the viewport must not intercept pointer events, or
           // an invisible sheet would cover the page it is supposed to leave
           // usable. The panel itself opts back in.
