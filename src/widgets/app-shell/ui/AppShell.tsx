@@ -70,11 +70,16 @@ export function AppShell({
     // A column on mobile so the bar can be a sibling of the content: the scroll
     // area above is then already sized to exclude it, and nothing has to
     // reserve padding or measure the bar's height.
+    //
+    // `h-dvh`, not `h-screen`: 100vh is the large viewport, so on iOS Safari
+    // the tab bar paints behind the address bar. dvh tracks the visible
+    // height as that chrome shows and hides; the home-indicator inset on
+    // the bar itself is separate.
     <div
       className={
         mode === "mobile"
-          ? "flex h-screen flex-col overflow-hidden bg-background"
-          : "flex h-screen overflow-hidden bg-background"
+          ? "flex h-dvh flex-col overflow-hidden bg-background"
+          : "flex h-dvh overflow-hidden bg-background"
       }
     >
       {mode !== "mobile" && (

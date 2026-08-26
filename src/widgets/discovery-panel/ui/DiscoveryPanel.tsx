@@ -266,7 +266,7 @@ export function DiscoveryPanel() {
               >
                 <span className="text-foreground">{top.label}</span>
                 {more > 0 && (
-                  <span className="font-normal text-muted">
+                  <span className="font-semibold text-muted">
                     {" "}
                     плюс ещё {more}
                   </span>

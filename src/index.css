@@ -124,7 +124,12 @@
 html,
 body,
 #root {
+  /* 100% first so an engine without dvh still fills the frame; 100dvh so
+     iOS Safari's collapsing chrome is not counted as layout height. 100vh
+     (and `h-screen`) is the large viewport — the tab bar then paints behind
+     the address bar. */
   height: 100%;
+  height: 100dvh;
 }
 
 body {
