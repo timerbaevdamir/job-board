@@ -5,6 +5,7 @@ import { DevPage } from "@/pages/dev"
 import { ApplicationsProvider } from "@/features/apply"
 import { SavedProvider } from "@/features/save-job"
 import { SearchProvider } from "@/features/job-search"
+import { SnackbarProvider } from "@/shared/ui/Snackbar"
 import { useRoute } from "@/shared/lib/router"
 
 // Seed favourites from the mock data; kept here so the feature stays data-agnostic.
@@ -23,20 +24,22 @@ export default function App() {
   const route = useRoute()
 
   return (
-    <ApplicationsProvider>
-      <SavedProvider initialSaved={INITIAL_SAVED}>
-        <SearchProvider>
-          {route.name === "dev" ? (
-            <DevPage />
-          ) : route.name === "appeals" ? (
-            <AppealsPage appealId={route.appealId} />
-          ) : (
-            <JobBoardPage
-              openJobId={route.name === "job" ? route.jobId : null}
-            />
-          )}
-        </SearchProvider>
-      </SavedProvider>
-    </ApplicationsProvider>
+    <SnackbarProvider>
+      <ApplicationsProvider>
+        <SavedProvider initialSaved={INITIAL_SAVED}>
+          <SearchProvider>
+            {route.name === "dev" ? (
+              <DevPage />
+            ) : route.name === "appeals" ? (
+              <AppealsPage appealId={route.appealId} />
+            ) : (
+              <JobBoardPage
+                openJobId={route.name === "job" ? route.jobId : null}
+              />
+            )}
+          </SearchProvider>
+        </SavedProvider>
+      </ApplicationsProvider>
+    </SnackbarProvider>
   )
 }

@@ -17,9 +17,9 @@ export function AddressMap({
   return (
     <section className="flex flex-col gap-3">
       <SectionHeading>Адрес</SectionHeading>
-      <div className="overflow-hidden rounded-2xl border border-border bg-surface">
+      <div className="overflow-hidden rounded-3xl border border-border bg-surface">
         {mapImage && (
-          <div className="relative">
+          <div className="relative overflow-hidden rounded-b-3xl">
             <img
               src={mapImage}
               alt="Карта расположения офиса"

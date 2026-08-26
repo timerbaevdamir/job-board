@@ -1,16 +1,24 @@
-import { Fragment, useEffect, useRef, useState, type ReactNode } from "react"
-import { JobCard, JobCardSkeleton, type SortId } from "@/entities/job"
+import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
+import {
+  JobCard,
+  JobCardSkeleton,
+  jobMatchesFeed,
+  type FeedId,
+  type SortId,
+} from "@/entities/job"
 import { useSaved } from "@/features/save-job"
 import { useApplications } from "@/features/apply"
 import { useSearch } from "@/features/job-search"
+import { useSnackbar } from "@/shared/ui/Snackbar"
 import {
   BellIcon,
-  CheckIcon,
   ChevronDownIcon,
   SearchIcon,
 } from "@/shared/ui/icons"
+import { OptionRow, RadioMark } from "@/shared/ui/OptionRow"
 import { cn } from "@/shared/lib/cn"
 import { vacancies } from "@/shared/lib/plural"
+import { FeedTabs } from "./FeedTabs"
 
 const SORTS: { id: SortId; label: string }[] = [
   { id: "match", label: "По соответствию" },
@@ -26,6 +34,7 @@ function FeedToolbar() {
   const [sortOpen, setSortOpen] = useState(false)
   const [following, setFollowing] = useState(false)
   const sortRef = useRef<HTMLDivElement>(null)
+  const { show } = useSnackbar()
   // Sorting is a server concern — it re-runs the query. Subscribing is not.
   const { loading, total, sort, setSort } = useSearch()
 
@@ -77,20 +86,17 @@ function FeedToolbar() {
           {sortOpen && (
             <div className="absolute right-0 top-full z-30 mt-2 w-56 overflow-hidden rounded-2xl border border-border bg-background p-2 shadow-popover">
               {SORTS.map((s) => (
-                <button
+                <OptionRow
                   key={s.id}
-                  type="button"
+                  selected={s.id === sort}
                   onClick={() => {
                     setSort(s.id)
                     setSortOpen(false)
                   }}
-                  className="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm leading-5 text-foreground transition-colors hover:bg-black/[0.04]"
+                  start={<RadioMark checked={s.id === sort} />}
                 >
-                  {s.label}
-                  {s.id === sort && (
-                    <CheckIcon className="size-4 text-info" strokeWidth={3} />
-                  )}
-                </button>
+                  <span className="text-sm leading-5">{s.label}</span>
+                </OptionRow>
               ))}
             </div>
           )}
@@ -100,7 +106,15 @@ function FeedToolbar() {
         <button
           type="button"
           aria-pressed={following}
-          onClick={() => setFollowing((v) => !v)}
+          onClick={() => {
+            const next = !following
+            setFollowing(next)
+            show({
+              title: next
+                ? "Вы подписались на поиск"
+                : "Вы отписались от поиска",
+            })
+          }}
           className={cn(
             "flex shrink-0 items-center gap-2 text-base leading-[22px] transition-colors",
             following ? "text-info" : "text-foreground hover:text-muted",
@@ -141,7 +155,8 @@ export function JobList({
   slotAfter = 1,
 }: {
   onSelect: (id: string) => void
-  /** In the search state the toolbar replaces the "Вакансии для вас" heading. */
+  /** In the search state a count/sort toolbar sits above the cards; otherwise
+      the role-feed tabs do. */
   searching?: boolean
   /** Optional node interleaved into the feed after the {@link slotAfter} card. */
   slot?: ReactNode
@@ -150,30 +165,30 @@ export function JobList({
   const { isSaved, toggleSaved } = useSaved()
   const { isApplied, apply } = useApplications()
   const { results, loading } = useSearch()
+  const [feed, setFeed] = useState<FeedId>("for-you")
+  const cards = useMemo(
+    () =>
+      searching ? results : results.filter((job) => jobMatchesFeed(job, feed)),
+    [searching, results, feed],
+  )
 
   return (
     <section className="flex flex-col gap-4">
-      {searching ? (
-        <FeedToolbar />
-      ) : (
-        <h2 className="text-[28px] font-semibold leading-10 tracking-[-0.35px] text-foreground">
-          Вакансии для вас
-        </h2>
-      )}
+      {searching ? <FeedToolbar /> : <FeedTabs value={feed} onChange={setFeed} />}
 
       {loading ? (
         // Request in flight: skeleton cards stand in for results (the
         // interleaved slot too — it belongs to the "arrived" feed).
-        <div aria-busy className="flex flex-col gap-3">
+        <div aria-busy className="flex flex-col gap-4">
           {Array.from({ length: 4 }, (_, i) => (
             <JobCardSkeleton key={i} />
           ))}
         </div>
-      ) : results.length === 0 ? (
+      ) : cards.length === 0 ? (
         <EmptyState />
       ) : (
-        <div className="flex flex-col gap-3">
-          {results.map((job, i) => (
+        <div className="flex flex-col gap-4">
+          {cards.map((job, i) => (
             <Fragment key={job.id}>
               <JobCard
                 job={job}
@@ -183,7 +198,7 @@ export function JobList({
                 onToggleSave={toggleSaved}
                 onApply={apply}
               />
-              {slot && i === slotAfter && slot}
+              {slot && feed === "for-you" && i === slotAfter && slot}
             </Fragment>
           ))}
         </div>

@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from "react"
 import { SUGGESTION_POOL } from "@/entities/job"
+import { filtersVisible } from "@/shared/config/filters"
 import {
   Drawer,
   DrawerClose,
@@ -62,12 +63,14 @@ export function MobileSearch({
 }) {
   const { query, setQuery } = useSearch()
   const [open, setOpen] = useState(false)
+  const showFilters = filtersVisible(query)
 
   return (
     <>
       {/* The same card the wide screen draws, minus everything it does not do
           here: no growing over the feed, no measured height, no overlay. What
-          is left is a button above the filter chips. */}
+          is left is a button — and, once a query is in, the filter chips
+          under it. */}
       <div className={cn(SEARCH_CARD, "shadow-field")}>
         <div className="flex min-h-[52px] items-center gap-3 pl-4 pr-2.5">
           <button
@@ -100,7 +103,7 @@ export function MobileSearch({
             </button>
           )}
         </div>
-        {filters}
+        {showFilters ? filters : null}
       </div>
 
       <SearchSheet

@@ -94,6 +94,17 @@
   --color-success-soft: #e7f7ee;
   --color-accent: #883be9;
   --color-accent-soft: #f7f4ff;
+
+  /* Heading sizes above Tailwind's `xl` (20). `display` is the page title
+     (vacancy H1, kit H1); `title` is the step between that and `xl` — the
+     discovery heading on a phone. Line-height is baked into the text token so
+     a heading doesn't have to remember a matching `leading-*`. */
+  --text-display: 1.75rem;
+  --text-display--line-height: 2.25rem;
+  --text-title: 1.5rem;
+  --text-title--line-height: 2rem;
+  --tracking-display: -0.35px;
+  --tracking-title: -0.2px;
 }
 
 :root {
@@ -130,41 +141,92 @@ body {
 }
 
 @layer components {
-  /* The dissolve at a scroller's edge, painted over the chips rather than
-     masked into them: a mask would apply to the pinned filters button too, and
-     it is the one thing that must stay solid. Over an exact `surface` backdrop
-     paint and mask look identical anyway.
+  /* Header fade with evenly distributed opacity stops, avoiding a dense jump
+     around the midpoint of the gradient. */
+  .header-fade {
+    background-image: linear-gradient(
+      to bottom,
+      var(--color-background) 0%,
+      color-mix(in srgb, var(--color-background) 92%, transparent) 30%,
+      color-mix(in srgb, var(--color-background) 78%, transparent) 50%,
+      color-mix(in srgb, var(--color-background) 58%, transparent) 70%,
+      color-mix(in srgb, var(--color-background) 34%, transparent) 90%,
+      transparent 100%
+    );
+  }
 
-     The alpha ramp is eased (`t²(3−2t)`), not linear. A constant rate lets the
-     eye catch both ends of the fade — where it starts falling and where it
-     stops — and two soft edges read as a band rather than as a dissolve. */
+  /* Clean material fade for the vacancy header. The visible layer is a
+     light gradient; only its upper portion receives backdrop blur, so content
+     stays crisp as it passes through the lower fade instead of turning muddy. */
+  .header-fade-material {
+    background-image: linear-gradient(
+      to bottom,
+      rgb(255 255 255 / 0.9) 0%,
+      rgb(255 255 255 / 0.82) 24%,
+      rgb(255 255 255 / 0.66) 46%,
+      rgb(255 255 255 / 0.44) 66%,
+      rgb(255 255 255 / 0.2) 84%,
+      transparent 100%
+    );
+  }
+
+  .header-fade-material::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: rgb(255 255 255 / 0.2);
+    -webkit-backdrop-filter: blur(14px) saturate(145%);
+    backdrop-filter: blur(14px) saturate(145%);
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      #000 0%,
+      rgb(0 0 0 / 0.9) 32%,
+      rgb(0 0 0 / 0.58) 58%,
+      rgb(0 0 0 / 0.2) 82%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      #000 0%,
+      rgb(0 0 0 / 0.9) 32%,
+      rgb(0 0 0 / 0.58) 58%,
+      rgb(0 0 0 / 0.2) 82%,
+      transparent 100%
+    );
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+  }
+
+  @supports not (backdrop-filter: blur(1px)) {
+    .header-fade-material::before {
+      display: none;
+    }
+  }
+
+  /* Opaque through the arrow, then a short drop — the old smoothstep ramp
+     was still a window at the circle, which read as a hole in outlined chips. */
   .edge-fade-start {
     background-image: linear-gradient(
       to right,
-        color-mix(in srgb, var(--color-surface) 100.0%, transparent) 0.0%,
-        color-mix(in srgb, var(--color-surface) 95.7%, transparent) 12.5%,
-        color-mix(in srgb, var(--color-surface) 84.4%, transparent) 25.0%,
-        color-mix(in srgb, var(--color-surface) 68.4%, transparent) 37.5%,
-        color-mix(in srgb, var(--color-surface) 50.0%, transparent) 50.0%,
-        color-mix(in srgb, var(--color-surface) 31.6%, transparent) 62.5%,
-        color-mix(in srgb, var(--color-surface) 15.6%, transparent) 75.0%,
-        color-mix(in srgb, var(--color-surface) 4.3%, transparent) 87.5%,
-        color-mix(in srgb, var(--color-surface) 0.0%, transparent) 100.0%
+      color-mix(in srgb, var(--color-surface) 100%, transparent) 0%,
+      color-mix(in srgb, var(--color-surface) 100%, transparent) 45%,
+      color-mix(in srgb, var(--color-surface) 88%, transparent) 62%,
+      color-mix(in srgb, var(--color-surface) 45%, transparent) 80%,
+      color-mix(in srgb, var(--color-surface) 0%, transparent) 100%
     );
   }
 
   .edge-fade-end {
     background-image: linear-gradient(
       to left,
-        color-mix(in srgb, var(--color-surface) 100.0%, transparent) 0.0%,
-        color-mix(in srgb, var(--color-surface) 95.7%, transparent) 12.5%,
-        color-mix(in srgb, var(--color-surface) 84.4%, transparent) 25.0%,
-        color-mix(in srgb, var(--color-surface) 68.4%, transparent) 37.5%,
-        color-mix(in srgb, var(--color-surface) 50.0%, transparent) 50.0%,
-        color-mix(in srgb, var(--color-surface) 31.6%, transparent) 62.5%,
-        color-mix(in srgb, var(--color-surface) 15.6%, transparent) 75.0%,
-        color-mix(in srgb, var(--color-surface) 4.3%, transparent) 87.5%,
-        color-mix(in srgb, var(--color-surface) 0.0%, transparent) 100.0%
+      color-mix(in srgb, var(--color-surface) 100%, transparent) 0%,
+      color-mix(in srgb, var(--color-surface) 100%, transparent) 45%,
+      color-mix(in srgb, var(--color-surface) 88%, transparent) 62%,
+      color-mix(in srgb, var(--color-surface) 45%, transparent) 80%,
+      color-mix(in srgb, var(--color-surface) 0%, transparent) 100%
     );
   }
 
@@ -247,6 +309,9 @@ body {
   /* -------- sheet: a panel that slides in from an edge and can be thrown out */
 
   .drawer-sheet {
+    /* The header is an opaque rectangle. Without a clip it paints square
+       over the 28px corner, so a side drawer looks flush-cut at the top. */
+    overflow: hidden;
     transition: transform 300ms var(--ease-soft);
   }
 
@@ -279,7 +344,6 @@ body {
     top: 0;
     bottom: 0;
     width: min(420px, 100vw - 3rem);
-    box-shadow: 0 12px 48px -12px rgb(13 21 32 / 0.24);
     transform: translateX(var(--drawer-swipe-movement-x, 0px));
   }
 
@@ -320,7 +384,6 @@ body {
     padding-bottom: calc(var(--bleed) + env(safe-area-inset-bottom, 0px));
     border-top-left-radius: 28px;
     border-top-right-radius: 28px;
-    box-shadow: 0 -8px 48px -12px rgb(13 21 32 / 0.24);
     transform: translateY(var(--drawer-swipe-movement-y, 0px));
   }
 
@@ -485,7 +548,6 @@ body {
     width: 260px;
     overflow: hidden;
     border-right: 1px solid var(--color-border);
-    box-shadow: 8px 0 32px -16px rgb(13 21 32 / 0.2);
     transition:
       width 200ms var(--ease-soft),
       opacity 200ms var(--ease-soft);

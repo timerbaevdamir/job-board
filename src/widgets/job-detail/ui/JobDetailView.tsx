@@ -1,3 +1,4 @@
+import { useRef } from "react"
 import type { Job } from "@/entities/job"
 import { JOBS, JobCard } from "@/entities/job"
 import { Button } from "@/shared/ui/Button"
@@ -25,6 +26,7 @@ export function JobDetailView({
   onBack: () => void
   onOpen: (id: string) => void
 }) {
+  const titleRef = useRef<HTMLHeadingElement>(null)
   const d = job.detail
   const skills = d?.skills ?? job.tags
   const related = JOBS.filter((j) => j.id !== job.id).slice(0, 3)
@@ -36,14 +38,17 @@ export function JobDetailView({
     // Full-bleed shell: sticky header/footer span the column, the body centers
     // itself. `min-h-full` keeps the footer at the bottom for short content.
     <div className="flex min-h-full flex-col">
-      <DetailHeader job={job} onBack={onBack} />
+      <DetailHeader job={job} onBack={onBack} titleRef={titleRef} />
 
       {/* Centered, padded content column */}
-      <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-4 pb-8 pt-2 sm:px-8">
+      <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-4 pb-8 pt-8 sm:px-8 sm:pt-10">
         {/* Title, salary and spec rows */}
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-3">
-            <h1 className="text-[28px] font-semibold leading-9 tracking-[-0.35px] text-foreground">
+            <h1
+              ref={titleRef}
+              className="text-display font-semibold tracking-display text-foreground"
+            >
               {job.title}
             </h1>
             {job.salary && (
@@ -66,6 +71,8 @@ export function JobDetailView({
               ))}
             </dl>
           )}
+
+          {applied && <AppliedBadge size="md" className="w-full" />}
         </div>
 
         <CompanyCard job={job} />
@@ -145,7 +152,7 @@ export function JobDetailView({
         {related.length > 0 && (
           <section className="flex flex-col gap-3">
             <SectionHeading>Вам подойдут и эти вакансии</SectionHeading>
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-4">
               {related.map((r) => (
                 <JobCard
                   key={r.id}
@@ -173,25 +180,27 @@ export function JobDetailView({
           an edge looks like. Opaque either way; a translucent bar over a white
           feed only reads as a smudge. */}
       <footer className="sticky bottom-0 z-20 rounded-t-[20px] bg-surface shadow-bar md:rounded-none md:border-t md:border-border md:shadow-none">
-        {/* A grid, not a flex row: the two actions carry equal weight and split
-            the width, and a grid track stretches its item without being asked.
-            The flex spelling would be `flex-1` on each button — but `Button`
-            has `shrink-0` baked in and `cn` doesn't merge, so which of the two
-            won would come down to stylesheet order.
-
-            Less room below than above, but only on a phone: there the gap under
-            the buttons is really the tab bar's own centring, so the bar adds
-            little of its own. From `md` the bar ends the page and nothing sits
-            below to lend it space, so it goes back to even. */}
-        <div className="mx-auto grid w-full max-w-3xl grid-cols-2 items-center gap-3 px-4 pb-2 pt-4 sm:px-8 md:pb-4">
-          {applied ? (
-            <AppliedBadge size="lg" />
-          ) : (
+        {/* On a phone the two actions split the width as equal grid tracks —
+            a flex `flex-1` would fight `shrink-0` on `Button`. From `md` they
+            hug their labels and sit on the left of the content column. */}
+        <div
+          className={
+            applied
+              ? "mx-auto w-full max-w-3xl px-4 pb-2 pt-4 sm:px-8 md:flex md:pb-4"
+              : "mx-auto grid w-full max-w-3xl grid-cols-2 items-center gap-3 px-4 pb-2 pt-4 sm:px-8 md:flex md:pb-4"
+          }
+        >
+          {!applied && (
             <Button variant="primary" size="lg" onClick={() => apply(job.id)}>
               Откликнуться
             </Button>
           )}
-          <Button variant="secondary" size="lg">
+          <Button
+            variant="secondary"
+            size="lg"
+            fullWidth={applied}
+            className={applied ? "md:w-auto" : undefined}
+          >
             Контакты
           </Button>
         </div>

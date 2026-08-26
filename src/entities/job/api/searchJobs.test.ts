@@ -3,6 +3,8 @@ import { FILTERS, type FilterSelection } from "@/shared/config/filters"
 import { JOBS } from "./mock"
 import {
   ANY_CITY,
+  CITIES,
+  POPULAR_CITIES,
   countOptions,
   selectJobs,
   type SearchParams,
@@ -208,6 +210,22 @@ describe("catalog and data agree", () => {
       expect(selectJobs(params({ city: job.location })).total).toBeGreaterThan(
         0,
       )
+    }
+  })
+})
+
+describe("cities", () => {
+  it("leads with the sentinel, then popular, without duplicates or remote", () => {
+    expect(CITIES[0]).toBe(ANY_CITY)
+    expect(CITIES.slice(1, 1 + POPULAR_CITIES.length)).toEqual(POPULAR_CITIES)
+    expect(new Set(CITIES).size).toBe(CITIES.length)
+    expect(CITIES).not.toContain("Удалённо")
+  })
+
+  it("keeps every catalog location so a vacancy cannot vanish from the picker", () => {
+    for (const job of JOBS) {
+      if (job.location === "Удалённо") continue
+      expect(CITIES).toContain(job.location)
     }
   })
 })

@@ -62,6 +62,16 @@ export type JobReview = {
   text: string
 }
 
+/** Icon treatment for a {@link JobDetail.properties} row. */
+export type JobPropertyKind = "verified" | "it" | "open" | "rating" | "award"
+
+/** A company-card mark: title, optional supporting line, and which glyph to show. */
+export type JobProperty = {
+  kind: JobPropertyKind
+  label: string
+  sublabel?: string
+}
+
 export type JobDetail = {
   /** Company rating, 0–5. */
   rating?: number
@@ -70,6 +80,11 @@ export type JobDetail = {
   recommendPercent?: number
   /** Label/value spec rows shown under the salary (experience, format, …). */
   specs?: { label: string; value: string }[]
+  /**
+   * Employer marks on the company card. A row always has a {@link JobProperty.label};
+   * {@link JobProperty.sublabel} is optional context under it.
+   */
+  properties?: JobProperty[]
   /** Leading paragraph shown right under the header. */
   intro?: string
   /** Titled bullet blocks — "Мы предлагаем", "Обязанности", etc. */

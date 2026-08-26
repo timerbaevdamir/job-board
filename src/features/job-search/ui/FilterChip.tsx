@@ -21,9 +21,8 @@ function chipLabel(filter: Filter, selected: string[]): string {
  * real bugs when the states were separate branches:
  *
  * - The box is identical, so applying a filter can't change the chip's height
- *   and shove the drawer (and the feed under it) down. The unapplied chip
- *   carries a transparent border precisely so it measures the same as the
- *   outlined one.
+ *   and shove the drawer (and the feed under it) down. Both states carry a
+ *   transparent border, so the fill swap never changes the outer size.
  * - The element is never swapped for a different tag, so the DOM node survives
  *   being applied. Anything anchored to it — the popover — stays anchored.
  *
@@ -51,14 +50,14 @@ export function FilterChip({
     <span
       data-filter-chip={filter.id}
       className={cn(
-        "flex shrink-0 items-center rounded-full border text-sm leading-5 text-foreground transition-colors",
+        "flex shrink-0 items-center rounded-full border text-sm font-semibold leading-5 transition-colors",
+        // `cn` does not merge: text colour lives in the branch, not as a base
+        // class the applied tint is expected to beat.
         applied
-          ? open
-            ? "border-foreground bg-chip"
-            : "border-foreground"
+          ? "border-transparent bg-info/10 text-info hover:bg-info/15"
           : open
-            ? "border-transparent bg-chip-hover"
-            : "border-transparent bg-chip hover:bg-chip-hover",
+            ? "border-transparent bg-chip-hover text-foreground"
+            : "border-transparent bg-chip text-foreground hover:bg-chip-hover",
       )}
     >
       <button
@@ -86,7 +85,7 @@ export function FilterChip({
           type="button"
           aria-label={`Сбросить «${filter.label}»`}
           onClick={onClear}
-          className="flex items-center py-1.5 pr-2 text-subtle transition-colors hover:text-foreground"
+          className="flex items-center py-1.5 pr-2 transition-colors hover:opacity-70"
         >
           <XIcon className="size-4" />
         </button>

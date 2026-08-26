@@ -182,11 +182,19 @@ export function JobCard({
           stretched-link pattern is that everything clickable must outrank it. */}
       <div className="flex items-center justify-between gap-3">
         {/* On a phone the pair spans the card — the heart has moved to the
-            corner, so there is nothing else competing for the row. From `sm`
-            the buttons go back to hugging their labels. */}
-        <div className="relative flex flex-1 items-center gap-3 sm:flex-none">
+            corner, so there is nothing else competing for the row. Applied
+            stacks the informer above Контакты so the contact action can take
+            the full width; from `sm` both sit in a row and hug their labels. */}
+        <div
+          className={cn(
+            "relative flex gap-3",
+            applied
+              ? "flex-1 flex-col sm:flex-none sm:flex-row sm:items-center"
+              : "flex-1 flex-row items-center sm:flex-none",
+          )}
+        >
           {applied ? (
-            <AppliedBadge size="md" />
+            <AppliedBadge size="md" className="w-full sm:w-auto" />
           ) : (
             <Button
               variant="primary"
@@ -201,7 +209,7 @@ export function JobCard({
             variant="secondary"
             size="md"
             onClick={stop}
-            className="flex-1 sm:flex-none"
+            className={applied ? "w-full sm:w-auto" : "flex-1 sm:flex-none"}
           >
             Контакты
           </Button>

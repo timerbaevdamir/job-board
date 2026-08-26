@@ -216,13 +216,91 @@ export const SUGGESTION_POOL: string[] = Array.from(
 )
 
 /**
- * Cities the picker offers: {@link ANY_CITY} first, then every real location in
- * the catalog. "Удалённо" is a work format rather than a place, so it is not
- * offered here — remote vacancies surface under every city anyway.
+ * Cities the picker pins under {@link ANY_CITY}. The rest of the list is
+ * alphabetical; this order is the one a job board actually leads with.
  */
-export const CITIES: string[] = [
-  ANY_CITY,
-  ...Array.from(new Set(JOBS.map((j) => j.location)))
-    .filter((l) => l !== "Удалённо")
-    .sort((a, b) => a.localeCompare(b, "ru")),
+export const POPULAR_CITIES: string[] = [
+  "Москва",
+  "Санкт-Петербург",
+  "Екатеринбург",
+  "Новосибирск",
+  "Казань",
+  "Нижний Новгород",
+  "Краснодар",
+  "Челябинск",
+  "Самара",
+  "Уфа",
+  "Ростов-на-Дону",
+  "Красноярск",
 ]
+
+const MORE_CITIES: string[] = [
+  "Архангельск",
+  "Астрахань",
+  "Барнаул",
+  "Белгород",
+  "Брянск",
+  "Владивосток",
+  "Владимир",
+  "Владимирская область",
+  "Волгоград",
+  "Вологда",
+  "Воронеж",
+  "Грозный",
+  "Иваново",
+  "Ижевск",
+  "Иркутск",
+  "Калининград",
+  "Калуга",
+  "Кемерово",
+  "Киров",
+  "Курск",
+  "Липецк",
+  "Магнитогорск",
+  "Махачкала",
+  "Набережные Челны",
+  "Нижний Тагил",
+  "Новокузнецк",
+  "Омск",
+  "Оренбург",
+  "Орёл",
+  "Пенза",
+  "Пермь",
+  "Рязань",
+  "Саранск",
+  "Саратов",
+  "Смоленск",
+  "Сочи",
+  "Ставрополь",
+  "Сургут",
+  "Тверь",
+  "Тольятти",
+  "Томск",
+  "Тула",
+  "Тюмень",
+  "Ульяновск",
+  "Хабаровск",
+  "Чебоксары",
+  "Череповец",
+  "Чита",
+  "Якутск",
+  "Ярославль",
+]
+
+const popularSet = new Set(POPULAR_CITIES)
+
+const catalogCities = Array.from(new Set(JOBS.map((j) => j.location))).filter(
+  (l) => l !== "Удалённо" && l !== ANY_CITY,
+)
+
+const restCities = Array.from(new Set([...MORE_CITIES, ...catalogCities]))
+  .filter((c) => !popularSet.has(c))
+  .sort((a, b) => a.localeCompare(b, "ru"))
+
+/**
+ * Cities the picker offers: {@link ANY_CITY}, then the popular set in that
+ * order, then everything else alphabetically. Catalog locations are merged in
+ * so a vacancy's city cannot vanish from the list. "Удалённо" is a work format
+ * rather than a place — remote vacancies surface under every city anyway.
+ */
+export const CITIES: string[] = [ANY_CITY, ...POPULAR_CITIES, ...restCities]

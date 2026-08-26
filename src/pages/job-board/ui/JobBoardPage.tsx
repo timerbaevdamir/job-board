@@ -10,6 +10,7 @@ import { InterestingRoles } from "@/widgets/interesting"
 import { useSearch } from "@/features/job-search"
 import { navigate } from "@/shared/lib/router"
 import { useScrollRestoration } from "@/shared/lib/useScrollRestoration"
+import { useLayoutMode } from "@/shared/lib/useLayoutMode"
 
 /**
  * Job board: the feed (or an opened vacancy) plus the discovery rail.
@@ -28,11 +29,12 @@ export function JobBoardPage({ openJobId }: { openJobId: string | null }) {
     ? (JOBS.find((j) => j.id === openJobId) ?? null)
     : null
 
-  // The feed swaps its "Вакансии для вас" heading for the search toolbar as
-  // soon as the user has narrowed anything — by query, by filter, or by city.
-  // None of those require typing any more, and a narrowed feed still has to
-  // report how many results it found and let them be re-sorted.
+  // The feed shows a count/sort toolbar as soon as the user has narrowed
+  // anything — by query, by filter, or by city. On a phone the discovery
+  // block sits above the field while browsing, and leaves once the search
+  // is narrowed: those cards belong to browsing, not to a result list.
   const { query, city, activeFilterCount, searchId } = useSearch()
+  const mode = useLayoutMode()
   const searching =
     query.trim().length > 0 || activeFilterCount > 0 || city !== ANY_CITY
 
@@ -102,14 +104,19 @@ export function JobBoardPage({ openJobId }: { openJobId: string | null }) {
           }
         >
           <div ref={feedRef} className="scroll-area h-full overflow-y-auto">
-            <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 pb-6 sm:px-8">
+            <div className="mx-auto flex w-full max-w-3xl flex-col px-4 pb-6 sm:px-8">
               <SearchHeader />
-              <JobList
-                onSelect={openJobById}
-                searching={searching}
-                slot={<InterestingRoles />}
-                slotAfter={1}
-              />
+              {/* 16 from the field to the first card on a phone; wider
+                  screens need more air under the search. */}
+              <div className="flex flex-col gap-10 pt-4 md:pt-8">
+                {mode === "mobile" && !searching && <DiscoveryPanel />}
+                <JobList
+                  onSelect={openJobById}
+                  searching={searching}
+                  slot={<InterestingRoles />}
+                  slotAfter={1}
+                />
+              </div>
             </div>
           </div>
         </NavStack>
@@ -119,7 +126,7 @@ export function JobBoardPage({ openJobId }: { openJobId: string | null }) {
           column that measures itself against the viewport would overshoot the
           moment anything else shares it. */}
       <aside className="scroll-area hidden h-full w-[336px] shrink-0 overflow-y-auto border-l border-border bg-surface lg:block">
-        <DiscoveryPanel />
+        {mode !== "mobile" && <DiscoveryPanel />}
       </aside>
     </AppShell>
   )

@@ -4,8 +4,8 @@ import {
   ChevronRightIcon,
   SlidersIcon,
 } from "@/shared/ui/icons"
-import { Counter } from "@/shared/ui/Counter"
 import { cn } from "@/shared/lib/cn"
+import { Counter } from "@/shared/ui/Counter"
 import { useLayoutMode } from "@/shared/lib/useLayoutMode"
 import {
   CHIP_FILTERS,
@@ -81,7 +81,7 @@ export function FilterBar() {
   // "did the strip's contents change".
   const { ref, canScrollLeft, canScrollRight, scrollBy } = useFilterScroller(
     true,
-    ordered.map((f) => f.id).join(),
+    `${ordered.map((f) => f.id).join()}:${activeFilterCount}`,
   )
 
   const openPopover = (id: FilterId) => {
@@ -101,132 +101,63 @@ export function FilterBar() {
   }
 
   return (
-    // 4px on top, not 2: the count badge is offset -4px from its button, so a
-    // smaller inset left it hanging above the bar's box — outside the body the
-    // suggestions cover, where it stayed visible over the open list.
-    // The space above the chips belongs to the scroller, not to this row: the
-    // count badge overhangs its button by 4px, and only padding *inside* the
-    // clipping element keeps that overhang out of the clip. Same total height
-    // as before — 6px above, 12px below — just owned by the element that cuts.
     <div className="pb-2.5">
-      {/* `isolate` is what makes the rest of this possible. The layers below
-          need an order — chips, then the dissolve over them, then the pinned
-          button above that, then the arrows — and ordering means `z-index`.
-          Without a stacking context of its own those levels are compared
-          against the whole document, which is how this button once ended up
-          painted over the suggestions panel that covers the entire bar. */}
+      {/* `isolate` keeps the strip's z-index from leaking: this chrome once
+          painted over the suggestions panel that covers the whole bar. */}
       <div className="relative isolate">
-        {/* One markup for both layouts. The only difference between them is
-          whether the filters button travels with the chips or holds its place,
-          and that is what `position: sticky` is: in flow on a phone, pinned to
-          the scrollport's edge from `sm`. A second copy of the button behind a
-          breakpoint would be two things to keep in agreement for no gain.
+        {/* The "all filters" chip is chrome, not a scroll item — sticky
+            inside overflow rubber-bands with the chips in Chrome. From `sm`
+            it sits beside the scroller; on a phone it travels with the chips.
 
-          `pr-2.5` mirrors the button's inset at the far end. Padding inside a
-          scroller only adds room *after* the last item — it doesn't hold chips
-          back from the edge while there is still travel left, so a chip on its
-          way out is still cut by the card's rounded corner rather than by a
-          straight line drawn short of it. */}
-        <div
-          ref={ref}
-          className="flex gap-2 overflow-x-auto pb-0.5 pr-2.5 pt-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        >
-          {/* The wrapper is what sticks: it can hold the opaque backdrop and
-              the 10px inset, which a 36px circle cannot. Above the dissolve, so
-              the button stays solid while the chips passing behind it don't. */}
-          <div className="flex shrink-0 items-center bg-surface pl-2.5 sm:sticky sm:left-0 sm:z-20">
-            <button
-              type="button"
-              aria-label="Все фильтры"
+            The two walls are different objects: left is this chip, right is
+            the card. Each edge is the same 48px cluster (fade + inset arrow)
+            hung on its wall, so a count widening the chip moves the left
+            cluster and cannot desync it. `overscroll-x-none` stops the chips
+            bouncing a hole under the fade. */}
+        <div className="flex min-w-0 items-center sm:gap-2">
+          <div className="relative z-20 hidden shrink-0 pl-2.5 sm:block">
+            <AllFiltersChip
+              count={activeFilterCount}
               onClick={() => setDrawerOpen(true)}
-              className="relative flex size-9 shrink-0 items-center justify-center rounded-full bg-chip text-foreground transition-colors hover:bg-chip-hover"
-            >
-              <SlidersIcon className="size-5" />
-              {/* Offsets put the badge's centre just outside the round button's
-                rim — it is a circle, so `top-0 right-0` would sit the badge
-                well inside the fill. The scroller's own top padding is what
-                keeps the overhang out of its clip. */}
-              {activeFilterCount > 0 && (
-                <Counter
-                  value={activeFilterCount}
-                  size="sm"
-                  tone="info"
-                  className="absolute -right-1 -top-1"
-                />
-              )}
-            </button>
+            />
+            <StripEdge
+              side="start"
+              visible={canScrollLeft}
+              onClick={() => scrollBy(-1)}
+            />
           </div>
 
-          {ordered.map((f) => (
-            <FilterChip
-              key={f.id}
-              filter={f}
-              selected={selectedOf(f.id)}
-              open={openId === f.id}
-              onOpen={() => openPopover(f.id)}
-              onClear={() => handleClear(f.id)}
+          <div className="relative min-w-0 flex-1">
+            <div
+              ref={ref}
+              className="flex min-w-0 items-center gap-2 overflow-x-auto overflow-y-hidden overscroll-x-none pr-2.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              <div className="flex shrink-0 items-center pl-2.5 sm:hidden">
+                <AllFiltersChip
+                  count={activeFilterCount}
+                  onClick={() => setDrawerOpen(true)}
+                />
+              </div>
+
+              {ordered.map((f) => (
+                <FilterChip
+                  key={f.id}
+                  filter={f}
+                  selected={selectedOf(f.id)}
+                  open={openId === f.id}
+                  onOpen={() => openPopover(f.id)}
+                  onClear={() => handleClear(f.id)}
+                />
+              ))}
+            </div>
+
+            <StripEdge
+              side="end"
+              visible={canScrollRight}
+              onClick={() => scrollBy(1)}
             />
-          ))}
+          </div>
         </div>
-
-        {/* Painted over the chips, under the button, above nothing else.
-            The start fade begins where the pinned button ends, so a chip
-            dissolves on its way behind it rather than meeting a hard edge; the
-            end fade sits at the card's edge. Both are `sm:` only — on a phone
-            the button travels with the chips, and there is nothing for them to
-            disappear behind. */}
-        <div
-          aria-hidden
-          className={cn(
-            "edge-fade-start pointer-events-none absolute bottom-0.5 left-[46px] top-1.5 z-10 hidden w-12 transition-opacity duration-300 ease-soft sm:block",
-            canScrollLeft ? "opacity-100" : "opacity-0",
-          )}
-        />
-        <div
-          aria-hidden
-          className={cn(
-            "edge-fade-end pointer-events-none absolute bottom-0.5 right-0 top-1.5 z-10 hidden w-12 transition-opacity duration-300 ease-soft sm:block",
-            canScrollRight ? "opacity-100" : "opacity-0",
-          )}
-        />
-
-        {/* Arrows ride on top of their own fade — the backdrop that keeps a
-            chip from showing around a bare circle. Bounded by the strip's
-            padding rather than centred on it: that padding is asymmetric (6
-            above, 2 below, to clear the count badge), so a centre would sit 2px
-            off the chips it lines up with.
-
-            They grow in rather than just brightening. Opacity alone changes
-            nothing about a shape's size or place, so at these durations it
-            registers as the thing being switched on; a few percent of scale
-            gives the eye an arrival to follow. */}
-        <button
-          type="button"
-          aria-label="Предыдущие фильтры"
-          onClick={() => scrollBy(-1)}
-          className={cn(
-            "absolute bottom-0.5 left-[54px] top-1.5 z-30 my-auto hidden size-8 items-center justify-center rounded-full bg-surface text-foreground shadow-[0_1px_4px_rgba(13,21,32,0.12)] ring-1 ring-black/[0.06] transition-[opacity,transform] duration-200 ease-soft hover:bg-chip motion-reduce:transition-none sm:flex",
-            canScrollLeft
-              ? "scale-100 opacity-100"
-              : "pointer-events-none scale-75 opacity-0",
-          )}
-        >
-          <ChevronLeftIcon className="size-4" />
-        </button>
-
-        <button
-          type="button"
-          aria-label="Следующие фильтры"
-          onClick={() => scrollBy(1)}
-          className={cn(
-            "absolute bottom-0.5 right-2.5 top-1.5 z-30 my-auto hidden size-8 items-center justify-center rounded-full bg-surface text-foreground shadow-[0_1px_4px_rgba(13,21,32,0.12)] ring-1 ring-black/[0.06] transition-[opacity,transform] duration-200 ease-soft hover:bg-chip motion-reduce:transition-none sm:flex",
-            canScrollRight
-              ? "scale-100 opacity-100"
-              : "pointer-events-none scale-75 opacity-0",
-          )}
-        >
-          <ChevronRightIcon className="size-4" />
-        </button>
       </div>
 
       <FilterDrawer open={drawerOpen} onOpenChange={setDrawerOpen} />
@@ -266,3 +197,93 @@ export function FilterBar() {
     </div>
   )
 }
+
+/**
+ * The strip's "all filters" chip: icon, the word, and a count pill when
+ * something is on. Applied wears the same tint as a live category chip.
+ *
+ * The pill is 16px — inside the 20px text line, so applying a filter cannot
+ * grow the chip's height and shove the drawer. It does grow the width; the
+ * left fade/arrow hangs on this chip, so that cluster moves with it rather
+ * than covering the new edge. Tighter right padding when the pill is on: it
+ * already has its own inset, and the uncounted `pr-3.5` on top of that would
+ * leave a hole.
+ */
+function AllFiltersChip({
+  count,
+  onClick,
+}: {
+  count: number
+  onClick: () => void
+}) {
+  const counted = count > 0
+  return (
+    <button
+      type="button"
+      aria-label={counted ? `Фильтры, ${count}` : "Фильтры"}
+      onClick={onClick}
+      className={cn(
+        "flex shrink-0 items-center gap-1 rounded-full border py-1.5 pl-2.5 text-sm font-semibold leading-5 transition-colors",
+        counted
+          ? "border-transparent bg-info/10 pr-2 text-info hover:bg-info/15"
+          : "border-transparent bg-chip pr-3.5 text-foreground hover:bg-chip-hover",
+      )}
+    >
+      <SlidersIcon className="size-4" />
+      Фильтры
+      {counted && <Counter value={count} size="sm" tone="info" />}
+    </button>
+  )
+}
+
+/** Fade + arrow as one 48px cluster. Hung on the wall it belongs to: the
+ *  filters chip on the start, the card on the end. Geometry inside is the
+ *  same — fade to the chips, arrow 8px from the filters chip and 10px
+ *  from the card. */
+function StripEdge({
+  side,
+  visible,
+  onClick,
+}: {
+  side: "start" | "end"
+  visible: boolean
+  onClick: () => void
+}) {
+  const isStart = side === "start"
+  return (
+    <div
+      className={cn(
+        "pointer-events-none absolute inset-y-0 hidden w-12 sm:block",
+        isStart ? "left-full" : "right-0",
+      )}
+    >
+      <div
+        aria-hidden
+        className={cn(
+          "absolute inset-0",
+          isStart ? "edge-fade-start" : "edge-fade-end",
+          visible ? "opacity-100" : "opacity-0",
+        )}
+      />
+      <button
+        type="button"
+        aria-label={isStart ? "Предыдущие фильтры" : "Следующие фильтры"}
+        onClick={onClick}
+        className={cn(
+          "pointer-events-auto absolute inset-y-0 z-10 my-auto flex size-8 items-center justify-center rounded-full bg-surface text-foreground shadow-[0_1px_4px_rgba(13,21,32,0.12)] ring-1 ring-black/[0.06] transition-[opacity,transform] hover:bg-chip motion-reduce:transition-none",
+          isStart ? "left-2" : "right-2.5",
+          visible
+            ? "scale-100 opacity-100 duration-150 ease-soft"
+            : "pointer-events-none scale-95 opacity-0 duration-100 ease-in",
+        )}
+      >
+        {isStart ? (
+          <ChevronLeftIcon className="size-4" />
+        ) : (
+          <ChevronRightIcon className="size-4" />
+        )}
+      </button>
+    </div>
+  )
+}
+

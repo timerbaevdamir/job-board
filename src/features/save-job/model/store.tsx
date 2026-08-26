@@ -6,6 +6,7 @@ import {
   useState,
   type ReactNode,
 } from "react"
+import { useSnackbar } from "@/shared/ui/Snackbar"
 
 type SavedContextValue = {
   isSaved: (id: string) => boolean
@@ -30,18 +31,28 @@ export function SavedProvider({
   children: ReactNode
   initialSaved?: string[]
 }) {
+  const { show } = useSnackbar()
   const [saved, setSaved] = useState<Set<string>>(() => new Set(initialSaved))
 
   const isSaved = useCallback((id: string) => saved.has(id), [saved])
 
-  const toggleSaved = useCallback((id: string) => {
-    setSaved((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
-  }, [])
+  const toggleSaved = useCallback(
+    (id: string) => {
+      const adding = !saved.has(id)
+      setSaved((prev) => {
+        const next = new Set(prev)
+        if (next.has(id)) next.delete(id)
+        else next.add(id)
+        return next
+      })
+      show({
+        title: adding
+          ? "Вакансия добавлена в избранное"
+          : "Вакансия удалена из избранного",
+      })
+    },
+    [saved, show],
+  )
 
   // Memoized so consumers only re-render when the favourites actually change,
   // not on every render of whatever sits above the provider.

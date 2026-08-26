@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState, type RefObject } from "react"
 import type { Job } from "@/entities/job"
 import {
   ArrowLeftIcon,
@@ -6,40 +7,74 @@ import {
   ShareIcon,
 } from "@/shared/ui/icons"
 import { useSaved } from "@/features/save-job"
-import { HeaderFade } from "@/shared/ui/HeaderFade"
 import { cn } from "@/shared/lib/cn"
 
 // Segment of the iOS-style combined control; round hover highlight inside the pill.
 const btn =
   "flex size-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-surface-muted"
 
-/**
- * Sticky full-width header. A background fade fills it — solid at the top edge,
- * ramping to transparent at the bottom — so scrolled content dissolves under it
- * with no hard line. The controls ride on top.
- */
-export function DetailHeader({ job, onBack }: { job: Job; onBack: () => void }) {
+/** Sticky header with a compact title that appears once the page title scrolls behind it. */
+export function DetailHeader({
+  job,
+  onBack,
+  titleRef,
+}: {
+  job: Job
+  onBack: () => void
+  titleRef: RefObject<HTMLHeadingElement | null>
+}) {
+  const headerRef = useRef<HTMLElement>(null)
+  const [titleScrolled, setTitleScrolled] = useState(false)
   const { isSaved, toggleSaved } = useSaved()
   const saved = isSaved(job.id)
+
+  useEffect(() => {
+    const title = titleRef.current
+    const header = headerRef.current
+    const scroller = title?.closest<HTMLElement>(".scroll-area")
+    if (!title || !header || !scroller) return
+
+    const update = () => {
+      setTitleScrolled(title.getBoundingClientRect().top <= header.getBoundingClientRect().bottom)
+    }
+    update()
+    scroller.addEventListener("scroll", update, { passive: true })
+    return () => scroller.removeEventListener("scroll", update)
+  }, [titleRef])
+
   return (
-    <header className="sticky top-0 z-20 pb-4 pt-6">
-      <HeaderFade />
-      <div className="relative z-10 mx-auto flex w-full max-w-3xl items-center justify-between px-4 sm:px-8">
+    <header
+      ref={headerRef}
+      className={cn(
+        "sticky top-0 z-20 bg-background pb-4 pt-4 sm:pb-5 sm:pt-5",
+        titleScrolled && "border-b border-border/70",
+      )}
+    >
+      <div className="relative z-10 mx-auto flex min-h-10 w-full max-w-3xl items-center gap-3 px-4 sm:px-8">
         <button
           type="button"
           onClick={onBack}
           aria-label="Назад"
-          className={cn(btn, "bg-background/60 backdrop-blur-md")}
+          className={cn(btn, "shrink-0")}
         >
           <ArrowLeftIcon className="size-6" />
         </button>
-        <div className="flex items-center overflow-hidden rounded-full bg-background/60 backdrop-blur-md">
+        <span
+          className={cn(
+            "min-w-0 flex-1 truncate text-center text-base font-semibold text-foreground transition-[opacity,transform] duration-200",
+            titleScrolled ? "translate-y-0 opacity-100" : "-translate-y-1 opacity-0",
+          )}
+          aria-hidden={!titleScrolled}
+        >
+          {job.title}
+        </span>
+        <div className="flex shrink-0 items-center overflow-hidden rounded-full">
           <button
             type="button"
             onClick={() => toggleSaved(job.id)}
             aria-pressed={saved}
             aria-label={saved ? "Убрать из избранного" : "В избранное"}
-            className={cn(btn, "active:scale-90")}
+            className={btn}
           >
             <HeartIcon
               className={cn(

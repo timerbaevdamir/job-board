@@ -11,7 +11,7 @@ export function Stars({ value }: { value: number }) {
             <StarIcon
               className="size-4 text-[#d7dde5]"
               strokeWidth={1.5}
-              fill="none"
+              fill="currentColor"
             />
             {fill > 0 && (
               <span

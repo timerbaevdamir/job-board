@@ -1,26 +1,55 @@
-import { useMemo, useRef, useState } from "react"
-import { CITIES, ANY_CITY } from "@/entities/job"
+import { useCallback, useMemo, useRef, useState } from "react"
+import { CITIES, POPULAR_CITIES, ANY_CITY } from "@/entities/job"
 import {
   Drawer,
+  DrawerClose,
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
-  DrawerDescription,
   DrawerTrigger,
   DrawerVirtualKeyboardProvider,
 } from "@/shared/ui/Drawer"
-import { CheckIcon, NavigationIcon, SearchIcon } from "@/shared/ui/icons"
+import { ICON_BUTTON } from "@/shared/ui/iconButton"
+import { NavigationIcon, SearchIcon, XIcon } from "@/shared/ui/icons"
+import { OptionRow, RadioMark } from "@/shared/ui/OptionRow"
+import { cn } from "@/shared/lib/cn"
 import { useLayoutMode } from "@/shared/lib/useLayoutMode"
 import { useSearch } from "../model/store"
 
+const POPULAR_SET = new Set(POPULAR_CITIES)
+
+function CityRow({
+  name,
+  selected,
+  onPick,
+}: {
+  name: string
+  selected: boolean
+  onPick: (name: string) => void
+}) {
+  return (
+    <OptionRow
+      onClick={() => onPick(name)}
+      start={<RadioMark checked={selected} />}
+    >
+      <span className="text-base leading-[22px]">{name}</span>
+    </OptionRow>
+  )
+}
+
+function SectionLabel({ children }: { children: string }) {
+  return (
+    <h3 className="px-3 pb-2 pt-6 text-sm leading-5 text-muted">{children}</h3>
+  )
+}
+
 /**
- * City picker for the search field. The trigger reads as plain text until
- * hovered, so it doesn't compete with the input beside it; the panel itself is
- * a drawer because the same shell will carry the other pickers this field
- * needs (full filters, saved searches).
- *
- * Picking closes the drawer immediately — one tap, no confirm step — and
- * re-runs the search, because the city is a query parameter like any other.
+ * City picker for the search field. The trigger shows whatever is selected —
+ * {@link ANY_CITY} when the search isn't restricted by location — as plain
+ * text until hovered, so it doesn't compete with the input beside it. The
+ * panel itself is the same drawer shell as the filter catalog — title, close,
+ * option list — without the apply/reset footer those drawers need. Picking
+ * writes the city and closes: there is no second step.
  */
 export function CityDrawer() {
   const { city, setCity } = useSearch()
@@ -31,29 +60,60 @@ export function CityDrawer() {
   // sheet is pulled down, which is where the thumb already is.
   const onPhone = useLayoutMode() === "mobile"
   const [open, setOpen] = useState(false)
-  const [query, setQuery] = useState("")
+  const [search, setSearch] = useState("")
+  const [scrolled, setScrolled] = useState(false)
   const searchRef = useRef<HTMLInputElement>(null)
+  const listRef = useRef<HTMLDivElement>(null)
+  const observerRef = useRef<IntersectionObserver | null>(null)
+
+  // The list is portaled, so a layout effect on `open` can miss it. The
+  // sentinel's ref fires when the node is in the tree; intersection then
+  // tracks whether the first pixel of the list is still on screen.
+  const setSentinelRef = useCallback((sentinel: HTMLDivElement | null) => {
+    observerRef.current?.disconnect()
+    observerRef.current = null
+    if (!sentinel) {
+      setScrolled(false)
+      return
+    }
+    const root = sentinel.parentElement
+    if (!root) return
+    const io = new IntersectionObserver(
+      ([entry]) => setScrolled(!entry.isIntersecting),
+      { root, threshold: 0 },
+    )
+    observerRef.current = io
+    io.observe(sentinel)
+  }, [])
 
   const visible = useMemo(() => {
-    const q = query.trim().toLowerCase()
+    const q = search.trim().toLowerCase()
     if (!q) return CITIES
     return CITIES.filter((c) => c.toLowerCase().includes(q))
-  }, [query])
+  }, [search])
 
-  const choose = (next: string) => {
-    setCity(next)
+  const visibleSet = useMemo(() => new Set(visible), [visible])
+  const showAny = visibleSet.has(ANY_CITY)
+  const popular = POPULAR_CITIES.filter((c) => visibleSet.has(c))
+  const rest = visible.filter((c) => c !== ANY_CITY && !POPULAR_SET.has(c))
+
+  const pickCity = (name: string) => {
+    setCity(name)
     setOpen(false)
   }
 
   return (
     <Drawer
       open={open}
-      onOpenChange={setOpen}
+      onOpenChange={(next) => {
+        setOpen(next)
+        if (next) setScrolled(false)
+      }}
       swipeDirection={onPhone ? "down" : "right"}
       // Reset the filter for the next visit, once the closing animation is done
       // — clearing it on close would visibly reshuffle the list mid-transition.
       onOpenChangeComplete={(isOpen) => {
-        if (!isOpen) setQuery("")
+        if (!isOpen) setSearch("")
       }}
     >
       {/* The list is searched by typing, so on a phone this drawer meets the
@@ -70,7 +130,7 @@ export function CityDrawer() {
           onMouseDown={(event) => event.preventDefault()}
         >
           <NavigationIcon className="size-4" />
-          {city === ANY_CITY ? "Город" : city}
+          {city}
         </DrawerTrigger>
 
         {/* Focus the search field rather than the panel: it's the control the
@@ -87,56 +147,98 @@ export function CityDrawer() {
           finalFocus={(closeType) => closeType === "keyboard"}
           size="full"
         >
-          <DrawerHeader>
-            <DrawerTitle>Город поиска</DrawerTitle>
-            <DrawerDescription>
-              Вакансии с удалённой работой показываются в любом городе.
-            </DrawerDescription>
-          </DrawerHeader>
+          <div className="relative z-10 shrink-0 bg-surface">
+            <DrawerHeader
+              action={
+                <DrawerClose
+                  aria-label="Закрыть"
+                  className={cn("-mr-1", ICON_BUTTON)}
+                >
+                  <XIcon className="size-5" />
+                </DrawerClose>
+              }
+            >
+              <DrawerTitle>Город поиска</DrawerTitle>
+            </DrawerHeader>
 
-          <div className="px-6 pb-2">
-            <label className="flex items-center gap-2 rounded-xl bg-chip px-3 py-2.5">
-              <SearchIcon className="size-5 shrink-0 text-subtle" />
-              <input
-                ref={searchRef}
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Поиск города"
-                className="min-w-0 flex-1 bg-transparent text-base leading-[22px] text-foreground placeholder:text-faint focus:outline-none"
-              />
-            </label>
+            <div className="px-6 pb-4">
+              <label className="flex items-center gap-2 rounded-xl bg-chip px-3 py-2.5">
+                <SearchIcon className="size-5 shrink-0 text-subtle" />
+                <input
+                  ref={searchRef}
+                  type="text"
+                  value={search}
+                  onChange={(e) => {
+                    setSearch(e.target.value)
+                    if (listRef.current) listRef.current.scrollTop = 0
+                    setScrolled(false)
+                  }}
+                  placeholder="Поиск города"
+                  className="min-w-0 flex-1 bg-transparent text-base leading-[22px] text-foreground placeholder:text-faint focus:outline-none"
+                />
+              </label>
+            </div>
+
+            <span
+              aria-hidden
+              className={cn(
+                "pointer-events-none absolute inset-x-0 bottom-0 z-10 h-px bg-border-strong transition-opacity",
+                scrolled ? "opacity-100" : "opacity-0",
+              )}
+            />
           </div>
 
-          <ul className="scroll-area flex-1 overflow-y-auto p-2">
+          <div
+            ref={listRef}
+            onScroll={(event) =>
+              setScrolled(event.currentTarget.scrollTop > 0)
+            }
+            className="scroll-area flex min-h-0 flex-1 flex-col overflow-y-auto px-4 pb-8"
+          >
+            <div
+              ref={setSentinelRef}
+              aria-hidden
+              className="-mb-px h-px w-full shrink-0"
+            />
             {visible.length === 0 && (
-              <li className="px-4 py-6 text-center text-sm leading-5 text-muted">
+              <p className="px-3 py-6 text-center text-sm leading-5 text-muted">
                 Ничего не найдено
-              </li>
+              </p>
             )}
-            {visible.map((c) => {
-              const selected = c === city
-              return (
-                <li key={c}>
-                  <button
-                    type="button"
-                    onClick={() => choose(c)}
-                    className="flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-left transition-colors hover:bg-chip"
-                  >
-                    {/* Every choice reads at full contrast; the checkmark is
-                      what says which one is picked. Dimming the rest makes
-                      available options look disabled. */}
-                    <span className="text-base leading-[22px] text-foreground">
-                      {c}
-                    </span>
-                    {selected && (
-                      <CheckIcon className="size-4 text-info" strokeWidth={3} />
-                    )}
-                  </button>
-                </li>
-              )
-            })}
-          </ul>
+            {showAny && (
+              <CityRow
+                name={ANY_CITY}
+                selected={city === ANY_CITY}
+                onPick={pickCity}
+              />
+            )}
+            {popular.length > 0 && (
+              <section>
+                <SectionLabel>Популярные города</SectionLabel>
+                {popular.map((name) => (
+                  <CityRow
+                    key={name}
+                    name={name}
+                    selected={city === name}
+                    onPick={pickCity}
+                  />
+                ))}
+              </section>
+            )}
+            {rest.length > 0 && (
+              <section>
+                <SectionLabel>Остальные города</SectionLabel>
+                {rest.map((name) => (
+                  <CityRow
+                    key={name}
+                    name={name}
+                    selected={city === name}
+                    onPick={pickCity}
+                  />
+                ))}
+              </section>
+            )}
+          </div>
         </DrawerContent>
       </DrawerVirtualKeyboardProvider>
     </Drawer>

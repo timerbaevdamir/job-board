@@ -168,6 +168,7 @@ export function InlineSearch({
             aria-activedescendant={activeDescendant}
             aria-autocomplete="list"
             placeholder="Профессия или должность"
+            aria-label="Профессия или должность"
             className="min-w-0 flex-1 bg-transparent text-base leading-[22px] text-foreground placeholder:text-faint focus:outline-none"
             {...inputProps}
           />
@@ -193,17 +194,9 @@ export function InlineSearch({
         </label>
 
         {/* One animated height for the whole body: filters ⇄ suggestions is a
-            single motion, not two panels negotiating. `overflow: clip` with a
-            margin keeps the clip while letting the filter badge overhang. */}
+            single motion, not two panels negotiating. */}
         <div
           className={cn(
-            // A plain hard clip. This used to be `overflow: clip` with an 8px
-            // margin so the filter bar's count badge could hang past the edge —
-            // and that allowance applies to all four sides, so at height 0 it
-            // leaked a sliver of the bar below a shut body, which needed its own
-            // guard. The badge now keeps clear of the edge inside the chip
-            // scroller's own padding, so neither the allowance nor the guard is
-            // needed.
             "relative overflow-hidden motion-reduce:transition-none",
             // Opening reveals, so it uses the eager ease-out. Closing folds
             // away, and the same curve there lurches: it dumps most of the
@@ -216,17 +209,27 @@ export function InlineSearch({
           )}
           style={{ height: bodyHeight }}
         >
+          {/* Kept mounted so the reveal can be measured; `invisible` rather
+              than unmounting, because `offsetHeight` is how the card knows
+              how far to grow. Hidden while there is no query — otherwise the
+              chips (and their `z-20` scroller chrome) paint through the
+              empty-focus suggestions. */}
           <div
             ref={filtersRef}
-            inert={showOverlay}
-            className="absolute inset-x-0 top-0"
+            inert={showOverlay || !showFilters}
+            aria-hidden={!showFilters}
+            className={cn(
+              "absolute inset-x-0 top-0",
+              !showFilters && "invisible",
+            )}
           >
             {filters}
           </div>
 
           {/* Sits over the filter bar inside the same card, so it needs no
               border or shadow of its own — only an opaque background and the
-              hairline that separates it from the query row. */}
+              hairline that separates it from the query row. `z-10` when open
+              so the bar's isolated chrome cannot stack above it. */}
           <div
             ref={listRef}
             aria-hidden={!showOverlay}
@@ -236,7 +239,7 @@ export function InlineSearch({
               showOverlay
                 ? // Fades in early so the content is legible while the card is
                   // still unfurling.
-                  "opacity-100 [transition:opacity_140ms_var(--ease-soft)]"
+                  "z-10 opacity-100 [transition:opacity_140ms_var(--ease-soft)]"
                 : // Holds opaque until the height has almost finished closing,
                   // then dissolves over the last stretch. Fading it in step with
                   // the height would uncover empty card below the filter bar

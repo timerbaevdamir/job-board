@@ -150,6 +150,12 @@ export const INITIAL_SELECTION: FilterSelection = {}
  *
  * This is a single switch on purpose: both paths run through the search field's
  * one animated body height, so the reveal animation is intact either way and
- * flipping the value is all it takes to go back.
+ * flipping the value is all it takes to go back. The phone's field reads the
+ * same switch — it just mounts or unmounts the chips rather than growing.
  */
-export const FILTERS_REVEAL: "always" | "with-query" = "always"
+export const FILTERS_REVEAL: "always" | "with-query" = "with-query"
+
+/** Whether the in-field filter bar should be on screen for this query. */
+export function filtersVisible(query: string) {
+  return FILTERS_REVEAL === "always" || query.trim().length > 0
+}

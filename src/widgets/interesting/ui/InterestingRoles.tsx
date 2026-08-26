@@ -1,5 +1,6 @@
 import { Fragment } from "react"
 import { SKILL_MATCHES } from "@/shared/config/discovery"
+import { Cell } from "@/shared/ui/Cell"
 import { SearchIcon } from "@/shared/ui/icons"
 
 /**
@@ -9,8 +10,8 @@ import { SearchIcon } from "@/shared/ui/icons"
  */
 export function InterestingRoles() {
   return (
-    <section className="rounded-2xl border border-border-strong/70 bg-surface-muted p-2">
-      <p className="px-2 pb-1 pt-2 text-base leading-[22px] text-muted">
+    <section className="rounded-3xl bg-surface-muted p-2">
+      <p className="px-3 pb-1 pt-2 text-base leading-[22px] text-muted">
         Может быть интересно
       </p>
       <div className="flex flex-col">
@@ -18,25 +19,21 @@ export function InterestingRoles() {
           <Fragment key={s.id}>
             {/* Divider inset to align with the cell text and icon (matches p-3). */}
             {i > 0 && <span className="mx-3 h-px bg-border" />}
-            <button
-              type="button"
-              className="flex w-full items-center gap-3 rounded-xl p-3 text-left transition-colors hover:bg-black/[0.04]"
-            >
-              <span className="min-w-0 flex-1">
-                <span className="block text-base leading-[22px] text-foreground">
-                  {s.title}
-                </span>
-                <span className="block text-sm leading-5 tracking-[0.07px]">
+            <Cell
+              size="lg"
+              label={s.title}
+              sublabel={
+                <>
                   <span className="text-foreground">{s.match}%</span>{" "}
-                  <span className="text-muted">
-                    совпадает с вашими навыками
-                  </span>
+                  совпадает с вашими навыками
+                </>
+              }
+              end={
+                <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-surface">
+                  <SearchIcon className="size-6 text-foreground" />
                 </span>
-              </span>
-              <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-chip">
-                <SearchIcon className="size-6 text-foreground" />
-              </span>
-            </button>
+              }
+            />
           </Fragment>
         ))}
       </div>

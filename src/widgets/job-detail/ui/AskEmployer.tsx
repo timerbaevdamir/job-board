@@ -14,7 +14,7 @@ export function AskEmployer() {
   return (
     <section className="flex flex-col gap-3">
       <SectionHeading>Задайте вопрос работодателю</SectionHeading>
-      <label className="flex items-center gap-3 rounded-xl border border-transparent bg-chip py-3 pl-4 pr-3 focus-within:border-brand/50">
+      <label className="flex items-center gap-3 rounded-xl bg-chip py-3 pl-4 pr-3">
         <input
           type="text"
           placeholder="Напишите свой вопрос…"

@@ -1,6 +1,8 @@
 import type { ReactNode } from "react"
 import { Button, type ButtonSize, type ButtonVariant } from "@/shared/ui/Button"
+import { Cell } from "@/shared/ui/Cell"
 import { Counter } from "@/shared/ui/Counter"
+import { OptionRow, RadioMark } from "@/shared/ui/OptionRow"
 import {
   HeartIcon,
   SearchIcon,
@@ -72,6 +74,22 @@ function Swatch({
 
 /* -------------------------------------------------------------------- tags */
 
+function Well({ children }: { children: ReactNode }) {
+  return (
+    <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-chip text-foreground">
+      {children}
+    </span>
+  )
+}
+
+function CellList({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex w-full max-w-md flex-col rounded-3xl bg-surface-muted p-2">
+      {children}
+    </div>
+  )
+}
+
 function Tag({ children }: { children: ReactNode }) {
   return (
     <span className="rounded-lg bg-chip px-2 py-1 text-sm leading-5 text-chip-foreground">
@@ -90,7 +108,7 @@ function Stars({ value }: { value: number }) {
             <StarIcon
               className="size-4 text-[#d7dde5]"
               strokeWidth={1.5}
-              fill="none"
+              fill="currentColor"
             />
             {fill > 0 && (
               <span
@@ -121,7 +139,7 @@ export function DevPage() {
     <div className="min-h-screen bg-background">
       <div className="mx-auto flex w-full max-w-4xl flex-col gap-14 px-6 py-12">
         <header className="flex flex-col gap-2">
-          <h1 className="text-[28px] font-semibold leading-9 tracking-[-0.35px] text-foreground">
+          <h1 className="text-display font-semibold tracking-display text-foreground">
             UI Kit · Атомы
           </h1>
           <p className="text-sm leading-5 text-muted">
@@ -138,6 +156,30 @@ export function DevPage() {
             {TOKENS.map((t) => (
               <Swatch key={t.name} {...t} />
             ))}
+          </div>
+        </Section>
+
+        {/* Type */}
+        <Section title="Типографика">
+          <div className="flex flex-col gap-4">
+            <p className="text-display font-semibold tracking-display text-foreground">
+              Display 28 · Заголовок страницы
+            </p>
+            <p className="text-title font-semibold tracking-title text-foreground">
+              Title 24 · Заголовок секции
+            </p>
+            <p className="text-xl font-semibold leading-7 text-foreground">
+              Xl 20 · Подзаголовок
+            </p>
+            <p className="text-lg font-semibold leading-[26px] text-foreground">
+              Lg 18 · Заголовок карточки
+            </p>
+            <p className="text-base leading-[22px] text-foreground">
+              Base 16 · Основной текст
+            </p>
+            <p className="text-sm leading-5 text-muted">
+              Sm 14 · Вторичный текст
+            </p>
           </div>
         </Section>
 
@@ -191,6 +233,93 @@ export function DevPage() {
             <Button variant="primary" fullWidth>
               Во всю ширину
             </Button>
+          </Row>
+        </Section>
+
+        {/* Cells */}
+        <Section title="Ячейки">
+          <Row label="Подпись и подзаголовок">
+            <CellList>
+              <Cell
+                start={
+                  <Well>
+                    <HeartIcon className="size-5" />
+                  </Well>
+                }
+                label="Избранное"
+                chevron
+              />
+              <Cell
+                start={
+                  <Well>
+                    <SearchIcon className="size-5" />
+                  </Well>
+                }
+                label="Дизайнер интерфейсов"
+                sublabel="Москва · от 180 000 ₽"
+                chevron
+              />
+              <Cell
+                start={
+                  <Well>
+                    <VerifiedIcon className="size-5" />
+                  </Well>
+                }
+                reverse
+                label="Компания проверена"
+                sublabel="Статус"
+                chevron
+              />
+            </CellList>
+          </Row>
+
+          <Row label="Состояния">
+            <CellList>
+              <Cell label="Обычная" chevron />
+              <Cell label="Выбранная" selected chevron />
+              <Cell label="Отключённая" disabled chevron />
+              <Cell
+                label="Город"
+                sublabel="Место поиска"
+                end={
+                  <span className="shrink-0 text-sm leading-5 text-muted">
+                    Москва
+                  </span>
+                }
+                chevron
+              />
+            </CellList>
+          </Row>
+
+          <Row label="Крупная · как в ленте">
+            <CellList>
+              <Cell
+                size="lg"
+                label="Дизайнер интерфейсов"
+                sublabel={
+                  <>
+                    <span className="text-foreground">92%</span> совпадает с
+                    вашими навыками
+                  </>
+                }
+                end={
+                  <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-surface">
+                    <SearchIcon className="size-6 text-foreground" />
+                  </span>
+                }
+              />
+            </CellList>
+          </Row>
+
+          <Row label="Вариант выбора">
+            <CellList>
+              <OptionRow start={<RadioMark checked={false} />}>
+                По дате
+              </OptionRow>
+              <OptionRow selected start={<RadioMark checked />}>
+                По соответствию
+              </OptionRow>
+            </CellList>
           </Row>
         </Section>
 

@@ -6,15 +6,25 @@ import { cn } from "@/shared/lib/cn"
  * content scrolling underneath dissolves into the background with no hard line.
  * Cheaper than a progressive blur, but only convincing on a flat background.
  *
- * Fills its parent (`inset-0`), so give the header `relative` with a transparent
- * background and render its own content above this layer (e.g. `relative z-10`).
+ * Extends below its parent, so give the header a transparent background and render
+ * its own content above this layer (e.g. `relative z-10`).
  */
-export function HeaderFade({ className }: { className?: string }) {
+type HeaderFadeVariant = "gradient" | "material"
+
+export function HeaderFade({
+  className,
+  variant = "gradient",
+}: {
+  className?: string
+  variant?: HeaderFadeVariant
+}) {
   return (
     <div
       aria-hidden
       className={cn(
-        "pointer-events-none absolute inset-0 z-0 bg-gradient-to-b from-background via-background/85 to-transparent",
+        variant === "material"
+          ? "header-fade-material pointer-events-none absolute inset-x-0 top-0 z-0 h-[150%]"
+          : "pointer-events-none absolute inset-0 z-0 bg-gradient-to-b from-background via-background/85 to-transparent",
         className,
       )}
     />

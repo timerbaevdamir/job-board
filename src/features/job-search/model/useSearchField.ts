@@ -6,7 +6,7 @@ import {
   useState,
   type KeyboardEvent,
 } from "react"
-import { FILTERS_REVEAL } from "@/shared/config/filters"
+import { filtersVisible } from "@/shared/config/filters"
 import { matchSuggestions } from "../lib/matchSuggestions"
 
 export type Overlay = "suggestions" | "empty" | null
@@ -68,7 +68,7 @@ export function useSearchField({
   // Filters stay mounted while the overlay is open — the overlay is opaque and
   // simply covers them, so neither the field nor the feed moves on focus.
   // Whether they show at all is a product decision, kept as one switch.
-  const showFilters = FILTERS_REVEAL === "always" || query.trim().length > 0
+  const showFilters = filtersVisible(query)
 
   // Flat, ordered list of navigable options for arrow-key traversal.
   const options = useMemo(
