@@ -16,9 +16,9 @@ export function FeedTabs({
     <div
       role="tablist"
       aria-label="Ленты"
-      className="-mx-4 overflow-x-auto overscroll-x-contain px-4 [scrollbar-width:none] sm:-mx-8 sm:px-8 [&::-webkit-scrollbar]:hidden"
+      className="-mx-4 overflow-x-auto overscroll-x-contain [scrollbar-width:none] sm:-mx-8 [&::-webkit-scrollbar]:hidden"
     >
-      <div className="flex items-center gap-1">
+      <div className="flex w-max items-center gap-1 px-4 sm:px-8">
         {FEEDS.map((feed) => {
           const selected = feed.id === value
           return (

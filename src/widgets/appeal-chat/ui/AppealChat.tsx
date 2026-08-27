@@ -1,12 +1,17 @@
+import { useLayoutEffect, useRef, useState } from "react"
 import type { Appeal, AppealMessage } from "@/entities/appeal"
 import {
   ArrowLeftIcon,
+  ChevronDownIcon,
   DotsIcon,
   DoubleCheckIcon,
-  PaperclipIcon,
+  PlusIcon,
 } from "@/shared/ui/icons"
+import { Header, HeaderAction } from "@/shared/ui/Header"
 import { HeaderFade } from "@/shared/ui/HeaderFade"
+import { SEARCH_CARD } from "@/features/job-search/ui/searchCard"
 import { cn } from "@/shared/lib/cn"
+import { useScrollToEnd } from "@/shared/lib/useScrollToEnd"
 
 function MessageBubble({
   msg,
@@ -92,120 +97,159 @@ export function AppealChat({
   /** Shown only when the chat stands alone — i.e. the narrow layout. */
   onBack?: () => void
 }) {
+  const threadRef = useScrollToEnd<HTMLDivElement>(appeal.id)
+
   return (
-    <div className="flex h-full min-w-0 flex-1 flex-col bg-background">
-      {/* Header */}
-      <header className="relative z-20 flex flex-col gap-4 px-6 pb-4 pt-4">
-        <HeaderFade />
-        <div className="relative z-10 flex items-center gap-3">
-          {/* Only where the list isn't beside the chat: with both columns
-              visible there is nothing to go back to. */}
-          {onBack && (
-            <button
-              type="button"
+    <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col bg-background">
+      <Header
+        hairline
+        start={
+          /* Only where the list isn't beside the chat: with both columns
+             visible there is nothing to go back to. */
+          onBack ? (
+            <HeaderAction
+              tone="plain"
               aria-label="К списку откликов"
               onClick={onBack}
-              className="-ml-2 flex size-10 shrink-0 items-center justify-center rounded-full text-foreground transition-colors hover:bg-chip"
             >
               <ArrowLeftIcon className="size-6" />
-            </button>
-          )}
-          <span
-            className="flex size-11 shrink-0 items-center justify-center rounded-xl text-base font-semibold"
-            style={{
-              backgroundColor: appeal.logoBg,
-              color: appeal.logoColor ?? "#ffffff",
-            }}
-          >
-            {appeal.companyInitial}
-          </span>
-          <div className="flex min-w-0 flex-1 flex-col">
-            <span className="truncate text-base font-semibold leading-[22px] text-foreground">
-              {appeal.company}
-            </span>
-            <span className="text-sm leading-5 text-muted">
-              {appeal.online ? "Онлайн" : "Не в сети"}
-            </span>
-          </div>
-          <button
-            type="button"
-            aria-label="Действия"
-            className="flex size-12 shrink-0 items-center justify-center rounded-full bg-background/60 text-foreground backdrop-blur-md transition-colors hover:bg-chip/70"
-          >
+            </HeaderAction>
+          ) : undefined
+        }
+        end={
+          <HeaderAction aria-label="Действия">
             <DotsIcon className="size-5" />
-          </button>
+          </HeaderAction>
+        }
+      >
+        <span
+          className="flex size-11 shrink-0 items-center justify-center rounded-xl text-base font-semibold"
+          style={{
+            backgroundColor: appeal.logoBg,
+            color: appeal.logoColor ?? "#ffffff",
+          }}
+        >
+          {appeal.companyInitial}
+        </span>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <span className="truncate text-base font-semibold leading-[22px] text-foreground">
+            {appeal.company}
+          </span>
+          <span className="text-sm leading-5 text-muted">
+            {appeal.online ? "Онлайн" : "Не в сети"}
+          </span>
         </div>
+      </Header>
 
-        {/* Resume: bordered pill linking to the attached CV */}
-        <div className="relative z-10 flex h-12 items-center rounded-xl border border-border px-4">
-          <p className="text-sm leading-5 text-muted">
-            Резюме: <span className="text-info">{appeal.resume}</span>
-          </p>
-        </div>
-      </header>
-
-      {/* Thread — grows from the bottom up (mt-auto pins content to the base). */}
-      <div className="scroll-area flex-1 overflow-y-auto px-6 py-6">
-        <div className="mx-auto flex min-h-full w-full max-w-2xl flex-col justify-end">
-          <div className="flex justify-center pb-4">
-            <span className="text-xs leading-4 text-muted">Сегодня</span>
-          </div>
-          {appeal.messages.map((msg, i) => {
-            const prev = appeal.messages[i - 1]
-            const next = appeal.messages[i + 1]
-            // Group by side (incoming vs outgoing), not exact sender: consecutive
-            // messages on the same side read as one bubble stack — tight spacing,
-            // a single avatar, aligned on one line. The last of a group shows the
-            // timestamp.
-            const side = (m?: AppealMessage) =>
-              m ? (m.from === "me" ? "out" : "in") : null
-            const grouped = side(prev) === side(msg)
-            const showTime = side(next) !== side(msg)
-            return (
-              <div
-                key={msg.id}
-                className={grouped ? "mt-1" : i === 0 ? "" : "mt-4"}
-              >
-                <MessageBubble
-                  msg={msg}
-                  grouped={grouped}
-                  showTime={showTime}
-                />
-              </div>
-            )
-          })}
-
-          {appeal.quickReplies && appeal.quickReplies.length > 0 && (
-            <div className="flex flex-wrap justify-end gap-2 pt-4">
-              {appeal.quickReplies.map((reply) => (
-                <button
-                  key={reply}
-                  type="button"
-                  className="rounded-full bg-[#e9f1fb] px-4 py-2 text-sm leading-5 text-info transition-colors hover:bg-[#dcebfb]"
-                >
-                  {reply}
-                </button>
-              ))}
+      {/* Thread + composer share the scroller so the fade can overlay the
+          last bubbles the way SearchHeader overlays the feed. `justify-end`
+          pins a short conversation; overflowing ones land on the latest
+          line via `threadRef`. */}
+      <div
+        ref={threadRef}
+        className="scroll-area min-h-0 flex-1 overflow-y-auto"
+      >
+        <div className="flex min-h-full flex-col">
+          <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-end px-4 py-6 md:px-6">
+            <div className="flex justify-center pb-4">
+              <span className="text-xs leading-4 text-muted">Сегодня</span>
             </div>
-          )}
+            {appeal.messages.map((msg, i) => {
+              const prev = appeal.messages[i - 1]
+              const next = appeal.messages[i + 1]
+              // Group by side (incoming vs outgoing), not exact sender: consecutive
+              // messages on the same side read as one bubble stack — tight spacing,
+              // a single avatar, aligned on one line. The last of a group shows the
+              // timestamp.
+              const side = (m?: AppealMessage) =>
+                m ? (m.from === "me" ? "out" : "in") : null
+              const grouped = side(prev) === side(msg)
+              const showTime = side(next) !== side(msg)
+              return (
+                <div
+                  key={msg.id}
+                  className={grouped ? "mt-1" : i === 0 ? "" : "mt-4"}
+                >
+                  <MessageBubble
+                    msg={msg}
+                    grouped={grouped}
+                    showTime={showTime}
+                  />
+                </div>
+              )
+            })}
+
+            {appeal.quickReplies && appeal.quickReplies.length > 0 && (
+              <div className="flex flex-wrap justify-end gap-2 pt-4">
+                {appeal.quickReplies.map((reply) => (
+                  <button
+                    key={reply}
+                    type="button"
+                    className="rounded-full bg-info/10 px-4 py-2 text-sm leading-5 text-info transition-colors hover:bg-info/15"
+                  >
+                    {reply}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <ChatComposer resume={appeal.resume} />
         </div>
       </div>
+    </div>
+  )
+}
 
-      {/* Composer */}
-      <div className="px-6 pb-6">
-        <div className="mx-auto flex h-12 w-full max-w-2xl items-center gap-3 rounded-2xl bg-chip px-4">
-          <button
-            type="button"
-            aria-label="Прикрепить файл"
-            className="flex size-6 shrink-0 items-center justify-center text-subtle transition-colors hover:text-foreground"
-          >
-            <PaperclipIcon className="size-5" />
-          </button>
-          <input
-            type="text"
+const TEXTAREA_MAX = 160
+
+function ChatComposer({ resume }: { resume: string }) {
+  const [value, setValue] = useState("")
+  const taRef = useRef<HTMLTextAreaElement>(null)
+
+  const fit = () => {
+    const el = taRef.current
+    if (!el) return
+    el.style.height = "auto"
+    el.style.height = `${Math.min(el.scrollHeight, TEXTAREA_MAX)}px`
+  }
+
+  useLayoutEffect(fit, [value])
+
+  return (
+    <div className="sticky bottom-0 z-20 px-4 pt-4 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] md:px-6 md:pt-6 md:pb-6">
+      <HeaderFade to="top" />
+      {/* Lifted above the fade the same way SearchHeader lifts the field:
+          HeaderFade is a positioned layer, so a static sibling paints
+          underneath and the card's top edge would wash out. */}
+      <div className="relative z-10 mx-auto w-full max-w-2xl">
+        <div className={cn(SEARCH_CARD, "shadow-field")}>
+          <textarea
+            ref={taRef}
+            rows={1}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
             placeholder="Написать сообщение"
-            className="min-w-0 flex-1 bg-transparent text-base leading-[22px] text-foreground placeholder:text-faint focus:outline-none"
+            className="block min-h-[52px] w-full resize-none overflow-y-auto bg-transparent px-4 py-[15px] text-base leading-[22px] text-foreground placeholder:text-faint focus:outline-none"
           />
+          <div className="pb-2.5">
+            <div className="flex items-center justify-between gap-2 px-2.5">
+              <button
+                type="button"
+                aria-label="Прикрепить"
+                className="flex size-8 shrink-0 items-center justify-center rounded-full bg-chip text-foreground transition-colors hover:bg-chip-hover"
+              >
+                <PlusIcon className="size-4" />
+              </button>
+              <button
+                type="button"
+                aria-label={`Резюме: ${resume}`}
+                className="flex min-w-0 max-w-80 items-center gap-1 rounded-full bg-chip py-1.5 pl-3.5 pr-3 text-sm font-semibold leading-5 text-foreground transition-colors hover:bg-chip-hover"
+              >
+                <span className="truncate">{resume}</span>
+                <ChevronDownIcon className="size-4 shrink-0" />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

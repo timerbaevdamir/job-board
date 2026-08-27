@@ -1,0 +1,125 @@
+{
+  "6a8ff6f0edbb25a4d3d63438": {
+    "id": "6a910aa1edbb25a4d3d63401",
+    "name": "Лейаут по умолчанию",
+    "durationSec": 15,
+    "elements": [
+      {
+        "properties": [{ "key": "color", "value": "#A3D9C4" }],
+        "title": "Фон",
+        "type": "background"
+      },
+      {
+        "properties": [
+          { "key": "fadeEnabled", "value": false },
+          { "key": "fadeOpacity", "value": 20 },
+          { "key": "fadeColor", "value": "#000000" },
+          { "key": "fadePosition", "value": "bottom" },
+          { "key": "h", "value": 346 }
+        ],
+        "title": "Градиент подложка",
+        "type": "fade"
+      },
+      {
+        "properties": [
+          { "key": "x", "value": 8072 },
+          { "key": "y", "value": 191 },
+          { "key": "w", "value": 817 },
+          { "key": "h", "value": 482 },
+          { "key": "appearDelaySec", "value": 2 }
+        ],
+        "title": "Лого WB",
+        "type": "wb-logo"
+      },
+      {
+        "properties": [
+          { "key": "x", "value": 92 },
+          { "key": "y", "value": 256 },
+          { "key": "w", "value": 440 },
+          { "key": "h", "value": 260 },
+          { "key": "appearDelaySec", "value": 2 }
+        ],
+        "title": "Лого WB",
+        "type": "wb-logo-1"
+      },
+      {
+        "properties": [
+          { "key": "x", "value": 4477 },
+          { "key": "y", "value": 494 },
+          { "key": "w", "value": 658 },
+          { "key": "h", "value": 260 },
+          { "key": "enabled", "value": true },
+          { "key": "color", "value": "#FFFF00" },
+          { "key": "textColor", "value": "#000000" },
+          { "key": "shiftZoneBottom", "value": 200 },
+          { "key": "text", "value": "30" }
+        ],
+        "title": "Скидка",
+        "type": "discount"
+      },
+      {
+        "properties": [
+          { "key": "fontSize", "value": 38 },
+          { "key": "fontWeight", "value": 300 },
+          { "key": "align", "value": "center" },
+          { "key": "theme", "value": "light" },
+          { "key": "shadowEnabled", "value": false },
+          { "key": "shadowOpacity", "value": 0.22 },
+          { "key": "shadowHeight", "value": 0.45 },
+          { "key": "shadowColor", "value": "#000000" },
+          { "key": "vAlign", "value": "bottom" },
+          { "key": "shiftZoneTop", "value": 60 },
+          { "key": "x", "value": -4768 },
+          { "key": "y", "value": 1660 },
+          { "key": "w", "value": 2349 },
+          { "key": "h", "value": 38 },
+          { "key": "text", "value": "" }
+        ],
+        "title": "Дисклеймер",
+        "type": "disclaimer"
+      },
+      {
+        "properties": [
+          { "key": "fontSize", "value": 38 },
+          { "key": "fontWeight", "value": 300 },
+          { "key": "align", "value": "center" },
+          { "key": "theme", "value": "light" },
+          { "key": "shadowEnabled", "value": false },
+          { "key": "shadowOpacity", "value": 0.22 },
+          { "key": "shadowHeight", "value": 0.45 },
+          { "key": "shadowColor", "value": "#000000" },
+          { "key": "vAlign", "value": "bottom" },
+          { "key": "shiftZoneTop", "value": 60 },
+          { "key": "x", "value": 3712 },
+          { "key": "y", "value": 796 },
+          { "key": "w", "value": 2349 },
+          { "key": "h", "value": 38 },
+          { "key": "text", "value": "" }
+        ],
+        "title": "Дисклеймер",
+        "type": "disclaimer-1"
+      },
+      {
+        "properties": [
+          { "key": "fontSize", "value": 38 },
+          { "key": "fontWeight", "value": 300 },
+          { "key": "align", "value": "center" },
+          { "key": "theme", "value": "light" },
+          { "key": "shadowEnabled", "value": false },
+          { "key": "shadowOpacity", "value": 0.22 },
+          { "key": "shadowHeight", "value": 0.45 },
+          { "key": "shadowColor", "value": "#000000" },
+          { "key": "vAlign", "value": "bottom" },
+          { "key": "shiftZoneTop", "value": 60 },
+          { "key": "x", "value": 32 },
+          { "key": "y", "value": 554 },
+          { "key": "w", "value": 578 },
+          { "key": "h", "value": 272 },
+          { "key": "text", "value": "Скидки на конкретные товары будут доступны в течение определенного промежутка времени в период с 21.10.2024 по 27.10.2024, подробнее на wildberries.ru. ООО «РВБ», ОГРН 1247700471919, МОСКОВСКАЯ ОБЛ., Г.О.ПОДОЛЬСК, Д.КОЛЕДИНО" }
+        ],
+        "title": "Дисклеймер",
+        "type": "disclaimer-2"
+      }
+    ]
+  }
+}

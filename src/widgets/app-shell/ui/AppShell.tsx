@@ -65,6 +65,10 @@ export function AppShell({
   }, [mode])
 
   const rail = collapsed || mode === "tablet"
+  // A thread on a phone is its own screen: back lives in the header, and the
+  // bar would sit under the composer. The list still needs it.
+  const hideTabBar =
+    mode === "mobile" && route.name === "appeals" && Boolean(route.appealId)
 
   return (
     // A column on mobile so the bar can be a sibling of the content: the scroll
@@ -97,7 +101,7 @@ export function AppShell({
         children
       )}
 
-      {mode === "mobile" && (
+      {mode === "mobile" && !hideTabBar && (
         <TabBar active={active} onNavigate={go} attached={bottomBar} />
       )}
 

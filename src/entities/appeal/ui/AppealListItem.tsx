@@ -4,12 +4,12 @@ import { DoubleCheckIcon } from "@/shared/ui/icons"
 import { Counter } from "@/shared/ui/Counter"
 import { cn } from "@/shared/lib/cn"
 
-// Badge tint per status.
+// Badge tint per status — fill matches the text color.
 const STATUS_STYLE: Record<Appeal["status"], string> = {
-  invitation: "text-success",
-  viewed: "text-muted",
-  rejected: "text-danger",
-  sent: "text-muted",
+  invitation: "bg-success-soft text-success",
+  viewed: "bg-chip text-muted",
+  rejected: "bg-danger/10 text-danger",
+  sent: "bg-chip text-muted",
 }
 
 /** A conversation row in the appeals list column. */
@@ -68,7 +68,7 @@ export function AppealListItem({
               "shrink-0 rounded-md px-2 py-0.5 text-xs font-medium leading-4",
               selected
                 ? "bg-white/20 text-white"
-                : cn("bg-chip", STATUS_STYLE[appeal.status]),
+                : STATUS_STYLE[appeal.status],
             )}
           >
             {APPEAL_STATUS_LABEL[appeal.status]}
