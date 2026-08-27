@@ -28,8 +28,8 @@ export function SuggestionList({
   onRemoveFromHistory,
   className,
 }: {
-  /** Matches, or the pre-typing state of recents and recommendations. */
-  shown: "suggestions" | "empty"
+  /** Matches, recents/recommendations, or a typed query with no matches. */
+  shown: "suggestions" | "empty" | "none"
   suggestions: string[]
   history: string[]
   recommended: string[]
@@ -52,6 +52,12 @@ export function SuggestionList({
             onSelect={() => onSelect(s)}
           />
         ))}
+
+      {shown === "none" && (
+        <li role="presentation" className="px-3 py-6 text-center text-sm leading-5 text-muted">
+          Ничего не найдено
+        </li>
+      )}
 
       {shown === "empty" && (
         <>

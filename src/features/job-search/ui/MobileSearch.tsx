@@ -7,7 +7,7 @@ import {
   DrawerContent,
   DrawerVirtualKeyboardProvider,
 } from "@/shared/ui/Drawer"
-import { SearchIcon, XIcon } from "@/shared/ui/icons"
+import { ArrowLeftIcon, SearchIcon, XIcon } from "@/shared/ui/icons"
 import { cn } from "@/shared/lib/cn"
 import { ICON_BUTTON } from "@/shared/ui/iconButton"
 import { useSearch } from "../model/store"
@@ -72,13 +72,29 @@ export function MobileSearch({
           is left is a button — and, once a query is in, the filter chips
           under it. */}
       <div className={cn(SEARCH_CARD, "shadow-field")}>
-        <div className="flex min-h-[52px] items-center gap-3 pl-4 pr-2.5">
+        <div className="flex min-h-[52px] items-center gap-3 px-2.5">
+          {query.trim().length > 0 ? (
+            // Search is its own place: this leaves it. The sheet's X only
+            // empties the field you are typing into.
+            <button
+              type="button"
+              aria-label="Назад"
+              onClick={() => setQuery("")}
+              className={ICON_BUTTON}
+            >
+              <ArrowLeftIcon className="size-6" />
+            </button>
+          ) : null}
           <button
             type="button"
             onClick={() => setOpen(true)}
             className="flex min-w-0 flex-1 items-center gap-3 py-3 text-left"
           >
-            <SearchIcon className="size-6 shrink-0 text-subtle" />
+            {query.trim().length === 0 && (
+              <span className="flex size-9 shrink-0 items-center justify-center">
+                <SearchIcon className="size-6 text-subtle" />
+              </span>
+            )}
             {/* The committed query, not a draft: this row reports what the feed
                 below is showing. Editing happens in the sheet. */}
             <span
@@ -90,18 +106,6 @@ export function MobileSearch({
               {query || "Профессия или должность"}
             </span>
           </button>
-          {query.length > 0 && (
-            // Its own button rather than part of the trigger: clearing is not
-            // "open the search", and a button inside a button is not markup.
-            <button
-              type="button"
-              aria-label="Очистить поиск"
-              onClick={() => setQuery("")}
-              className={ICON_BUTTON}
-            >
-              <XIcon className="size-5" />
-            </button>
-          )}
         </div>
         {showFilters ? filters : null}
       </div>
@@ -145,7 +149,12 @@ function SearchSheet({
   // the focus. Inline, the list has to appear and disappear around a field that
   // stays on screen; here there is nothing to reveal — the panel is already
   // open, and the only question is whether there is anything typed to match.
-  const shown = draft.trim().length > 0 ? "suggestions" : "empty"
+  const shown =
+    draft.trim().length === 0
+      ? "empty"
+      : suggestions.length > 0
+        ? "suggestions"
+        : "none"
 
   const choose = (value: string) => {
     commit(value)

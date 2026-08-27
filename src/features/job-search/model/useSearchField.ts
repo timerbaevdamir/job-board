@@ -9,7 +9,7 @@ import {
 import { filtersVisible } from "@/shared/config/filters"
 import { matchSuggestions } from "../lib/matchSuggestions"
 
-export type Overlay = "suggestions" | "empty" | null
+export type Overlay = "suggestions" | "empty" | "none" | null
 
 /**
  * Combobox controller for the search field. Owns the uncommitted draft, focus
@@ -60,11 +60,17 @@ export function useSearchField({
     focused &&
     trimmed.length === 0 &&
     (history.length > 0 || recommended.length > 0)
+  // Typed something the pool does not know: keep the overlay open on a compact
+  // empty state. Closing it left the card at the last list height with nothing
+  // inside — a hollow shrink down onto the filter bar.
+  const showNone = focused && trimmed.length > 0 && suggestions.length === 0
   const overlay: Overlay = showSuggestions
     ? "suggestions"
     : showEmpty
       ? "empty"
-      : null
+      : showNone
+        ? "none"
+        : null
   // Filters stay mounted while the overlay is open — the overlay is opaque and
   // simply covers them, so neither the field nor the feed moves on focus.
   // Whether they show at all is a product decision, kept as one switch.

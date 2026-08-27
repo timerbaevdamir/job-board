@@ -1,12 +1,13 @@
 import {
   useEffect,
+  useId,
   useLayoutEffect,
   useRef,
   useState,
   type ReactNode,
 } from "react"
 import { SUGGESTION_POOL } from "@/entities/job"
-import { SearchIcon, XIcon } from "@/shared/ui/icons"
+import { ArrowLeftIcon, SearchIcon, XIcon } from "@/shared/ui/icons"
 import { cn } from "@/shared/lib/cn"
 import { ICON_BUTTON } from "@/shared/ui/iconButton"
 import { useSearchField, type Overlay } from "../model/useSearchField"
@@ -61,12 +62,14 @@ export function InlineSearch({
   const { query, setQuery, history, removeFromHistory } = useSearch()
   const {
     draft,
+    setDraft,
     overlay,
     showFilters,
     suggestions,
     recommended,
     activeIndex,
     commit,
+    close,
     inputProps,
   } = useSearchField({
     query,
@@ -76,6 +79,7 @@ export function InlineSearch({
     history,
   })
 
+  const searchId = useId()
   const activeDescendant = activeIndex >= 0 ? optionId(activeIndex) : undefined
   const showOverlay = overlay !== null
 
@@ -87,7 +91,7 @@ export function InlineSearch({
 
   // Both bodies are always mounted, so both can be measured at any time — the
   // card's height is then just "whichever one is showing".
-  const rowRef = useRef<HTMLLabelElement>(null)
+  const rowRef = useRef<HTMLDivElement>(null)
   const filtersRef = useRef<HTMLDivElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
   const [size, setSize] = useState(lastSize)
@@ -138,10 +142,58 @@ export function InlineSearch({
   // +2 for the card's own hairlines (border-box).
   const restingHeight = 2 + size.row + filtersHeight
 
+  // Opening uses the eager ease-out. Closing onto the filter bar uses settle
+  // so it doesn't dump the travel in the first frames. Folding all the way
+  // away (clear) is the same curve, shorter — there is nothing to land on —
+  // and the spacer shares it: it used to snap while the card was still easing,
+  // so the feed jumped up under chips that hadn't finished clipping.
+  const foldAway = !showOverlay && !showFilters
+  const heightMotion = !animate
+    ? "motion-reduce:transition-none"
+    : foldAway
+      ? "[transition:height_140ms_var(--ease-settle)] motion-reduce:transition-none"
+      : showOverlay
+        ? "[transition:height_200ms_var(--ease-soft)] motion-reduce:transition-none"
+        : "[transition:height_200ms_var(--ease-settle)] motion-reduce:transition-none"
+
+  // A control that unmounts in the same click that pressed it lets the leftover
+  // event land on the field and reopen suggestions. Hold it for a tick.
+  const [held, setHeld] = useState<"back" | "clear" | null>(null)
+  useEffect(() => {
+    if (!held) return
+    const id = window.setTimeout(() => setHeld(null), 0)
+    return () => window.clearTimeout(id)
+  }, [held])
+
+  const isolate = (
+    event: {
+      preventDefault(): void
+      stopPropagation(): void
+      currentTarget: EventTarget
+    },
+    kind: "back" | "clear",
+    action: () => void,
+  ) => {
+    event.preventDefault()
+    event.stopPropagation()
+    if (event.currentTarget instanceof HTMLElement) event.currentTarget.blur()
+    // Shut the overlay in this tick. Blur is delayed 120ms so a mousedown on a
+    // row still counts — but that delay with an emptied draft is the recents
+    // list, and the card grew into it before folding away.
+    inputProps.ref.current?.blur()
+    close()
+    setHeld(kind)
+    action()
+  }
+
+  const inSearch = query.trim().length > 0
+  const showBack = inSearch || held === "back"
+  const showClear = draft.length > 0 || held === "clear"
+
   return (
     // Spacer: holds the card's resting height in the flow so the feed below
     // stays put no matter how far the card grows.
-    <div className="relative" style={{ height: restingHeight }}>
+    <div className={cn("relative", heightMotion)} style={{ height: restingHeight }}>
       <div
         className={cn(
           SEARCH_CARD,
@@ -155,58 +207,68 @@ export function InlineSearch({
             : "shadow-field",
         )}
       >
-        <label
+        <div
           ref={rowRef}
-          className="flex min-h-[52px] cursor-text items-center gap-3 pl-4 pr-2.5"
+          className="flex min-h-[52px] items-center gap-3 px-2.5"
         >
-          <SearchIcon className="size-6 shrink-0 text-subtle" />
-          <input
-            type="text"
-            role="combobox"
-            aria-expanded={showOverlay}
-            aria-controls={LISTBOX_ID}
-            aria-activedescendant={activeDescendant}
-            aria-autocomplete="list"
-            placeholder="Профессия или должность"
-            aria-label="Профессия или должность"
-            className="min-w-0 flex-1 bg-transparent text-base leading-[22px] text-foreground placeholder:text-faint focus:outline-none"
-            {...inputProps}
-          />
-          {/* The row's own `gap-3` separates the query from what follows it.
-              These two belong to each other — clear this search, scope this
-              search — so they get a group of their own, and no gap inside it:
-              both are already carrying their own padding, and any spacing added
-              between the boxes lands on top of that rather than instead of it.
-              Their edges meet; what the eye reads as the gap is the padding. */}
+          {/* Same 36px cell as the clear control, so swapping the loupe for a
+              back button does not shift the query. The glyph stays 24px either
+              way — the search icon's size — and the circle is the hit target. */}
+          {showBack ? (
+            <button
+              type="button"
+              aria-label="Назад"
+              onPointerDown={(event) => isolate(event, "back", () => commit(""))}
+              onClick={(event) => isolate(event, "back", () => commit(""))}
+              className={ICON_BUTTON}
+            >
+              <ArrowLeftIcon className="size-6" />
+            </button>
+          ) : (
+            <label
+              htmlFor={searchId}
+              className="flex size-9 shrink-0 cursor-text items-center justify-center"
+            >
+              <SearchIcon className="size-6 text-subtle" />
+            </label>
+          )}
+          <label className="flex min-w-0 flex-1 cursor-text items-center">
+            <input
+              id={searchId}
+              type="text"
+              role="combobox"
+              aria-expanded={showOverlay}
+              aria-controls={LISTBOX_ID}
+              aria-activedescendant={activeDescendant}
+              aria-autocomplete="list"
+              placeholder="Профессия или должность"
+              aria-label="Профессия или должность"
+              className="min-w-0 flex-1 bg-transparent text-base leading-[22px] text-foreground placeholder:text-faint focus:outline-none"
+              {...inputProps}
+            />
+          </label>
           <div className="flex shrink-0 items-center">
-            {draft.length > 0 && (
+            {showClear && (
               <button
                 type="button"
-                aria-label="Очистить поиск"
-                onClick={() => commit("")}
+                aria-label="Очистить поле"
+                onPointerDown={(event) =>
+                  isolate(event, "clear", () => setDraft(""))
+                }
+                onClick={(event) => isolate(event, "clear", () => setDraft(""))}
                 className={ICON_BUTTON}
               >
-                <XIcon className="size-5" />
+                <XIcon className="size-6" />
               </button>
             )}
             <CityDrawer />
           </div>
-        </label>
+        </div>
 
         {/* One animated height for the whole body: filters ⇄ suggestions is a
             single motion, not two panels negotiating. */}
         <div
-          className={cn(
-            "relative overflow-hidden motion-reduce:transition-none",
-            // Opening reveals, so it uses the eager ease-out. Closing folds
-            // away, and the same curve there lurches: it dumps most of the
-            // travel into the first frames and creeps to a stop. The settle
-            // curve leaves rest gently instead.
-            animate &&
-              (showOverlay
-                ? "[transition:height_200ms_var(--ease-soft)]"
-                : "[transition:height_200ms_var(--ease-settle)]"),
-          )}
+          className={cn("relative overflow-hidden", heightMotion)}
           style={{ height: bodyHeight }}
         >
           {/* Kept mounted so the reveal can be measured; `invisible` rather
@@ -240,11 +302,16 @@ export function InlineSearch({
                 ? // Fades in early so the content is legible while the card is
                   // still unfurling.
                   "z-10 opacity-100 [transition:opacity_140ms_var(--ease-soft)]"
-                : // Holds opaque until the height has almost finished closing,
-                  // then dissolves over the last stretch. Fading it in step with
-                  // the height would uncover empty card below the filter bar
-                  // mid-collapse — which reads as a gap opening up.
-                  "pointer-events-none opacity-0 [transition:opacity_90ms_var(--ease-soft)_110ms]",
+                : foldAway
+                  ? // Clearing leaves no filter bar to cover. Holding the list
+                    // opaque while the card shrinks just shows suggestions
+                    // getting clipped — fade with the fold instead.
+                    "pointer-events-none opacity-0 [transition:opacity_90ms_var(--ease-soft)]"
+                  : // Holds opaque until the height has almost finished closing,
+                    // then dissolves over the last stretch. Fading it in step with
+                    // the height would uncover empty card below the filter bar
+                    // mid-collapse — which reads as a gap opening up.
+                    "pointer-events-none opacity-0 [transition:opacity_90ms_var(--ease-soft)_110ms]",
             )}
           >
             <SuggestionList
