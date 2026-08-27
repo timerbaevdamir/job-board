@@ -85,10 +85,12 @@ export function MobileSearch({
               <ArrowLeftIcon className="size-6" />
             </button>
           ) : null}
+          {/* Stretch to the row instead of `py-3`: padding around the 36px
+              loupe stacked to 60px, while a query (no loupe) sat at 52. */}
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="flex min-w-0 flex-1 items-center gap-3 py-3 text-left"
+            className="flex min-h-[52px] min-w-0 flex-1 items-center gap-3 text-left"
           >
             {query.trim().length === 0 && (
               <span className="flex size-9 shrink-0 items-center justify-center">
