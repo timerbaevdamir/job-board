@@ -33,22 +33,18 @@ const COUNT: Record<CounterSize, string> = {
  *
  * Placement stays with the caller (`className`): an overlay badge on an icon
  * needs its own offsets, and baking one set of coordinates in here would only
- * be right for a single call site. `ring` cuts the marker out of whatever it
- * overlaps, so it stays legible on top of an icon or a filled button.
+ * be right for a single call site.
  */
 export function Counter({
   value,
   size = "md",
   tone = "danger",
-  ring = false,
   className,
 }: {
   /** Omit for the plain dot — "something is new" without a number. */
   value?: number
   size?: CounterSize
   tone?: CounterTone
-  /** Surface-coloured ring, for markers overlapping an icon or a button. */
-  ring?: boolean
   className?: string
 }) {
   const isDot = value === undefined
@@ -59,7 +55,6 @@ export function Counter({
       className={cn(
         "shrink-0 rounded-full",
         TONE[tone],
-        ring && "border-2 border-surface",
         isDot
           ? DOT[size]
           : cn(

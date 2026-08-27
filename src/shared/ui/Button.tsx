@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes, ReactNode } from "react"
 import { cn } from "@/shared/lib/cn"
 
 export type ButtonVariant = "primary" | "secondary" | "tertiary" | "link"
-export type ButtonSize = "sm" | "md" | "lg"
+export type ButtonSize = "sm" | "md" | "lg" | "composer"
 
 type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "type"> & {
   /** primary — основное, secondary — второстепенное, tertiary — третьестепенное. */
@@ -25,8 +25,9 @@ const VARIANTS: Record<ButtonVariant, string> = {
   link: "border-transparent text-info hover:bg-surface-muted",
 }
 
-// Единая шкала: фиксированные высоты 36 / 44 / 52; текст, паддинги, скругление
-// и иконка растут вместе с размером.
+// Шкала страницы: 36 / 44 / 52. `composer` — отдельный подтип для поля чата:
+// 32px и `rounded-full`, вровень с кругом «+». Один радиус на размер, без
+// перебивания `rounded-xl` снаружи (`cn` не мержит).
 // [height, text, horizontal padding, gap, rounding, icon size, square for icon-only].
 const SIZES: Record<ButtonSize, {
   h: string
@@ -63,6 +64,15 @@ const SIZES: Record<ButtonSize, {
     radius: "rounded-2xl",
     icon: "[&_svg]:size-6",
     square: "size-13",
+  },
+  composer: {
+    h: "h-8",
+    text: "text-sm leading-5",
+    pad: "px-3.5",
+    gap: "gap-1.5",
+    radius: "rounded-full",
+    icon: "[&_svg]:size-4",
+    square: "size-8",
   },
 }
 

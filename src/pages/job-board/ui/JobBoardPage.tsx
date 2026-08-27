@@ -22,7 +22,8 @@ import { useLayoutMode } from "@/shared/lib/useLayoutMode"
  *
  * Columns: the nav rail comes from {@link AppShell}; the center is `flex-1
  * min-w-0` (so it can shrink below its content instead of pushing the rail
- * off-screen) and the 336px discovery column drops out below `lg`.
+ * off-screen) and the 336px discovery column is desktop-only. Phone and
+ * tablet put those cards in the feed, under search.
  */
 export function JobBoardPage({ openJobId }: { openJobId: string | null }) {
   const openJob = openJobId
@@ -30,9 +31,10 @@ export function JobBoardPage({ openJobId }: { openJobId: string | null }) {
     : null
 
   // The feed shows a count/sort toolbar as soon as the user has narrowed
-  // anything — by query, by filter, or by city. On a phone the discovery
-  // block sits above the field while browsing, and leaves once the search
-  // is narrowed: those cards belong to browsing, not to a result list.
+  // anything — by query, by filter, or by city. On a phone or tablet the
+  // discovery block sits under the field while browsing, and leaves once
+  // the search is narrowed: those cards belong to browsing, not to a
+  // result list.
   const { searchId, searching } = useSearch()
   const mode = useLayoutMode()
 
@@ -110,7 +112,7 @@ export function JobBoardPage({ openJobId }: { openJobId: string | null }) {
               {/* 16 from the field to the first card on a phone; wider
                   screens need more air under the search. */}
               <div className="flex flex-1 flex-col gap-10 pt-4 md:pt-8">
-                {mode === "mobile" && !searching && <DiscoveryPanel />}
+                {mode !== "desktop" && !searching && <DiscoveryPanel />}
                 <JobList
                   onSelect={openJobById}
                   searching={searching}
@@ -126,9 +128,11 @@ export function JobBoardPage({ openJobId }: { openJobId: string | null }) {
       {/* `h-full`, not `h-screen`: the shell owns the viewport height, and a
           column that measures itself against the viewport would overshoot the
           moment anything else shares it. */}
-      <aside className="scroll-area hidden h-full w-[336px] shrink-0 overflow-y-auto border-l border-border bg-surface lg:block">
-        {mode !== "mobile" && <DiscoveryPanel />}
-      </aside>
+      {mode === "desktop" && (
+        <aside className="scroll-area h-full w-[336px] shrink-0 overflow-y-auto border-l border-border bg-surface">
+          <DiscoveryPanel />
+        </aside>
+      )}
     </AppShell>
   )
 }

@@ -216,14 +216,14 @@ function RecommendationList({ layout }: { layout: "row" | "stack" }) {
 }
 
 /**
- * Profile tips, activity, and sponsors. On a phone this lives in the feed
- * (the rail is gone): activity first, then the same muted "Рекомендации"
- * label as the rail. The title-sized teaser opens the cards and then
- * yields to them. Wider layouts keep the vertical rail, with extra items
- * behind "Развернуть".
+ * Profile tips, activity, and sponsors. On a phone or tablet this lives in
+ * the feed (the discovery column is gone): activity first, then the same
+ * muted "Рекомендации" label as the rail. The title-sized teaser opens the
+ * cards and then yields to them. Desktop keeps the vertical rail, with extra
+ * items behind "Развернуть".
  */
 export function DiscoveryPanel() {
-  const mobile = useLayoutMode() === "mobile"
+  const inFeed = useLayoutMode() !== "desktop"
   // Phone starts folded so the teaser heading is visible; opening the cards
   // hides it. The rail starts folded too — extra items sit behind "Развернуть".
   const [expanded, setExpanded] = useState(false)
@@ -233,7 +233,7 @@ export function DiscoveryPanel() {
   const top = RECOMMENDATIONS[0]
   const more = Math.max(0, RECOMMENDATIONS.length - 1)
 
-  if (mobile) {
+  if (inFeed) {
     return (
       <div className="flex flex-col gap-8">
         <ActivityCard />

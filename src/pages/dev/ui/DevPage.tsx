@@ -225,6 +225,15 @@ export function DevPage() {
             />
           </Row>
 
+          <Row label="Поле чата">
+            <Button variant="primary" size="composer">
+              Отправить
+            </Button>
+            <Button variant="primary" size="composer" disabled>
+              Отправить
+            </Button>
+          </Row>
+
           <Row label="Состояния">
             <Button variant="primary">По умолчанию</Button>
             <Button variant="primary" disabled>
@@ -361,20 +370,18 @@ export function DevPage() {
             <Counter value={128} tone="info" />
           </Row>
 
-          {/* On a filled surface the ring is what keeps the marker readable. */}
           <Row label="Счётчики на иконке">
-            <span className="relative inline-flex">
+            <span className="relative size-6">
               <SearchIcon className="size-6 text-muted" />
               <Counter
                 value={2}
                 size="sm"
-                ring
-                className="absolute -right-1.5 -top-1.5"
+                className="absolute right-0 top-0 translate-[50%_-25%]"
               />
             </span>
-            <span className="relative inline-flex">
+            <span className="relative size-6">
               <HeartIcon className="size-6 text-muted" />
-              <Counter ring className="absolute -right-0.5 -top-0.5" />
+              <Counter className="absolute right-0 top-0 translate-[50%_-25%]" />
             </span>
           </Row>
         </Section>

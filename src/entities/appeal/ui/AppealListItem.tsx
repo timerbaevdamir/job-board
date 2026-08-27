@@ -34,20 +34,26 @@ export function AppealListItem({
       {/* Logo tile with online dot */}
       <span className="relative shrink-0">
         <span
-          className="flex size-11 items-center justify-center rounded-xl text-base font-semibold"
-          style={{
-            backgroundColor: appeal.logoBg,
-            color: appeal.logoColor ?? "#ffffff",
-          }}
+          className={cn(
+            "flex size-11 items-center justify-center rounded-xl text-base font-semibold",
+            selected && "bg-white/20 text-white",
+          )}
+          style={
+            selected
+              ? undefined
+              : {
+                  backgroundColor: appeal.logoBg,
+                  color: appeal.logoColor ?? "#ffffff",
+                }
+          }
         >
           {appeal.companyInitial}
         </span>
         {appeal.online && (
           <span
             className={cn(
-              "absolute -bottom-0.5 -right-0.5 size-3 rounded-full border-2",
+              "absolute -bottom-0.5 -right-0.5 z-10 size-3 rounded-full border-2 bg-success",
               selected ? "border-info" : "border-background",
-              "bg-success",
             )}
           />
         )}

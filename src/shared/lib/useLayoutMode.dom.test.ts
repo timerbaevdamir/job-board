@@ -22,9 +22,10 @@ describe("useLayoutMode", () => {
     resizeTo(768)
     expect(result.current).toBe("tablet")
 
-    // 80rem = 1280px, the `xl:` boundary — not `lg:`. At 1024 the three columns
-    // do not fit: expanded rail, feed, and discovery panel leave the feed about
-    // 430px. The rail stays collapsed through that range.
+    // 80rem = 1280px, the `xl:` boundary — not `lg:`. An expanded rail plus
+    // the feed still cannot share 1024 comfortably, so the mode stays tablet
+    // (collapsed rail) through that range. Discovery sits in the feed here
+    // and only becomes its own column on desktop.
     resizeTo(1279)
     expect(result.current).toBe("tablet")
     resizeTo(1280)
@@ -34,8 +35,8 @@ describe("useLayoutMode", () => {
   it("keeps the rail collapsed across the range the discovery column shares", () => {
     resizeTo(1024)
     const { result } = renderHook(() => useLayoutMode())
-    // The panel appears at `lg`, so between there and `xl` three columns are on
-    // screen at once and only two of them can afford to be wide.
+    // Expanded labels still do not fit beside the feed until `xl`, so the
+    // rail stays collapsed through this range even though CSS `lg` has fired.
     for (const width of [1024, 1100, 1200, 1279]) {
       resizeTo(width)
       expect(result.current).toBe("tablet")

@@ -7,11 +7,54 @@ import {
   DoubleCheckIcon,
   PlusIcon,
 } from "@/shared/ui/icons"
+import { Button } from "@/shared/ui/Button"
 import { Header, HeaderAction } from "@/shared/ui/Header"
 import { HeaderFade } from "@/shared/ui/HeaderFade"
 import { SEARCH_CARD } from "@/features/job-search/ui/searchCard"
 import { cn } from "@/shared/lib/cn"
 import { useScrollToEnd } from "@/shared/lib/useScrollToEnd"
+
+/** 20px on free corners; 6px (`md`) only where two same-side bubbles meet. */
+function bubbleCorners(mine: boolean, grouped: boolean, last: boolean) {
+  if (mine) {
+    return cn(
+      "rounded-tl-[20px] rounded-bl-[20px]",
+      grouped ? "rounded-tr-md" : "rounded-tr-[20px]",
+      last ? "rounded-br-[20px]" : "rounded-br-md",
+    )
+  }
+  return cn(
+    "rounded-tr-[20px] rounded-br-[20px]",
+    grouped ? "rounded-tl-md" : "rounded-tl-[20px]",
+    last ? "rounded-bl-[20px]" : "rounded-bl-md",
+  )
+}
+
+/** Floats after the text so leftover width on the last line takes the time
+ *  (Telegram / WhatsApp). Too narrow → the float wraps to its own row. */
+function MessageTime({
+  time,
+  read,
+  tone,
+}: {
+  time: string
+  read?: boolean
+  tone: "in" | "out"
+}) {
+  return (
+    <span
+      className={cn(
+        "float-right ml-2 translate-y-px align-baseline text-xs leading-5",
+        tone === "out" ? "text-background/60" : "text-muted",
+      )}
+    >
+      <span className="inline-flex items-center gap-1">
+        {time}
+        {read && <DoubleCheckIcon className="size-3.5 text-background" />}
+      </span>
+    </span>
+  )
+}
 
 function MessageBubble({
   msg,
@@ -32,19 +75,14 @@ function MessageBubble({
       <div className="flex justify-end">
         <div
           className={cn(
-            "max-w-[72%] rounded-2xl bg-foreground px-4 py-3 text-background",
-            grouped ? "rounded-r-md" : "rounded-br-md",
+            "max-w-[72%] bg-foreground px-4 py-3 text-background",
+            bubbleCorners(true, grouped, showTime),
           )}
         >
-          <p className="whitespace-pre-line text-sm leading-6">{msg.text}</p>
-          {showTime && (
-            <span className="mt-1 flex items-center justify-end gap-1 text-xs leading-4 text-background/60">
-              {msg.time}
-              {msg.read && (
-                <DoubleCheckIcon className="size-4 text-[#4da3ff]" />
-              )}
-            </span>
-          )}
+          <p className="flow-root whitespace-pre-line text-sm leading-5">
+            {msg.text}
+            <MessageTime time={msg.time} read={msg.read} tone="out" />
+          </p>
         </div>
       </div>
     )
@@ -52,7 +90,6 @@ function MessageBubble({
 
   // Incoming messages (employer + contact) share a fixed avatar gutter so every
   // bubble lines up on the same left edge; the avatar shows once per group.
-  const isEmployer = msg.from === "employer"
   return (
     <div className="flex items-end gap-2">
       {showTime ? (
@@ -62,11 +99,8 @@ function MessageBubble({
       )}
       <div
         className={cn(
-          "max-w-[72%] rounded-2xl px-4 py-3",
-          isEmployer
-            ? "bg-[#eef4fc] text-foreground"
-            : "bg-chip text-foreground",
-          grouped ? "rounded-l-md" : "rounded-bl-md",
+          "max-w-[72%] bg-chip px-4 py-3 text-foreground",
+          bubbleCorners(false, grouped, showTime),
         )}
       >
         {msg.author && !grouped && (
@@ -77,12 +111,10 @@ function MessageBubble({
         {msg.title && (
           <p className="mb-1 text-sm font-semibold leading-5">{msg.title}</p>
         )}
-        <p className="whitespace-pre-line text-sm leading-6">{msg.text}</p>
-        {showTime && (
-          <span className="mt-1 block text-xs leading-4 text-muted">
-            {msg.time}
-          </span>
-        )}
+        <p className="flow-root whitespace-pre-line text-sm leading-5">
+          {msg.text}
+          <MessageTime time={msg.time} tone="in" />
+        </p>
       </div>
     </div>
   )
@@ -141,8 +173,8 @@ export function AppealChat({
         </div>
       </Header>
 
-      {/* Thread + composer share the scroller so the fade can overlay the
-          last bubbles the way SearchHeader overlays the feed. `justify-end`
+      {/* Thread + composer share the scroller so messages tuck under the
+          sticky field the way jobs tuck under SearchHeader. `justify-end`
           pins a short conversation; overflowing ones land on the latest
           line via `threadRef`. */}
       <div
@@ -217,9 +249,10 @@ function ChatComposer({ resume }: { resume: string }) {
 
   return (
     <div className="sticky bottom-0 z-20">
-      {/* Fade lives with the card only: opaque at the field's bottom edge,
-          transparent through `pt-*` into the thread. Bottom padding is a
-          separate solid strip so the wash does not continue under the card. */}
+      {/* Fade is a backdrop for this chrome (padding + under the card),
+          same stacking as SearchHeader: field on top, gradient behind —
+          not a veil on the thread. Bottom padding is a separate solid
+          strip so the wash stops at the card's bottom edge. */}
       <div className="relative px-4 pt-4 md:px-6 md:pt-6">
         <HeaderFade to="top" />
         {/* Lifted above the fade the same way SearchHeader lifts the field:
@@ -237,21 +270,32 @@ function ChatComposer({ resume }: { resume: string }) {
             />
             <div className="pb-2.5">
               <div className="flex items-center justify-between gap-2 px-2.5">
-                <button
+                <div className="flex min-w-0 items-center gap-1">
+                  <button
+                    type="button"
+                    aria-label="Прикрепить"
+                    className="flex size-8 shrink-0 items-center justify-center rounded-full bg-chip text-foreground transition-colors hover:bg-chip-hover"
+                  >
+                    <PlusIcon className="size-4" />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={`Резюме: ${resume}`}
+                    className="flex min-w-0 max-w-80 items-center gap-1 rounded-full py-1.5 pl-2.5 pr-3 text-sm font-semibold leading-5 text-foreground transition-colors hover:bg-chip/60"
+                  >
+                    <span className="truncate">{resume}</span>
+                    <ChevronDownIcon className="size-4 shrink-0" />
+                  </button>
+                </div>
+                <Button
+                  variant="primary"
+                  size="composer"
                   type="button"
-                  aria-label="Прикрепить"
-                  className="flex size-8 shrink-0 items-center justify-center rounded-full bg-chip text-foreground transition-colors hover:bg-chip-hover"
+                  disabled={!value.trim()}
+                  aria-disabled={!value.trim()}
                 >
-                  <PlusIcon className="size-4" />
-                </button>
-                <button
-                  type="button"
-                  aria-label={`Резюме: ${resume}`}
-                  className="flex min-w-0 max-w-80 items-center gap-1 rounded-full bg-chip py-1.5 pl-3.5 pr-3 text-sm font-semibold leading-5 text-foreground transition-colors hover:bg-chip-hover"
-                >
-                  <span className="truncate">{resume}</span>
-                  <ChevronDownIcon className="size-4 shrink-0" />
-                </button>
+                  Отправить
+                </Button>
               </div>
             </div>
           </div>

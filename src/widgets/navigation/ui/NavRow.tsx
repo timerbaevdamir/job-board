@@ -14,6 +14,17 @@ import { cn } from "@/shared/lib/cn"
  */
 export type NavVariant = "full" | "rail" | "tab"
 
+/**
+ * Overlay on the icon square, not the selected pill. Centre of the marker
+ * sits on the box's top-right corner. Rail and tab keep separate classes —
+ * `cn` does not merge competing `translate`, and a tab tweak must not move
+ * the rail.
+ */
+const ICON_MARK = {
+  rail: "absolute right-0 top-0 translate-x-1/2 -translate-y-1/2",
+  tab: "absolute right-0 top-0 translate-x-1/2 -translate-y-1/2",
+} as const
+
 export function NavRow({
   item,
   active,
@@ -31,6 +42,7 @@ export function NavRow({
   // Only the roomy variant has space for a count beside the label; the other
   // two hang it off the icon.
   const overlaid = variant !== "full"
+  const mark = ICON_MARK[variant === "tab" ? "tab" : "rail"]
 
   return (
     <button
@@ -58,28 +70,25 @@ export function NavRow({
     >
       <span
         className={cn(
-          "relative shrink-0",
+          "shrink-0",
           // In the bar the fill wraps just the icon, so the label underneath
-          // stays legible instead of sitting inside a pill.
+          // stays legible instead of sitting inside a pill. Grid rather than
+          // flex: a relative flex *item* is an unreliable containing block,
+          // and the marker must pin to the `size-6` square, not this chip.
           variant === "tab" &&
             cn(
-              "flex h-7 items-center justify-center rounded-full px-4 transition-colors",
+              "grid h-7 place-items-center rounded-full px-4 transition-colors",
               active ? "bg-chip" : "group-hover:bg-chip/60",
             ),
         )}
       >
-        <Icon className="size-6 text-foreground" />
-        {overlaid && accent && (
-          <Counter
-            value={item.count}
-            size="sm"
-            ring
-            className="absolute -right-1.5 -top-1.5"
-          />
-        )}
-        {overlaid && item.dot && (
-          <Counter ring className="absolute -right-0.5 -top-0.5" />
-        )}
+        <span className="relative block size-6">
+          <Icon className="size-6 text-foreground" />
+          {overlaid && accent && (
+            <Counter value={item.count} size="sm" className={mark} />
+          )}
+          {overlaid && item.dot && <Counter className={mark} />}
+        </span>
       </span>
 
       {variant === "full" && (
