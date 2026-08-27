@@ -216,42 +216,51 @@ function ChatComposer({ resume }: { resume: string }) {
   useLayoutEffect(fit, [value])
 
   return (
-    <div className="sticky bottom-0 z-20 px-4 pt-4 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] md:px-6 md:pt-6 md:pb-6">
-      <HeaderFade to="top" />
-      {/* Lifted above the fade the same way SearchHeader lifts the field:
-          HeaderFade is a positioned layer, so a static sibling paints
-          underneath and the card's top edge would wash out. */}
-      <div className="relative z-10 mx-auto w-full max-w-2xl">
-        <div className={cn(SEARCH_CARD, "shadow-field")}>
-          <textarea
-            ref={taRef}
-            rows={1}
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            placeholder="Написать сообщение"
-            className="block min-h-[52px] w-full resize-none overflow-y-auto bg-transparent px-4 py-[15px] text-base leading-[22px] text-foreground placeholder:text-faint focus:outline-none"
-          />
-          <div className="pb-2.5">
-            <div className="flex items-center justify-between gap-2 px-2.5">
-              <button
-                type="button"
-                aria-label="Прикрепить"
-                className="flex size-8 shrink-0 items-center justify-center rounded-full bg-chip text-foreground transition-colors hover:bg-chip-hover"
-              >
-                <PlusIcon className="size-4" />
-              </button>
-              <button
-                type="button"
-                aria-label={`Резюме: ${resume}`}
-                className="flex min-w-0 max-w-80 items-center gap-1 rounded-full bg-chip py-1.5 pl-3.5 pr-3 text-sm font-semibold leading-5 text-foreground transition-colors hover:bg-chip-hover"
-              >
-                <span className="truncate">{resume}</span>
-                <ChevronDownIcon className="size-4 shrink-0" />
-              </button>
+    <div className="sticky bottom-0 z-20">
+      {/* Fade lives with the card only: opaque at the field's bottom edge,
+          transparent through `pt-*` into the thread. Bottom padding is a
+          separate solid strip so the wash does not continue under the card. */}
+      <div className="relative px-4 pt-4 md:px-6 md:pt-6">
+        <HeaderFade to="top" />
+        {/* Lifted above the fade the same way SearchHeader lifts the field:
+            HeaderFade is a positioned layer, so a static sibling paints
+            underneath and the card's top edge would wash out. */}
+        <div className="relative z-10 mx-auto w-full max-w-2xl">
+          <div className={cn(SEARCH_CARD, "shadow-field")}>
+            <textarea
+              ref={taRef}
+              rows={1}
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              placeholder="Написать сообщение"
+              className="block min-h-[52px] w-full resize-none overflow-y-auto bg-transparent px-4 py-[15px] text-base leading-[22px] text-foreground placeholder:text-faint focus:outline-none"
+            />
+            <div className="pb-2.5">
+              <div className="flex items-center justify-between gap-2 px-2.5">
+                <button
+                  type="button"
+                  aria-label="Прикрепить"
+                  className="flex size-8 shrink-0 items-center justify-center rounded-full bg-chip text-foreground transition-colors hover:bg-chip-hover"
+                >
+                  <PlusIcon className="size-4" />
+                </button>
+                <button
+                  type="button"
+                  aria-label={`Резюме: ${resume}`}
+                  className="flex min-w-0 max-w-80 items-center gap-1 rounded-full bg-chip py-1.5 pl-3.5 pr-3 text-sm font-semibold leading-5 text-foreground transition-colors hover:bg-chip-hover"
+                >
+                  <span className="truncate">{resume}</span>
+                  <ChevronDownIcon className="size-4 shrink-0" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
+      <div
+        aria-hidden
+        className="bg-background pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] md:pb-6"
+      />
     </div>
   )
 }
