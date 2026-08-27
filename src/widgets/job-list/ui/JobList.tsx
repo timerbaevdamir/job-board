@@ -27,8 +27,9 @@ const SORTS: { id: SortId; label: string }[] = [
 ]
 
 /**
- * Toolbar shown above the feed: the result count on the left, sort and the
- * search subscription on the right, all on one line.
+ * Toolbar shown above the feed: the result count, then sort and the search
+ * subscription. One line on a wide screen (count left, controls right); on a
+ * phone the controls take their own row and sit at opposite edges.
  */
 function FeedToolbar() {
   const [sortOpen, setSortOpen] = useState(false)
@@ -50,9 +51,9 @@ function FeedToolbar() {
   const sortLabel = SORTS.find((s) => s.id === sort)?.label
 
   return (
-    // One line: count left, controls right. `gap-x-6` keeps them apart if the
-    // row has to wrap on a narrow column.
-    <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 pb-1">
+    // Count left, controls right. `gap-x-6` keeps them apart if the row has
+    // to wrap on a narrow column.
+    <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 pb-1 pt-3 md:pt-0">
       {loading ? (
         <div className="flex h-[22px] items-center">
           <div className="h-4 w-44 animate-pulse rounded-lg bg-chip" />
@@ -65,7 +66,7 @@ function FeedToolbar() {
         </p>
       )}
 
-      <div className="flex items-center gap-6">
+      <div className="flex w-full items-center justify-between gap-6 md:w-auto">
         {/* Sort dropdown — right-aligned, so its panel hangs from the right edge. */}
         <div ref={sortRef} className="relative">
           <button
@@ -84,7 +85,7 @@ function FeedToolbar() {
           </button>
 
           {sortOpen && (
-            <div className="absolute right-0 top-full z-30 mt-2 w-56 overflow-hidden rounded-2xl border border-border bg-background p-2 shadow-popover">
+            <div className="absolute left-0 top-full z-30 mt-2 w-56 overflow-hidden rounded-2xl border border-border bg-background p-2 shadow-popover md:left-auto md:right-0">
               {SORTS.map((s) => (
                 <OptionRow
                   key={s.id}

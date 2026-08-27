@@ -2,6 +2,8 @@ import { Fragment, useState } from "react"
 import { APPEALS, AppealListItem } from "@/entities/appeal"
 import { SearchIcon, SlidersIcon } from "@/shared/ui/icons"
 import { HeaderFade } from "@/shared/ui/HeaderFade"
+import { SEARCH_WELL } from "@/shared/ui/searchWell"
+import { cn } from "@/shared/lib/cn"
 
 /** Left column of the appeals section: search + scrollable conversation list. */
 export function AppealList({
@@ -39,7 +41,7 @@ export function AppealList({
             <SlidersIcon className="size-5" />
           </button>
         </div>
-        <label className="relative z-10 flex h-12 items-center gap-3 rounded-xl bg-chip pl-3 pr-4">
+        <label className={cn("relative z-10", SEARCH_WELL)}>
           <SearchIcon className="size-5 shrink-0 text-subtle" />
           <input
             type="text"

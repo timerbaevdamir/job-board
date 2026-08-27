@@ -124,13 +124,23 @@ export function CityDrawer() {
           // Base UI returns focus here when the drawer closes, so a keyboard user
           // lands back on the trigger. The ring is ours rather than the browser's
           // default, which renders orange in some browsers and blue in others.
-          className="flex shrink-0 items-center gap-1 rounded-full px-3.5 py-1.5 text-base leading-[22px] text-foreground transition-colors hover:bg-chip focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-info"
+          //
+          // On a phone this sits in the search sheet as a list row — the same
+          // cell as a recent or a recommendation. On a wide screen it stays a
+          // compact chip on the end of the field.
+          className={
+            onPhone
+              ? "flex w-full items-center gap-3 rounded-xl py-3 pl-2 pr-1.5 text-left text-base leading-6 text-foreground transition-colors hover:bg-chip focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-info"
+              : "flex shrink-0 items-center gap-1 rounded-full px-3.5 py-1.5 text-base leading-[22px] text-foreground transition-colors hover:bg-chip focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-info"
+          }
           // The trigger sits inside the field's <label>; without this a click
           // would also focus the input and open the suggestions overlay.
           onMouseDown={(event) => event.preventDefault()}
         >
-          <NavigationIcon className="size-4" />
-          {city}
+          <NavigationIcon
+            className={onPhone ? "size-5 shrink-0 text-subtle" : "size-4"}
+          />
+          <span className="min-w-0 truncate">{city}</span>
         </DrawerTrigger>
 
         {/* Focus the search field rather than the panel: it's the control the

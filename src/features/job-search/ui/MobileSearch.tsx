@@ -10,6 +10,7 @@ import {
 import { ArrowLeftIcon, SearchIcon, XIcon } from "@/shared/ui/icons"
 import { cn } from "@/shared/lib/cn"
 import { ICON_BUTTON } from "@/shared/ui/iconButton"
+import { SEARCH_WELL } from "@/shared/ui/searchWell"
 import { useSearch } from "../model/store"
 import { useSearchField } from "../model/useSearchField"
 import { CityDrawer } from "./CityDrawer"
@@ -196,7 +197,7 @@ function SearchSheet({
           }}
         >
           <div className="flex shrink-0 items-center gap-1 px-3 pb-2 pt-1">
-            <label className="flex min-w-0 flex-1 items-center gap-2.5 rounded-2xl bg-chip px-3 py-2.5">
+            <label className={cn(SEARCH_WELL, "min-w-0 flex-1")}>
               <SearchIcon className="size-5 shrink-0 text-subtle" />
               <input
                 type="text"
@@ -232,8 +233,10 @@ function SearchSheet({
           </div>
 
           {/* The city, now that there is room for it to be a row rather than a
-              tag squeezed onto the end of the input. */}
-          <div className="flex shrink-0 items-center border-b border-border px-3 pb-3">
+              tag squeezed onto the end of the input. `px-2` matches the list
+              below so the cell lines up with recents; `pt-px` is the 1px the
+              row needs above the cell. */}
+          <div className="shrink-0 border-b border-border px-2 pb-2 pt-px">
             <CityDrawer />
           </div>
 
