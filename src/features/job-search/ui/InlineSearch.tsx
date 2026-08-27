@@ -59,7 +59,8 @@ export function InlineSearch({
   /** The in-field filter bar, supplied by the composing widget. */
   filters?: ReactNode
 }) {
-  const { query, setQuery, history, removeFromHistory } = useSearch()
+  const { query, setQuery, history, removeFromHistory, searching, leaveSearch } =
+    useSearch()
   const {
     draft,
     setDraft,
@@ -186,8 +187,7 @@ export function InlineSearch({
     action()
   }
 
-  const inSearch = query.trim().length > 0
-  const showBack = inSearch || held === "back"
+  const showBack = searching || held === "back"
   const showClear = draft.length > 0 || held === "clear"
 
   return (
@@ -218,8 +218,8 @@ export function InlineSearch({
             <button
               type="button"
               aria-label="Назад"
-              onPointerDown={(event) => isolate(event, "back", () => commit(""))}
-              onClick={(event) => isolate(event, "back", () => commit(""))}
+              onPointerDown={(event) => isolate(event, "back", leaveSearch)}
+              onClick={(event) => isolate(event, "back", leaveSearch)}
               className={ICON_BUTTON}
             >
               <ArrowLeftIcon className="size-6" />

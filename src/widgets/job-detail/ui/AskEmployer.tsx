@@ -29,10 +29,12 @@ export function AskEmployer() {
           <button
             type="button"
             key={q}
-            className="group flex items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors hover:bg-surface-muted"
+            className="group flex items-start gap-3 rounded-lg px-3 py-2 text-left transition-colors hover:bg-surface-muted"
           >
-            <CornerDownRightIcon className="size-5 shrink-0 text-faint transition-colors group-hover:text-muted" />
-            <span className="text-base leading-[22px] text-foreground">
+            <span className="flex size-6 shrink-0 items-center justify-center">
+              <CornerDownRightIcon className="size-5 text-faint transition-colors group-hover:text-muted" />
+            </span>
+            <span className="flex items-center py-px text-base leading-[22px] text-foreground">
               {q}
             </span>
           </button>

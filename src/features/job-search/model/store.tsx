@@ -54,6 +54,14 @@ type SearchContextValue = {
   resetFilters: () => void
   setSort: (sort: SortId) => void
   setCity: (city: string) => void
+  /**
+   * Leave search as a place: empty query, any city, no filters, default sort.
+   * The back control uses this so a narrowed feed returns to the home one,
+   * rather than dropping only the typed query and staying on city/filters.
+   */
+  leaveSearch: () => void
+  /** True while the session is narrowed — query, city, or a filter. */
+  searching: boolean
   /** Recent searches, persisted; surfaced by the field's empty-focus state. */
   history: string[]
   removeFromHistory: (value: string) => void
@@ -143,10 +151,21 @@ export function SearchProvider({ children }: { children: ReactNode }) {
 
   const setCity = useCallback((next: string) => setCityState(next), [])
 
+  const leaveSearch = useCallback(() => {
+    setQueryState("")
+    setCityState(ANY_CITY)
+    setFilters(INITIAL_SELECTION)
+    setSortState("match")
+  }, [])
+
   const activeFilterCount = useMemo(
     () => Object.values(filters).filter((ids) => ids.length > 0).length,
     [filters],
   )
+  const searching =
+    query.trim().length > 0 ||
+    activeFilterCount > 0 ||
+    city !== ANY_CITY
 
   // Memoized: without it every provider render hands consumers a new object and
   // re-renders the whole feed, filter bar and toolbar regardless of what changed.
@@ -169,6 +188,8 @@ export function SearchProvider({ children }: { children: ReactNode }) {
       setSort,
       history,
       removeFromHistory: remove,
+      leaveSearch,
+      searching,
     }),
     [
       query,
@@ -188,6 +209,8 @@ export function SearchProvider({ children }: { children: ReactNode }) {
       setSort,
       history,
       remove,
+      leaveSearch,
+      searching,
     ],
   )
 

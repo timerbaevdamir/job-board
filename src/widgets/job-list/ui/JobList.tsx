@@ -60,9 +60,7 @@ function FeedToolbar() {
         </div>
       ) : (
         <p className="text-base leading-[22px] text-muted">
-          {total === 0
-            ? "Ничего не найдено"
-            : `Найдено ${total} ${vacancies(total)}`}
+          {`Найдено ${total} ${vacancies(total)}`}
         </p>
       )}
 
@@ -133,18 +131,20 @@ function FeedToolbar() {
 function EmptyState() {
   const { query, activeFilterCount } = useSearch()
   return (
-    <div className="flex flex-col items-center gap-3 rounded-3xl border border-border-strong/70 bg-surface px-6 py-14 text-center">
+    <div className="flex flex-col items-center gap-3 px-6 py-14 text-center">
       <SearchIcon className="size-8 text-faint" />
-      <p className="text-lg font-semibold leading-[26px] text-foreground">
-        {query
-          ? `По запросу «${query}» ничего не найдено`
-          : "Ничего не найдено"}
-      </p>
-      <p className="max-w-sm text-sm leading-6 text-muted">
-        {activeFilterCount > 0
-          ? "Попробуйте убрать часть фильтров или изменить запрос."
-          : "Попробуйте изменить запрос — например, использовать более общую формулировку."}
-      </p>
+      <div className="flex flex-col items-center gap-1">
+        <p className="text-lg font-semibold leading-[26px] text-foreground">
+          {query
+            ? `По запросу «${query}» ничего не найдено`
+            : "Ничего не найдено"}
+        </p>
+        <p className="max-w-sm text-sm leading-6 text-muted">
+          {activeFilterCount > 0
+            ? "Попробуйте убрать часть фильтров или изменить запрос."
+            : "Попробуйте изменить запрос — например, использовать более общую формулировку."}
+        </p>
+      </div>
     </div>
   )
 }
@@ -156,8 +156,9 @@ export function JobList({
   slotAfter = 1,
 }: {
   onSelect: (id: string) => void
-  /** In the search state a count/sort toolbar sits above the cards; otherwise
-      the role-feed tabs do. */
+  /** In the search state a count/sort toolbar sits above the cards — unless
+      nothing matched, in which case the empty state is the whole story.
+      Otherwise the role-feed tabs do. */
   searching?: boolean
   /** Optional node interleaved into the feed after the {@link slotAfter} card. */
   slot?: ReactNode
@@ -174,8 +175,15 @@ export function JobList({
   )
 
   return (
-    <section className="flex flex-col gap-4">
-      {searching ? <FeedToolbar /> : <FeedTabs value={feed} onChange={setFeed} />}
+    <section
+      className={cn(
+        "flex flex-col gap-4",
+        !loading && cards.length === 0 && "flex-1 justify-center",
+      )}
+    >
+      {searching
+        ? (loading || cards.length > 0) && <FeedToolbar />
+        : <FeedTabs value={feed} onChange={setFeed} />}
 
       {loading ? (
         // Request in flight: skeleton cards stand in for results (the

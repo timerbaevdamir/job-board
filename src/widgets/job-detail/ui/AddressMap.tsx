@@ -38,7 +38,7 @@ export function AddressMap({
             <button
               type="button"
               aria-label="Открыть карту"
-              className="absolute right-3 top-3 flex size-9 items-center justify-center rounded-lg bg-white text-foreground shadow-[0_2px_8px_rgba(0,0,0,0.15)] transition-colors hover:bg-surface-muted"
+              className="absolute right-3 top-3 hidden size-9 items-center justify-center rounded-lg bg-white text-foreground shadow-[0_2px_8px_rgba(0,0,0,0.15)] transition-colors hover:bg-surface-muted md:flex"
             >
               <ExpandIcon className="size-4" />
             </button>

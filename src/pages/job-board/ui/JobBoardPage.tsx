@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef } from "react"
-import { JOBS, ANY_CITY } from "@/entities/job"
+import { JOBS } from "@/entities/job"
 import { AppShell } from "@/widgets/app-shell"
 import { NavStack } from "@/shared/ui/NavStack"
 import { SearchHeader } from "@/widgets/search-header"
@@ -33,10 +33,8 @@ export function JobBoardPage({ openJobId }: { openJobId: string | null }) {
   // anything — by query, by filter, or by city. On a phone the discovery
   // block sits above the field while browsing, and leaves once the search
   // is narrowed: those cards belong to browsing, not to a result list.
-  const { query, city, activeFilterCount, searchId } = useSearch()
+  const { searchId, searching } = useSearch()
   const mode = useLayoutMode()
-  const searching =
-    query.trim().length > 0 || activeFilterCount > 0 || city !== ANY_CITY
 
   // Unknown vacancy id (stale or hand-typed link): drop back to the feed and
   // replace the entry so Back doesn't return to the dead URL.
@@ -104,11 +102,14 @@ export function JobBoardPage({ openJobId }: { openJobId: string | null }) {
           }
         >
           <div ref={feedRef} className="scroll-area h-full overflow-y-auto">
-            <div className="mx-auto flex w-full max-w-3xl flex-col px-4 pb-6 sm:px-8">
+            {/* `min-h-full` so a short page (empty search) can still fill the
+                scrollport and center its empty state in the leftover space
+                below the field. Results grow past it and scroll as before. */}
+            <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col px-4 pb-6 sm:px-8">
               <SearchHeader />
               {/* 16 from the field to the first card on a phone; wider
                   screens need more air under the search. */}
-              <div className="flex flex-col gap-10 pt-4 md:pt-8">
+              <div className="flex flex-1 flex-col gap-10 pt-4 md:pt-8">
                 {mode === "mobile" && !searching && <DiscoveryPanel />}
                 <JobList
                   onSelect={openJobById}

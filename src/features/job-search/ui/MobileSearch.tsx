@@ -62,7 +62,7 @@ export function MobileSearch({
   /** The in-field filter bar, supplied by the composing widget. */
   filters?: ReactNode
 }) {
-  const { query, setQuery } = useSearch()
+  const { query, searching, leaveSearch } = useSearch()
   const [open, setOpen] = useState(false)
   const showFilters = filtersVisible(query)
 
@@ -74,13 +74,14 @@ export function MobileSearch({
           under it. */}
       <div className={cn(SEARCH_CARD, "shadow-field")}>
         <div className="flex min-h-[52px] items-center gap-3 px-2.5">
-          {query.trim().length > 0 ? (
-            // Search is its own place: this leaves it. The sheet's X only
-            // empties the field you are typing into.
+          {searching ? (
+            // Search is its own place: this leaves it — query, city and
+            // filters — so the phone returns to the home feed. The sheet's
+            // X only empties the field you are typing into.
             <button
               type="button"
               aria-label="Назад"
-              onClick={() => setQuery("")}
+              onClick={leaveSearch}
               className={ICON_BUTTON}
             >
               <ArrowLeftIcon className="size-6" />
@@ -93,7 +94,7 @@ export function MobileSearch({
             onClick={() => setOpen(true)}
             className="flex min-h-[52px] min-w-0 flex-1 items-center gap-3 text-left"
           >
-            {query.trim().length === 0 && (
+            {query.trim().length === 0 && !searching && (
               <span className="flex size-9 shrink-0 items-center justify-center">
                 <SearchIcon className="size-6 text-subtle" />
               </span>

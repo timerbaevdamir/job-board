@@ -1,10 +1,18 @@
 import type { JobDetail, JobReview } from "@/entities/job"
 import { Button } from "@/shared/ui/Button"
+import { cn } from "@/shared/lib/cn"
+import { useLayoutMode } from "@/shared/lib/useLayoutMode"
 import { SectionHeading, Stars } from "./primitives"
 
-function ReviewCard({ review }: { review: JobReview }) {
+function ReviewCard({
+  review,
+  className,
+}: {
+  review: JobReview
+  className?: string
+}) {
   return (
-    <div className="flex min-w-0 flex-1 flex-col gap-2 rounded-2xl bg-chip p-4">
+    <div className={cn("flex flex-col gap-2 rounded-2xl bg-chip p-4", className)}>
       <div className="flex flex-col gap-1">
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium leading-5 text-foreground">
@@ -22,6 +30,7 @@ function ReviewCard({ review }: { review: JobReview }) {
 /** Company reviews: aggregate rating + recommend rate, review cards, actions. */
 export function ReviewsSection({ detail }: { detail: JobDetail }) {
   const { rating, recommendPercent, reviews } = detail
+  const mobile = useLayoutMode() === "mobile"
   if (!reviews || reviews.length === 0) return null
 
   return (
@@ -45,10 +54,34 @@ export function ReviewsSection({ detail }: { detail: JobDetail }) {
           </span>
         )}
       </div>
-      <div className="flex flex-col gap-3 sm:flex-row">
-        {reviews.map((review) => (
-          <ReviewCard key={review.id} review={review} />
-        ))}
+      {/* Phone: a snap carousel that peeks the next card. Wider screens keep
+          the two reviews side by side in the column. */}
+      <div
+        className={
+          mobile
+            ? "-mx-4 overflow-x-auto overscroll-x-contain snap-x snap-mandatory scroll-px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            : undefined
+        }
+      >
+        <div className={mobile ? "flex pl-4" : "flex gap-3"}>
+          {reviews.map((review, i) => (
+            <ReviewCard
+              key={review.id}
+              review={review}
+              className={
+                mobile
+                  ? cn(
+                      "w-[85%] shrink-0 snap-start",
+                      i < reviews.length - 1 && "mr-3",
+                    )
+                  : "min-w-0 flex-1"
+              }
+            />
+          ))}
+          {/* Padding on a wrapping flex box does not extend the scroll
+              overflow; a real end item does. */}
+          {mobile ? <div className="w-4 shrink-0" aria-hidden /> : null}
+        </div>
       </div>
       <div className="flex flex-wrap gap-3">
         <Button variant="secondary" size="sm">

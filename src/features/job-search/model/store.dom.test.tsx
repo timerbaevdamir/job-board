@@ -155,6 +155,23 @@ describe("search session", () => {
     expect(result.current.query).toBe("аналитик")
   })
 
+  it("leaveSearch restores the unfiltered home feed", () => {
+    const { result } = mount()
+
+    act(() => result.current.setQuery("дизайнер"))
+    act(() => result.current.setCity("Москва"))
+    act(() => result.current.toggleFilterOption("schedule", "remote", true))
+    act(() => result.current.setSort("date"))
+
+    act(() => result.current.leaveSearch())
+
+    expect(result.current.query).toBe("")
+    expect(result.current.city).toBe("Вся Россия")
+    expect(result.current.activeFilterCount).toBe(0)
+    expect(result.current.sort).toBe("match")
+    expect(result.current.searching).toBe(false)
+  })
+
   it("records committed queries in history, most recent first", () => {
     const { result } = mount()
 
