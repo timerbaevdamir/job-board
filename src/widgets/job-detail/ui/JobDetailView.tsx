@@ -16,15 +16,25 @@ import { ReviewsSection } from "./ReviewsSection"
  * Full vacancy view rendered inside the center column — the sidebar and right
  * panel stay in place. A sticky header (sized to the column) carries the back
  * action and save / share / more; a sticky footer carries the apply CTA.
+ *
+ * `chrome="pane"` is the phone vacancy, forced: used beside chat or opened
+ * from a thread. Viewport `md:` would otherwise restyle it into the feed
+ * overlay, and apply / contacts / questions / related jobs do not belong —
+ * the candidate already applied.
  */
 export function JobDetailView({
   job,
   onBack,
   onOpen,
+  chrome = "page",
+  dismiss = "back",
 }: {
   job: Job
   onBack: () => void
   onOpen: (id: string) => void
+  chrome?: "page" | "pane"
+  /** Desktop third column closes in place; a mobile screen still goes back. */
+  dismiss?: "back" | "close"
 }) {
   const titleRef = useRef<HTMLHeadingElement>(null)
   const d = job.detail
@@ -38,10 +48,29 @@ export function JobDetailView({
     // Full-bleed shell: sticky header/footer span the column, the body centers
     // itself. `min-h-full` keeps the footer at the bottom for short content.
     <div className="flex min-h-full flex-col">
-      <DetailHeader job={job} onBack={onBack} titleRef={titleRef} />
+      <DetailHeader
+        job={job}
+        onBack={onBack}
+        titleRef={titleRef}
+        inset={
+          chrome !== "pane"
+            ? "flush"
+            : dismiss === "close"
+              ? "column"
+              : "tight"
+        }
+        dismiss={dismiss}
+      />
 
-      {/* Centered, padded content column */}
-      <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-4 pb-8 pt-8 sm:px-8 sm:pt-10">
+      {/* Centered, padded content column. Pane skips `sm:` — those are
+          viewport queries, and a 400px column on a desktop still matches them. */}
+      <div
+        className={
+          chrome === "pane"
+            ? "mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-4 pb-8 pt-8"
+            : "mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-4 pb-8 pt-8 sm:px-8 sm:pt-10"
+        }
+      >
         {/* Title, salary and spec rows */}
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-3">
@@ -123,10 +152,10 @@ export function JobDetailView({
         )}
 
         {/* Contacts */}
-        {d?.contactName && (
+        {chrome !== "pane" && d?.contactName && (
           <section className="flex flex-col gap-3">
             <SectionHeading>Контакты</SectionHeading>
-            <div className="flex items-center justify-between gap-4 rounded-2xl border border-border-strong/70 bg-surface p-4">
+            <div className="flex flex-col gap-4 rounded-2xl border border-border-strong/70 bg-surface p-4 md:flex-row md:items-center md:justify-between">
               <div className="flex min-w-0 flex-col">
                 <span className="text-base leading-[22px] text-foreground">
                   {d.contactName}
@@ -137,19 +166,18 @@ export function JobDetailView({
                   </span>
                 )}
               </div>
-              <Button variant="secondary" size="sm">
+              <Button variant="secondary" size="sm" className="w-full md:w-auto">
                 Показать контакты
               </Button>
             </div>
           </section>
         )}
 
-        <AskEmployer />
+        {chrome !== "pane" && <AskEmployer />}
 
-        {d && <ReviewsSection detail={d} />}
+        {d && <ReviewsSection detail={d} compact={chrome === "pane"} />}
 
-        {/* Related vacancies */}
-        {related.length > 0 && (
+        {chrome !== "pane" && related.length > 0 && (
           <section className="flex flex-col gap-3">
             <SectionHeading>Вам подойдут и эти вакансии</SectionHeading>
             <div className="flex flex-col gap-4">
@@ -169,42 +197,36 @@ export function JobDetailView({
         )}
       </div>
 
-      {/* Sticky full-width apply bar, separated from the content above it two
-          different ways.
-
-          On a phone the tab bar sits directly under it, and the two are one
-          raised panel: same surface, no line between them, a rounded top for
-          the content to disappear under and a single shadow lifting the whole
-          stack. From `md` there is no tab bar and the page is laid out rather
-          than stacked — the bar is just its bottom edge, and a hairline is what
-          an edge looks like. Opaque either way; a translucent bar over a white
-          feed only reads as a smudge. */}
-      <footer className="sticky bottom-0 z-20 rounded-t-[20px] bg-surface shadow-bar md:rounded-none md:border-t md:border-border md:shadow-none">
-        {/* On a phone the two actions split the width as equal grid tracks —
-            a flex `flex-1` would fight `shrink-0` on `Button`. From `md` they
-            hug their labels and sit on the left of the content column. */}
-        <div
-          className={
-            applied
-              ? "mx-auto w-full max-w-3xl px-4 pb-2 pt-4 sm:px-8 md:flex md:pb-4"
-              : "mx-auto grid w-full max-w-3xl grid-cols-2 items-center gap-3 px-4 pb-2 pt-4 sm:px-8 md:flex md:pb-4"
-          }
-        >
-          {!applied && (
-            <Button variant="primary" size="lg" onClick={() => apply(job.id)}>
-              Откликнуться
-            </Button>
-          )}
-          <Button
-            variant="secondary"
-            size="lg"
-            fullWidth={applied}
-            className={applied ? "md:w-auto" : undefined}
+      {chrome !== "pane" && (
+        /* Sticky full-width apply bar. On a phone it sits on the tab bar as
+           one raised panel; from `md` it is the page's bottom edge. */
+        <footer className="sticky bottom-0 z-20 rounded-t-[20px] bg-surface shadow-bar md:rounded-none md:border-t md:border-border md:shadow-none">
+          {/* On a phone the two actions split the width as equal grid tracks —
+              a flex `flex-1` would fight `shrink-0` on `Button`. From `md` they
+              hug their labels and sit on the left of the content column. */}
+          <div
+            className={
+              applied
+                ? "mx-auto w-full max-w-3xl px-4 pb-2 pt-4 sm:px-8 md:flex md:pb-4"
+                : "mx-auto grid w-full max-w-3xl grid-cols-2 items-center gap-3 px-4 pb-2 pt-4 sm:px-8 md:flex md:pb-4"
+            }
           >
-            Контакты
-          </Button>
-        </div>
-      </footer>
+            {!applied && (
+              <Button variant="primary" size="lg" onClick={() => apply(job.id)}>
+                Откликнуться
+              </Button>
+            )}
+            <Button
+              variant="secondary"
+              size="lg"
+              fullWidth={applied}
+              className={applied ? "md:w-auto" : undefined}
+            >
+              Контакты
+            </Button>
+          </div>
+        </footer>
+      )}
     </div>
   )
 }

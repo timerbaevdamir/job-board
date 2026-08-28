@@ -28,9 +28,16 @@ function ReviewCard({
 }
 
 /** Company reviews: aggregate rating + recommend rate, review cards, actions. */
-export function ReviewsSection({ detail }: { detail: JobDetail }) {
+export function ReviewsSection({
+  detail,
+  compact = false,
+}: {
+  detail: JobDetail
+  /** Phone carousel even on a wide viewport — a vacancy pane, not the feed. */
+  compact?: boolean
+}) {
   const { rating, recommendPercent, reviews } = detail
-  const mobile = useLayoutMode() === "mobile"
+  const mobile = compact || useLayoutMode() === "mobile"
   if (!reviews || reviews.length === 0) return null
 
   return (

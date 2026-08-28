@@ -174,6 +174,14 @@ export function ArrowLeftIcon(props: IconProps) {
   )
 }
 
+export function ArrowUpIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M12 19V5m0 0-7 7m7-7 7 7" />
+    </svg>
+  )
+}
+
 export function ShareIcon(props: IconProps) {
   return (
     <svg {...base} {...props}>
@@ -191,6 +199,16 @@ export function DotsIcon(props: IconProps) {
       <circle cx="12" cy="5" r="1.4" />
       <circle cx="12" cy="12" r="1.4" />
       <circle cx="12" cy="19" r="1.4" />
+    </svg>
+  )
+}
+
+export function InfoIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 11v5" />
+      <circle cx="12" cy="8" r="1" fill="currentColor" stroke="none" />
     </svg>
   )
 }

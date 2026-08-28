@@ -22,9 +22,10 @@ export function AppealList({
 
   return (
     // Full width when it is the whole screen (mobile), a fixed column once the
-    // chat sits beside it. `h-full`, not `h-screen`: below `md` the shell's tab
-    // bar takes part of the viewport, and 100vh would push the input off-screen.
-    <div className="flex h-full w-full shrink-0 flex-col bg-background md:w-[340px] md:border-r md:border-border">
+    // chat sits beside it. Tablet `md` is 340, desktop `xl` (same as
+    // `useLayoutMode`) is 400. `h-full`, not `h-screen`: below `md` the shell's
+    // tab bar takes part of the viewport, and 100vh would push the input off-screen.
+    <div className="flex h-full w-full shrink-0 flex-col bg-background md:w-[340px] xl:w-[400px] md:border-r md:border-border">
       <Header
         edge
         padTitle

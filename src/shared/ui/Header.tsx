@@ -62,7 +62,8 @@ export function Header({
   scrolled?: boolean
   titleRef?: RefObject<HTMLElement | null>
   align?: "left" | "center"
-  inset?: "default" | "flush"
+  /** `tight` is 8px; `flush` is 8 / 16 from md / 24 from xl (board vacancy); `column` is 16 — chat third column. */
+  inset?: "default" | "flush" | "tight" | "column"
   width?: "full" | "column"
   /** Title slot carries its own 16px sides; desktop adds extra left air. */
   padTitle?: boolean
@@ -76,12 +77,30 @@ export function Header({
   const watching = hud || edge
   const scrolled = watching && (controlled ? scrolledProp : observed)
   const showFade = fade ?? !sticky
-  const insetClass = inset === "flush" ? "px-2 md:px-7" : "px-2 md:px-4"
-  const belowInset = inset === "flush" ? "px-2 md:px-7" : "px-4"
+  const insetClass =
+    inset === "column"
+      ? "px-4"
+      : inset === "tight"
+        ? "px-2"
+        : inset === "flush"
+          ? "px-2 md:px-4 xl:px-6"
+          : "px-2 md:px-4"
+  const belowInset =
+    inset === "column"
+      ? "px-4"
+      : inset === "tight"
+        ? "px-2"
+        : inset === "flush"
+          ? "px-2 md:px-4 xl:px-6"
+          : "px-4"
   const barInset = padTitle
-    ? inset === "flush"
-      ? "pr-2 md:pr-7"
-      : "pr-2 md:pr-4"
+    ? inset === "column"
+      ? "pr-4"
+      : inset === "tight"
+        ? "pr-2"
+        : inset === "flush"
+          ? "pr-2 md:pr-4 xl:pr-6"
+          : "pr-2 md:pr-4"
     : insetClass
 
   useEffect(() => {
@@ -166,7 +185,11 @@ export function Header({
                 )
               : cn(
                   "flex min-w-0 flex-1 items-center gap-3",
-                  padTitle ? "px-4 md:pl-6" : "md:pl-2",
+                  padTitle
+                    ? "px-4 md:pl-6"
+                    : inset === "tight" || inset === "column"
+                      ? null
+                      : "md:pl-2",
                   align === "center" ? "justify-center" : null,
                 )
           }

@@ -5,6 +5,7 @@ import {
   DotsIcon,
   HeartIcon,
   ShareIcon,
+  XIcon,
 } from "@/shared/ui/icons"
 import { Header, HeaderAction, HeaderActions } from "@/shared/ui/Header"
 import { useSaved } from "@/features/save-job"
@@ -15,10 +16,15 @@ export function DetailHeader({
   job,
   onBack,
   titleRef,
+  inset = "flush",
+  dismiss = "back",
 }: {
   job: Job
   onBack: () => void
   titleRef: RefObject<HTMLHeadingElement | null>
+  inset?: "flush" | "tight" | "column"
+  /** Column beside chat uses close; a full screen still goes back. */
+  dismiss?: "back" | "close"
 }) {
   const { isSaved, toggleSaved } = useSaved()
   const saved = isSaved(job.id)
@@ -29,12 +35,18 @@ export function DetailHeader({
       hud
       titleRef={titleRef}
       align="center"
-      inset="flush"
+      inset={inset}
       width="column"
       start={
-        <HeaderAction tone="ghost" aria-label="Назад" onClick={onBack}>
-          <ArrowLeftIcon className="size-6" />
-        </HeaderAction>
+        dismiss === "close" ? (
+          <HeaderAction tone="ghost" aria-label="Закрыть" onClick={onBack}>
+            <XIcon className="size-6" />
+          </HeaderAction>
+        ) : (
+          <HeaderAction tone="ghost" aria-label="Назад" onClick={onBack}>
+            <ArrowLeftIcon className="size-6" />
+          </HeaderAction>
+        )
       }
       end={
         <HeaderActions>

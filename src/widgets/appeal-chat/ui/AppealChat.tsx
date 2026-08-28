@@ -1,14 +1,20 @@
 import { useLayoutEffect, useRef, useState } from "react"
-import type { Appeal, AppealMessage } from "@/entities/appeal"
+import {
+  formatLastSeen,
+  type Appeal,
+  type AppealMessage,
+} from "@/entities/appeal"
 import {
   ArrowLeftIcon,
+  ArrowUpIcon,
   ChevronDownIcon,
   DotsIcon,
   DoubleCheckIcon,
+  InfoIcon,
   PlusIcon,
 } from "@/shared/ui/icons"
 import { Button } from "@/shared/ui/Button"
-import { Header, HeaderAction } from "@/shared/ui/Header"
+import { Header, HeaderAction, HeaderActions } from "@/shared/ui/Header"
 import { HeaderFade } from "@/shared/ui/HeaderFade"
 import { SEARCH_CARD } from "@/features/job-search/ui/searchCard"
 import { cn } from "@/shared/lib/cn"
@@ -93,20 +99,27 @@ function MessageBubble({
   return (
     <div className="flex items-end gap-2">
       {showTime ? (
-        <span className="size-7 shrink-0 rounded-full bg-chip" />
+        <span className="size-8 shrink-0 rounded-full bg-chip" />
       ) : (
-        <span className="size-7 shrink-0" aria-hidden />
+        <span className="size-8 shrink-0" aria-hidden />
       )}
       <div
         className={cn(
-          "max-w-[72%] bg-chip px-4 py-3 text-foreground",
+          "min-w-0 max-w-[72%] bg-chip px-4 py-3 text-foreground",
           bubbleCorners(false, grouped, showTime),
         )}
       >
         {msg.author && !grouped && (
-          <p className="mb-1 text-sm font-semibold leading-5 text-info">
-            {msg.author}
-          </p>
+          <div className="mb-1 flex min-w-0 items-baseline justify-between gap-2">
+            <p className="shrink-0 text-sm font-semibold leading-5 text-info">
+              {msg.author}
+            </p>
+            {msg.role && (
+              <p className="min-w-0 truncate text-right text-xs leading-5 text-muted">
+                {msg.role}
+              </p>
+            )}
+          </div>
         )}
         {msg.title && (
           <p className="mb-1 text-sm font-semibold leading-5">{msg.title}</p>
@@ -124,10 +137,16 @@ function MessageBubble({
 export function AppealChat({
   appeal,
   onBack,
+  onJobInfo,
+  jobInfoOpen = false,
 }: {
   appeal: Appeal
   /** Shown only when the chat stands alone — i.e. the narrow layout. */
   onBack?: () => void
+  /** Info action: desktop toggles the vacancy pane; phone/tablet navigate. */
+  onJobInfo?: () => void
+  /** Desktop: the vacancy column is already open. */
+  jobInfoOpen?: boolean
 }) {
   const threadRef = useScrollToEnd<HTMLDivElement>(appeal.id)
 
@@ -149,9 +168,18 @@ export function AppealChat({
           ) : undefined
         }
         end={
-          <HeaderAction aria-label="Действия">
-            <DotsIcon className="size-5" />
-          </HeaderAction>
+          <HeaderActions>
+            <HeaderAction
+              aria-label="О вакансии"
+              aria-pressed={jobInfoOpen}
+              onClick={onJobInfo}
+            >
+              <InfoIcon className="size-5" />
+            </HeaderAction>
+            <HeaderAction aria-label="Действия">
+              <DotsIcon className="size-5" />
+            </HeaderAction>
+          </HeaderActions>
         }
       >
         <span
@@ -167,8 +195,14 @@ export function AppealChat({
           <span className="truncate text-base font-semibold leading-[22px] text-foreground">
             {appeal.company}
           </span>
-          <span className="text-sm leading-5 text-muted">
-            {appeal.online ? "Онлайн" : "Не в сети"}
+          <span
+            className={
+              appeal.online
+                ? "truncate text-sm leading-5 text-success"
+                : "truncate text-sm leading-5 text-muted"
+            }
+          >
+            {appeal.online ? "Онлайн" : formatLastSeen(appeal.lastSeen)}
           </span>
         </div>
       </Header>
@@ -292,10 +326,9 @@ function ChatComposer({ resume }: { resume: string }) {
                   size="composer"
                   type="button"
                   disabled={!value.trim()}
-                  aria-disabled={!value.trim()}
-                >
-                  Отправить
-                </Button>
+                  aria-label="Отправить"
+                  icon={<ArrowUpIcon />}
+                />
               </div>
             </div>
           </div>

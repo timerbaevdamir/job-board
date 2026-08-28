@@ -4,6 +4,7 @@ import { Drawer, DrawerContent } from "@/shared/ui/Drawer"
 import {
   activeSection,
   useNavigate,
+  useNavVia,
   useRoute,
   type Route,
 } from "@/shared/lib/router"
@@ -51,6 +52,7 @@ export function AppShell({
 }) {
   const route = useRoute()
   const navigate = useNavigate()
+  const via = useNavVia()
   const mode = useLayoutMode()
   const [panelOpen, setPanelOpen] = useState(false)
 
@@ -68,7 +70,9 @@ export function AppShell({
   // A thread on a phone is its own screen: back lives in the header, and the
   // bar would sit under the composer. The list still needs it.
   const hideTabBar =
-    mode === "mobile" && route.name === "appeals" && Boolean(route.appealId)
+    mode === "mobile" &&
+    ((route.name === "appeals" && Boolean(route.appealId)) ||
+      (route.name === "job" && via === "appeal"))
 
   return (
     // A column on mobile so the bar can be a sibling of the content: the scroll

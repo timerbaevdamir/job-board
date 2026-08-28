@@ -88,7 +88,7 @@ export function directionOf(from: number, to: number): NavDirection {
  * now. That is also why navigation moved from `location.hash = …` to
  * `pushState`: only the History API lets an entry carry anything.
  */
-type NavState = { d?: number }
+type NavState = { d?: number; via?: "appeal" }
 
 const depthOf = (state: unknown): number | null => {
   const d = (state as NavState | null)?.d
@@ -165,7 +165,10 @@ function install(): void {
  * new one — used when a route is corrected rather than navigated to, so Back
  * doesn't land on the bad URL again.
  */
-export function navigate(route: Route, { replace = false } = {}): void {
+export function navigate(
+  route: Route,
+  { replace = false, via }: { replace?: boolean; via?: "appeal" } = {},
+): void {
   install()
   const hash = routeToHash(route)
   if (hash === window.location.hash) return
@@ -173,13 +176,31 @@ export function navigate(route: Route, { replace = false } = {}): void {
   const url = `${window.location.pathname}${window.location.search}${hash}`
   if (replace) {
     direction = "replace"
-    history.replaceState({ ...history.state, d: depth }, "", url)
+    const next: NavState = { ...(history.state as object), d: depth }
+    if (via) next.via = via
+    else delete next.via
+    history.replaceState(next, "", url)
   } else {
     depth += 1
     direction = "push"
-    history.pushState({ d: depth }, "", url)
+    history.pushState({ d: depth, ...(via ? { via } : {}) }, "", url)
   }
   emit()
+}
+
+/**
+ * One step back in the stack this module stamped. A vacancy opened from a
+ * thread returns to that thread; one opened from the feed returns to the feed.
+ * Direct links have no previous entry of ours, so they fall back to `fallback`
+ * instead of leaving the app.
+ */
+export function back(fallback: Route = { name: "search" }): void {
+  install()
+  if (depth > 1) {
+    history.back()
+    return
+  }
+  navigate(fallback)
 }
 
 function subscribe(onChange: () => void) {
@@ -204,10 +225,21 @@ export function useNavDirection(): NavDirection {
   return useSyncExternalStore(subscribe, () => direction)
 }
 
+/** How the current entry was opened — an appeal vacancy vs the search feed. */
+export function useNavVia(): "appeal" | undefined {
+  return useSyncExternalStore(subscribe, () => {
+    const via = (history.state as NavState | null)?.via
+    return via === "appeal" ? "appeal" : undefined
+  })
+}
+
 /** Stable `navigate` for components that only need to trigger navigation. */
 export function useNavigate() {
   return useCallback(
-    (route: Route, opts?: { replace?: boolean }) => navigate(route, opts),
+    (
+      route: Route,
+      opts?: { replace?: boolean; via?: "appeal" },
+    ) => navigate(route, opts),
     [],
   )
 }

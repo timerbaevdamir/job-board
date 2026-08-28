@@ -8,7 +8,7 @@ import { JobDetailView } from "@/widgets/job-detail"
 import { DiscoveryPanel } from "@/widgets/discovery-panel"
 import { InterestingRoles } from "@/widgets/interesting"
 import { useSearch } from "@/features/job-search"
-import { navigate } from "@/shared/lib/router"
+import { navigate, back, useNavVia } from "@/shared/lib/router"
 import { useScrollRestoration } from "@/shared/lib/useScrollRestoration"
 import { useLayoutMode } from "@/shared/lib/useLayoutMode"
 
@@ -29,6 +29,7 @@ export function JobBoardPage({ openJobId }: { openJobId: string | null }) {
   const openJob = openJobId
     ? (JOBS.find((j) => j.id === openJobId) ?? null)
     : null
+  const fromAppeal = useNavVia() === "appeal"
 
   // The feed shows a count/sort toolbar as soon as the user has narrowed
   // anything — by query, by filter, or by city. On a phone or tablet the
@@ -74,7 +75,7 @@ export function JobBoardPage({ openJobId }: { openJobId: string | null }) {
     // An open vacancy carries its own apply bar along the bottom edge, and on
     // a phone that lands directly on the tab bar. The shell can't see it, so
     // it is told.
-    <AppShell bottomBar={openJob !== null}>
+    <AppShell bottomBar={openJob !== null && !fromAppeal}>
       {/* The feed and the detail view are separate scroll containers so their
           scroll positions never bleed into each other: the feed stays mounted
           (its scroll is preserved) while the detail view scrolls on its own.
@@ -96,7 +97,8 @@ export function JobBoardPage({ openJobId }: { openJobId: string | null }) {
               <div className="scroll-area h-full overflow-y-auto">
                 <JobDetailView
                   job={openJob}
-                  onBack={() => navigate({ name: "search" })}
+                  chrome={fromAppeal ? "pane" : "page"}
+                  onBack={() => back()}
                   onOpen={openJobById}
                 />
               </div>

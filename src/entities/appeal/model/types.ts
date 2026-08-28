@@ -7,6 +7,8 @@ export type AppealMessage = {
   from: "employer" | "contact" | "me"
   /** Optional author name shown above employer/contact messages. */
   author?: string
+  /** Job at the company (Рекрутер, HR BP…), opposite the name on incoming. */
+  role?: string
   /** Optional bold lead line (e.g. "Приглашение"). */
   title?: string
   text: string
@@ -19,6 +21,8 @@ export type AppealMessage = {
 
 export type Appeal = {
   id: string
+  /** Vacancy this thread belongs to — opens from the chat info action. */
+  jobId: string
   company: string
   /** Single-letter fallback for the logo tile. */
   companyInitial: string
@@ -27,6 +31,8 @@ export type Appeal = {
   position: string
   status: AppealStatus
   online?: boolean
+  /** ISO time of the last presence; shown in the chat header when offline. */
+  lastSeen?: string
   lastMessage: string
   lastTime: string
   /** Read receipt shown before the last message preview. */

@@ -100,4 +100,20 @@ describe("router history", () => {
     expect(result.current.direction).toBe("pop")
     expect(result.current.route).toEqual({ name: "search" })
   })
+
+  it("back returns to the previous route", async () => {
+    const { result } = mount()
+
+    act(() => navigate({ name: "appeals", appealId: "a-1" }))
+    act(() => navigate({ name: "job", jobId: "j-1" }, { via: "appeal" }))
+    expect(result.current.route).toEqual({ name: "job", jobId: "j-1" })
+
+    await pop(-1)
+
+    expect(result.current.route).toEqual({
+      name: "appeals",
+      appealId: "a-1",
+    })
+    expect(result.current.direction).toBe("pop")
+  })
 })
