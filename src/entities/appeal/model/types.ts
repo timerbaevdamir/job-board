@@ -28,6 +28,8 @@ export type Appeal = {
   companyInitial: string
   logoBg: string
   logoColor?: string
+  /** Company mark from `public/logos`; the tile falls back to the initial. */
+  logoUrl?: string
   position: string
   status: AppealStatus
   online?: boolean

@@ -1,5 +1,6 @@
 import type { Appeal } from "../model/types"
 import { APPEAL_STATUS_LABEL } from "../model/types"
+import { AppealLogo } from "./AppealLogo"
 import { DoubleCheckIcon } from "@/shared/ui/icons"
 import { Counter } from "@/shared/ui/Counter"
 import { cn } from "@/shared/lib/cn"
@@ -39,22 +40,7 @@ export function AppealListItem({
     >
       {/* Logo tile with online dot */}
       <span className="relative shrink-0">
-        <span
-          className={cn(
-            "flex size-11 items-center justify-center rounded-xl text-base font-semibold",
-            highlight && "bg-white/20 text-white",
-          )}
-          style={
-            highlight
-              ? undefined
-              : {
-                  backgroundColor: appeal.logoBg,
-                  color: appeal.logoColor ?? "#ffffff",
-                }
-          }
-        >
-          {appeal.companyInitial}
-        </span>
+        <AppealLogo appeal={appeal} highlight={highlight} />
         {appeal.online && (
           <span
             className={cn(

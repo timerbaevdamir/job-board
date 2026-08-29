@@ -1,5 +1,8 @@
 import type { Appeal } from "../model/types"
 
+/** Files in `public/logos`, rooted at Vite's `base`. */
+const logo = (file: string) => `${import.meta.env.BASE_URL}logos/${file}`
+
 /** Local wall-clock, `daysBack` calendar days before today. */
 function lastSeenAt(daysBack: number, hours: number, minutes: number) {
   const d = new Date()
@@ -70,11 +73,11 @@ export const APPEALS: Appeal[] = [
   },
   {
     id: "a-2",
-    jobId: "j-5",
-    company: "Mayna Labs",
-    companyInitial: "M",
-    logoBg: "#101828",
-    logoColor: "#ffffff",
+    jobId: "j-2",
+    company: "Яндекс",
+    companyInitial: "Я",
+    logoBg: "#ffe9e3",
+    logoUrl: logo("yandex_logo.png"),
     position: "Продукт-дизайнер",
     status: "rejected",
     online: true,
@@ -117,7 +120,7 @@ export const APPEALS: Appeal[] = [
       {
         id: "m-5",
         from: "me",
-        text: "Готово: https://figma.com/file/mayna-tariff — доступ по ссылке открыт.",
+        text: "Готово: https://figma.com/file/yandex-tariff — доступ по ссылке открыт.",
         time: "17:40",
         read: true,
       },
@@ -187,11 +190,11 @@ export const APPEALS: Appeal[] = [
   },
   {
     id: "a-4",
-    jobId: "j-11",
-    company: "Uplab",
-    companyInitial: "U",
-    logoBg: "#f1f4f9",
-    logoColor: "#0d1520",
+    jobId: "j-7",
+    company: "Авито",
+    companyInitial: "А",
+    logoBg: "#e6fbef",
+    logoUrl: logo("avito_logo.png"),
     position: "Продукт-дизайнер",
     status: "invitation",
     online: true,
@@ -211,7 +214,7 @@ export const APPEALS: Appeal[] = [
         author: "Мария Котова",
         role: "Рекрутер",
         title: "Приглашение",
-        text: "Здравствуйте, Артём! Спасибо за отклик на продукт-дизайнера. Нам понравились кейсы по лендингам и кабинету — приглашаем на знакомство с командой. Удобно ли встретиться на этой неделе?\n\nС уважением, Мария Котова, HR Uplab",
+        text: "Здравствуйте, Артём! Спасибо за отклик на продукт-дизайнера. Нам понравились кейсы по лендингам и кабинету — приглашаем на знакомство с командой. Удобно ли встретиться на этой неделе?\n\nС уважением, Мария Котова, HR Авито",
         time: "11:40",
       },
       {
@@ -241,11 +244,11 @@ export const APPEALS: Appeal[] = [
   },
   {
     id: "a-5",
-    jobId: "j-8",
-    company: "ООО Джем-Софт",
-    companyInitial: "Д",
-    logoBg: "#ff4d6d",
-    logoColor: "#ffffff",
+    jobId: "j-3",
+    company: "Stripe",
+    companyInitial: "S",
+    logoBg: "#e9edff",
+    logoUrl: logo("stripe_logo.png"),
     position: "Продуктовый дизайнер",
     status: "invitation",
     lastSeen: lastSeenAt(3, 12, 10),
@@ -297,11 +300,11 @@ export const APPEALS: Appeal[] = [
   },
   {
     id: "a-6",
-    jobId: "j-3",
-    company: "ООО ФККГруп",
-    companyInitial: "Ф",
-    logoBg: "#0b3d2e",
-    logoColor: "#ffffff",
+    jobId: "j-5",
+    company: "Тинькофф",
+    companyInitial: "Т",
+    logoBg: "#fff3d6",
+    logoUrl: logo("tbank_logo.png"),
     position: "Product Designer/ UXUI Designer/ Проду…",
     status: "invitation",
     lastSeen: lastSeenMinutesAgo(180),
@@ -345,7 +348,7 @@ export const APPEALS: Appeal[] = [
         from: "employer",
         author: "Игорь Петров",
         role: "Рекрутер",
-        text: "Файл с брифом отправил на почту из резюме, дублирую ссылку: диск / ФКК-тест-Артём. Если что-то не открывается — напишите.",
+        text: "Файл с брифом отправил на почту из резюме, дублирую ссылку: диск / Тинькофф-тест-Артём. Если что-то не открывается — напишите.",
         time: "14:40",
       },
       {
@@ -423,11 +426,11 @@ export const APPEALS: Appeal[] = [
   },
   {
     id: "a-8",
-    jobId: "j-4",
-    company: "Hi, Rockits!",
-    companyInitial: "R",
-    logoBg: "#101828",
-    logoColor: "#ffffff",
+    jobId: "j-8",
+    company: "Skyeng",
+    companyInitial: "S",
+    logoBg: "#efeaff",
+    logoUrl: logo("skyeng_logo.png"),
     position: "Senior/lead product designer (mobile)",
     status: "invitation",
     lastSeen: lastSeenAt(40, 12, 0),

@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, useState } from "react"
 import {
+  AppealLogo,
   formatLastSeen,
   type Appeal,
   type AppealMessage,
@@ -182,15 +183,7 @@ export function AppealChat({
           </HeaderActions>
         }
       >
-        <span
-          className="flex size-11 shrink-0 items-center justify-center rounded-xl text-base font-semibold"
-          style={{
-            backgroundColor: appeal.logoBg,
-            color: appeal.logoColor ?? "#ffffff",
-          }}
-        >
-          {appeal.companyInitial}
-        </span>
+        <AppealLogo appeal={appeal} />
         <div className="flex min-w-0 flex-1 flex-col">
           <span className="truncate text-base font-semibold leading-[22px] text-foreground">
             {appeal.company}
