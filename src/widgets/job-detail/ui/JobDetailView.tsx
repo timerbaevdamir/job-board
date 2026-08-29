@@ -155,7 +155,7 @@ export function JobDetailView({
         {chrome !== "pane" && d?.contactName && (
           <section className="flex flex-col gap-3">
             <SectionHeading>Контакты</SectionHeading>
-            <div className="flex flex-col gap-4 rounded-2xl border border-border-strong/70 bg-surface p-4 md:flex-row md:items-center md:justify-between">
+            <div className="flex flex-col gap-4 rounded-3xl border border-border-strong/70 bg-surface p-4 md:rounded-2xl md:flex-row md:items-center md:justify-between">
               <div className="flex min-w-0 flex-col">
                 <span className="text-base leading-[22px] text-foreground">
                   {d.contactName}
