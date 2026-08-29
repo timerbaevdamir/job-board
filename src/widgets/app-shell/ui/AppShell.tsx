@@ -9,6 +9,7 @@ import {
   type Route,
 } from "@/shared/lib/router"
 import { useLayoutMode } from "@/shared/lib/useLayoutMode"
+import { showTabBar } from "@/shared/lib/showTabBar"
 
 /** Nav ids that have a screen of their own; everything else lands on the board. */
 const ROUTE_BY_NAV: Record<string, Route> = {
@@ -71,10 +72,7 @@ export function AppShell({
   // bar would sit under the composer. The list still needs it. A vacancy
   // opened from a thread is the next overlay on that stack, so the bar stays
   // off — search vacancies keep it (they attach their apply bar).
-  const hideTabBar =
-    mode === "mobile" &&
-    ((route.name === "appeals" && Boolean(route.appealId)) ||
-      (route.name === "job" && via === "appeal"))
+  const tabBar = showTabBar(mode, route, via)
 
   return (
     // A column on mobile so the bar can be a sibling of the content: the scroll
@@ -107,7 +105,7 @@ export function AppShell({
         children
       )}
 
-      {mode === "mobile" && !hideTabBar && (
+      {tabBar && (
         <TabBar active={active} onNavigate={go} attached={bottomBar} />
       )}
 

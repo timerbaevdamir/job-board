@@ -10,6 +10,8 @@ import {
 } from "react"
 import { cn } from "@/shared/lib/cn"
 import { useLayoutMode } from "@/shared/lib/useLayoutMode"
+import { useNavVia, useRoute } from "@/shared/lib/router"
+import { showTabBar } from "@/shared/lib/showTabBar"
 
 const HOLD_MS = 3200
 const FADE_MS = 320
@@ -29,9 +31,11 @@ const SnackbarContext = createContext<SnackbarContextValue | null>(null)
 
 /**
  * Black toast card used for every transient confirmation. On a phone it sits
- * 16px above the tab bar and spans the screen with 16px insets; wider layouts
- * keep a 340px card in the corner. `cn` does not merge, so those two positions
- * are separate branches rather than a base class a caller is expected to beat.
+ * 16px above the tab bar — or 16px above the home indicator when that bar is
+ * off (a thread, or a vacancy opened from one) — and spans the screen with
+ * 16px insets. Wider layouts keep a 340px card in the corner. `cn` does not
+ * merge, so those positions are separate branches rather than a base class a
+ * caller is expected to beat.
  */
 function SnackbarCard({
   content,
@@ -40,16 +44,23 @@ function SnackbarCard({
   content: SnackbarContent
   visible: boolean
 }) {
-  const mobile = useLayoutMode() === "mobile"
+  const mode = useLayoutMode()
+  const route = useRoute()
+  const via = useNavVia()
+  const tabBar = showTabBar(mode, route, via)
+  const bottom =
+    mode !== "mobile"
+      ? "bottom-6 left-6 w-[340px]"
+      : tabBar
+        ? "inset-x-4 bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))]"
+        : "inset-x-4 bottom-[calc(1rem+env(safe-area-inset-bottom,0px))]"
   return (
     <div
       role="status"
       aria-live="polite"
       className={cn(
         "pointer-events-none fixed z-50 rounded-2xl bg-black p-4 text-white shadow-xl transition-all duration-300 ease-out",
-        mobile
-          ? "inset-x-4 bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))]"
-          : "bottom-6 left-6 w-[340px]",
+        bottom,
         visible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0",
       )}
     >

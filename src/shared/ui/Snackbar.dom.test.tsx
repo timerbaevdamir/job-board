@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { act, renderHook } from "@testing-library/react"
 import type { ReactNode } from "react"
+import { navigate } from "@/shared/lib/router"
 import { SnackbarProvider, useSnackbar } from "./Snackbar"
 
 const wrapper = ({ children }: { children: ReactNode }) => (
@@ -10,6 +11,24 @@ const wrapper = ({ children }: { children: ReactNode }) => (
 function status() {
   return document.querySelector('[role="status"]')
 }
+
+function resizeTo(width: number) {
+  act(() => {
+    window.innerWidth = width
+    window.dispatchEvent(new Event("resize"))
+  })
+}
+
+function showTitle(title: string) {
+  const { result } = renderHook(() => useSnackbar(), { wrapper })
+  act(() => result.current.show({ title }))
+  return status()
+}
+
+const ABOVE_TAB =
+  "bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))]"
+const ABOVE_HOME =
+  "bottom-[calc(1rem+env(safe-area-inset-bottom,0px))]"
 
 describe("snackbar host", () => {
   it("renders the title in a live region", () => {
@@ -39,5 +58,31 @@ describe("snackbar host", () => {
     expect(text).toContain("Отклик отправлен")
     expect(text).toContain("Ещё 9 откликов до дневной цели")
     expect(text).toContain("1/10")
+  })
+
+  it("sits above the tab bar on a phone feed", () => {
+    resizeTo(390)
+    act(() => navigate({ name: "search" }, { replace: true }))
+    const className = showTitle("Сохранено")?.className ?? ""
+    expect(className).toContain(ABOVE_TAB)
+    expect(className).not.toContain(ABOVE_HOME)
+  })
+
+  it("drops the tab-bar inset when the bar is hidden", () => {
+    resizeTo(390)
+    act(() =>
+      navigate({ name: "job", jobId: "j-1" }, { replace: true, via: "appeal" }),
+    )
+    const className = showTitle("Вакансия удалена из избранного")?.className ?? ""
+    expect(className).toContain(ABOVE_HOME)
+    expect(className).not.toContain(ABOVE_TAB)
+  })
+
+  it("does not reserve a phone tab bar on tablet or desktop", () => {
+    resizeTo(1024)
+    act(() => navigate({ name: "search" }, { replace: true }))
+    const className = showTitle("Сохранено")?.className ?? ""
+    expect(className).toContain("bottom-6")
+    expect(className).not.toContain(ABOVE_TAB)
   })
 })
