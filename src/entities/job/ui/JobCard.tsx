@@ -19,7 +19,7 @@ function LogoTile({
   return (
     <div
       className={cn(
-        "flex shrink-0 items-center justify-center overflow-hidden rounded-xl border border-black/10 font-semibold text-foreground",
+        "relative flex shrink-0 items-center justify-center overflow-hidden rounded-xl font-semibold text-foreground",
         "size-11 text-lg sm:size-[60px] sm:text-xl",
         className,
       )}
@@ -30,6 +30,10 @@ function LogoTile({
       ) : (
         initial
       )}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 rounded-[inherit] shadow-[inset_0_0_0_1px_rgb(0_0_0/0.08)]"
+      />
     </div>
   )
 }

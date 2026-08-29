@@ -100,7 +100,7 @@ export function CompanyCard({ job }: { job: Job }) {
           )}
         </div>
         <span
-          className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-black/10 text-xl font-semibold text-foreground"
+          className="relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-xl text-xl font-semibold text-foreground"
           style={{ backgroundColor: job.logoBg }}
         >
           {job.logoUrl ? (
@@ -108,6 +108,10 @@ export function CompanyCard({ job }: { job: Job }) {
           ) : (
             job.companyInitial
           )}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-0 rounded-[inherit] shadow-[inset_0_0_0_1px_rgb(0_0_0/0.08)]"
+          />
         </span>
       </div>
       {properties.length > 0 && (

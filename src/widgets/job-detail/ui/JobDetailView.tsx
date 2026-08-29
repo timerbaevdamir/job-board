@@ -9,7 +9,7 @@ import { SectionHeading, BulletList } from "./primitives"
 import { DetailHeader } from "./DetailHeader"
 import { CompanyCard } from "./CompanyCard"
 import { AddressMap } from "./AddressMap"
-import { AskEmployer } from "./AskEmployer"
+import AskEmployer from "./AskEmployer"
 import { ReviewsSection } from "./ReviewsSection"
 
 /**
