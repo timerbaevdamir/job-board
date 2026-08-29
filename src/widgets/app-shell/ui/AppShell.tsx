@@ -67,12 +67,14 @@ export function AppShell({
   }, [mode])
 
   const rail = collapsed || mode === "tablet"
-  // A vacancy opened from a thread has no apply bar, so there is nothing for
-  // the tab bar to attach to — hide it rather than leave a seam under the pane.
-  // The thread overlay itself keeps the bar, the way a vacancy over the feed
-  // does: both layers then share one box, and the stack does not jump.
+  // A thread on a phone is its own screen: back lives in the header, and the
+  // bar would sit under the composer. The list still needs it. A vacancy
+  // opened from a thread is the next overlay on that stack, so the bar stays
+  // off — search vacancies keep it (they attach their apply bar).
   const hideTabBar =
-    mode === "mobile" && route.name === "job" && via === "appeal"
+    mode === "mobile" &&
+    ((route.name === "appeals" && Boolean(route.appealId)) ||
+      (route.name === "job" && via === "appeal"))
 
   return (
     // A column on mobile so the bar can be a sibling of the content: the scroll

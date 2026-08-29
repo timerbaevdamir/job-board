@@ -88,7 +88,7 @@ export function directionOf(from: number, to: number): NavDirection {
  * now. That is also why navigation moved from `location.hash = …` to
  * `pushState`: only the History API lets an entry carry anything.
  */
-type NavState = { d?: number; via?: "appeal" }
+type NavState = { d?: number; via?: "appeal"; from?: string }
 
 const depthOf = (state: unknown): number | null => {
   const d = (state as NavState | null)?.d
@@ -167,7 +167,11 @@ function install(): void {
  */
 export function navigate(
   route: Route,
-  { replace = false, via }: { replace?: boolean; via?: "appeal" } = {},
+  {
+    replace = false,
+    via,
+    from,
+  }: { replace?: boolean; via?: "appeal"; from?: string } = {},
 ): void {
   install()
   const hash = routeToHash(route)
@@ -179,11 +183,17 @@ export function navigate(
     const next: NavState = { ...(history.state as object), d: depth }
     if (via) next.via = via
     else delete next.via
+    if (from) next.from = from
+    else delete next.from
     history.replaceState(next, "", url)
   } else {
     depth += 1
     direction = "push"
-    history.pushState({ d: depth, ...(via ? { via } : {}) }, "", url)
+    history.pushState(
+      { d: depth, ...(via ? { via } : {}), ...(from ? { from } : {}) },
+      "",
+      url,
+    )
   }
   emit()
 }
@@ -233,12 +243,23 @@ export function useNavVia(): "appeal" | undefined {
   })
 }
 
+/**
+ * The thread a via-appeal vacancy was opened from. The job URL does not name
+ * it, so the stack that keeps the chat mounted underneath reads it here.
+ */
+export function useNavFrom(): string | undefined {
+  return useSyncExternalStore(subscribe, () => {
+    const from = (history.state as NavState | null)?.from
+    return typeof from === "string" ? from : undefined
+  })
+}
+
 /** Stable `navigate` for components that only need to trigger navigation. */
 export function useNavigate() {
   return useCallback(
     (
       route: Route,
-      opts?: { replace?: boolean; via?: "appeal" },
+      opts?: { replace?: boolean; via?: "appeal"; from?: string },
     ) => navigate(route, opts),
     [],
   )

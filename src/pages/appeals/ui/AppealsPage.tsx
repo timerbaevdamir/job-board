@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { APPEALS } from "@/entities/appeal"
 import { JOBS } from "@/entities/job"
 import { AppShell } from "@/widgets/app-shell"
@@ -6,52 +6,84 @@ import { NavStack } from "@/shared/ui/NavStack"
 import { AppealList } from "@/widgets/appeal-list"
 import { AppealChat } from "@/widgets/appeal-chat"
 import { JobDetailView } from "@/widgets/job-detail"
-import { navigate, back } from "@/shared/lib/router"
+import { navigate, back, useNavFrom } from "@/shared/lib/router"
 import { useLayoutMode } from "@/shared/lib/useLayoutMode"
 
 /**
  * Appeals (messenger) section. The open thread lives in the URL
- * (`#/appeals/<id>`), so a conversation is linkable and Back steps out of it
- * the same way it leaves a vacancy.
+ * (`#/appeals/<id>`), so a conversation is linkable and Back steps between
+ * threads — and, on a phone, out of a vacancy opened from one.
  *
- * The list and the thread are the same two layers the job board uses: a base
- * that stays, and an overlay that `NavStack` slides over it on a phone. Wider
- * screens replace the list with the thread — no slide, the way a vacancy
- * replaces the feed. An id that matches nothing falls back to the list and
- * rewrites the URL, so a stale link doesn't strand the user on a blank screen.
+ * On a phone this is the same stack the job board uses: the list is the base,
+ * the thread is an overlay that `NavStack` slides over it, and a vacancy
+ * opened from info is a second overlay on the thread (nested `NavStack`, same
+ * phase machine). Wider screens keep the list beside the chat; desktop can
+ * still open the vacancy as a third column.
  *
- * Desktop can still open the vacancy as a third column beside the thread;
- * phone and tablet navigate to it, then Back.
+ * An id that matches nothing falls back to the list (phone) or the first
+ * thread (wide) and rewrites the URL, so a stale link doesn't strand the user
+ * on a blank screen.
  */
-export function AppealsPage({ appealId }: { appealId?: string }) {
+export function AppealsPage({
+  appealId,
+  openJobId = null,
+}: {
+  appealId?: string
+  /** Vacancy opened from a thread (`#/job/<id>` via appeal). Phone only. */
+  openJobId?: string | null
+}) {
   const mode = useLayoutMode()
-  // Third column only where the viewport already holds a vacancy pane on the
-  // board. Tablet opens a vacancy the same way search does: a full screen,
-  // then Back.
+  const narrow = mode === "mobile"
+  // Third column only where the viewport already holds list + chat. Tablet
+  // opens a vacancy the same way search does: a full screen, then Back.
   const splitVacancy = mode === "desktop"
+  const from = useNavFrom()
+  const lastAppealId = useRef(appealId)
+  if (appealId) lastAppealId.current = appealId
 
-  const found = APPEALS.find((a) => a.id === appealId)
-  const selected = found ?? null
+  const threadId =
+    appealId ?? (openJobId ? (from ?? lastAppealId.current) : undefined)
+  const found = APPEALS.find((a) => a.id === threadId)
+  // Wide: fall back to the first thread. Narrow: no id means the list.
+  const selected = narrow ? found : (found ?? APPEALS[0])
 
   const [jobPaneOpen, setJobPaneOpen] = useState(false)
   const [paneJobId, setPaneJobId] = useState<string | null>(null)
 
-  // Unknown thread id (stale or hand-typed link): drop back to the list and
-  // replace the entry so Back doesn't return to the dead URL.
   useEffect(() => {
-    if (appealId && !found) {
+    // A vacancy overlay owns the URL (`#/job/<id>`); don't rewrite it back
+    // to the thread while it is showing.
+    if (openJobId) return
+    // Only correct the URL when it names a thread that isn't the one shown —
+    // an unknown id, or the wide layout's implicit first conversation.
+    if (selected && selected.id !== appealId) {
+      navigate({ name: "appeals", appealId: selected.id }, { replace: true })
+    }
+    // Narrow layout with an id that matches nothing: drop back to the list.
+    if (narrow && appealId && !found) {
       navigate({ name: "appeals" }, { replace: true })
     }
-  }, [appealId, found])
+  }, [selected, appealId, narrow, found, openJobId])
 
-  // A phone must not inherit a desktop pane after a resize; leaving the
-  // thread closes the pane so it cannot sit beside the list alone.
+  // Unknown vacancy opened from a thread: drop back to that thread.
   useEffect(() => {
-    if (!splitVacancy || !selected) {
+    if (!openJobId || splitVacancy) return
+    if (JOBS.some((j) => j.id === openJobId)) return
+    navigate(
+      selected
+        ? { name: "appeals", appealId: selected.id }
+        : { name: "appeals" },
+      { replace: true },
+    )
+  }, [openJobId, splitVacancy, selected])
+
+  // A phone must not inherit a desktop pane after a resize.
+  useEffect(() => {
+    if (!splitVacancy) {
       setJobPaneOpen(false)
       setPaneJobId(null)
     }
-  }, [splitVacancy, selected])
+  }, [splitVacancy])
 
   // Switching threads while the pane is open shows that thread's vacancy.
   useEffect(() => {
@@ -62,6 +94,11 @@ export function AppealsPage({ appealId }: { appealId?: string }) {
   const paneJob = paneJobId
     ? (JOBS.find((j) => j.id === paneJobId) ?? null)
     : null
+
+  const overlayJob =
+    !splitVacancy && openJobId
+      ? (JOBS.find((j) => j.id === openJobId) ?? null)
+      : null
 
   const onJobInfo = () => {
     if (!selected) return
@@ -74,53 +111,82 @@ export function AppealsPage({ appealId }: { appealId?: string }) {
       }
       return
     }
-    navigate({ name: "job", jobId: selected.jobId }, { via: "appeal" })
+    navigate(
+      { name: "job", jobId: selected.jobId },
+      { via: "appeal", from: selected.id },
+    )
   }
 
+  const showList = !narrow || !selected
+  const showChat = Boolean(selected) && (!narrow || Boolean(appealId) || Boolean(overlayJob))
   const showJobPane = splitVacancy && jobPaneOpen && paneJob
 
-  return (
-    <AppShell collapsed bottomBar={selected !== null}>
-      {/* The list and the thread are separate scroll containers so their
-          scroll positions never bleed into each other: the list stays mounted
-          (its scroll is preserved) while the thread scrolls on its own.
+  const thread = selected ? (
+    <NavStack
+      className="h-full min-h-0 min-w-0 flex-1"
+      overlay={
+        overlayJob ? (
+          <div className="scroll-area h-full overflow-y-auto">
+            <JobDetailView
+              job={overlayJob}
+              chrome="pane"
+              onBack={() =>
+                back({ name: "appeals", appealId: selected.id })
+              }
+              onOpen={(id) =>
+                navigate(
+                  { name: "job", jobId: id },
+                  { via: "appeal", from: selected.id },
+                )
+              }
+            />
+          </div>
+        ) : null
+      }
+    >
+      <AppealChat
+        appeal={selected}
+        jobInfoOpen={showJobPane}
+        onJobInfo={onJobInfo}
+        onBack={
+          narrow ? () => back({ name: "appeals" }) : undefined
+        }
+      />
+    </NavStack>
+  ) : null
 
-          That both are mounted at once is also what lets `NavStack` slide one
-          over the other on a phone — the parallax needs the covered screen to
-          still be there. */}
-      <main className="flex min-w-0 flex-1">
-        <NavStack
-          className="flex-1"
-          overlay={
-            // A ternary, not `&&`: `false` is a perfectly good ReactNode, so an
-            // `&&` here would hand the stack a "present" overlay with nothing
-            // in it every time the list is showing.
-            selected ? (
-              <AppealChat
-                appeal={selected}
-                jobInfoOpen={showJobPane}
-                onJobInfo={onJobInfo}
-                onBack={() => back({ name: "appeals" })}
+  return (
+    <AppShell collapsed>
+      {narrow ? (
+        <main className="flex min-w-0 flex-1">
+          <NavStack className="flex-1" overlay={thread}>
+            <AppealList
+              selectedId={selected?.id ?? null}
+              onSelect={(id) => navigate({ name: "appeals", appealId: id })}
+            />
+          </NavStack>
+        </main>
+      ) : (
+        <>
+          {showList && (
+            <AppealList
+              selectedId={selected?.id ?? null}
+              onSelect={(id) => navigate({ name: "appeals", appealId: id })}
+            />
+          )}
+          {showChat && thread}
+          {showJobPane && paneJob && (
+            <aside className="scroll-area h-full w-[400px] shrink-0 overflow-y-auto border-l border-border bg-background">
+              <JobDetailView
+                job={paneJob}
+                chrome="pane"
+                dismiss="close"
+                onBack={() => setJobPaneOpen(false)}
+                onOpen={setPaneJobId}
               />
-            ) : null
-          }
-        >
-          <AppealList
-            selectedId={selected?.id ?? null}
-            onSelect={(id) => navigate({ name: "appeals", appealId: id })}
-          />
-        </NavStack>
-      </main>
-      {showJobPane && paneJob && (
-        <aside className="scroll-area h-full w-[400px] shrink-0 overflow-y-auto border-l border-border bg-background">
-          <JobDetailView
-            job={paneJob}
-            chrome="pane"
-            dismiss="close"
-            onBack={() => setJobPaneOpen(false)}
-            onOpen={setPaneJobId}
-          />
-        </aside>
+            </aside>
+          )}
+        </>
       )}
     </AppShell>
   )

@@ -5,8 +5,8 @@ import { Header, HeaderAction } from "@/shared/ui/Header"
 import { SEARCH_WELL } from "@/shared/ui/searchWell"
 import { useScrollRestoration } from "@/shared/lib/useScrollRestoration"
 
-/** The appeals list: search + scrollable conversations. Sits as the base
- *  layer under a thread overlay, the way the job feed sits under a vacancy. */
+/** Left column of the appeals section: search + scrollable conversation list.
+ *  On a phone it fills the nav-layer under the thread overlay. */
 export function AppealList({
   selectedId,
   onSelect,
@@ -24,9 +24,11 @@ export function AppealList({
   )
 
   return (
-    // Fills the nav layer. `h-full`, not `h-screen`: the shell's tab bar takes
-    // part of the viewport, and 100vh would push the input off-screen.
-    <div className="flex h-full w-full flex-col bg-background">
+    // Full width when it is the whole screen (mobile), a fixed column once the
+    // chat sits beside it. Tablet `md` is 340, desktop `xl` (same as
+    // `useLayoutMode`) is 400. `h-full`, not `h-screen`: below `md` the shell's
+    // tab bar takes part of the viewport, and 100vh would push the input off-screen.
+    <div className="flex h-full w-full shrink-0 flex-col bg-background md:w-[340px] xl:w-[400px] md:border-r md:border-border">
       <Header
         edge
         padTitle

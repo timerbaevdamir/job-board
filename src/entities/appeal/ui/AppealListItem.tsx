@@ -3,6 +3,7 @@ import { APPEAL_STATUS_LABEL } from "../model/types"
 import { DoubleCheckIcon } from "@/shared/ui/icons"
 import { Counter } from "@/shared/ui/Counter"
 import { cn } from "@/shared/lib/cn"
+import { useLayoutMode } from "@/shared/lib/useLayoutMode"
 
 // Badge tint per status — fill matches the text color.
 const STATUS_STYLE: Record<Appeal["status"], string> = {
@@ -22,13 +23,18 @@ export function AppealListItem({
   selected: boolean
   onSelect: (id: string) => void
 }) {
+  // Highlight only where the list stays beside the thread. On a phone the
+  // row is under the overlay, and a selected fill would flash through the
+  // slide — there is no persistent selection.
+  const highlight = selected && useLayoutMode() !== "mobile"
+
   return (
     <button
       type="button"
       onClick={() => onSelect(appeal.id)}
       className={cn(
         "flex w-full items-start gap-3 rounded-2xl p-3 text-left transition-colors",
-        selected ? "bg-info text-white" : "hover:bg-chip",
+        highlight ? "bg-info text-white" : "hover:bg-chip",
       )}
     >
       {/* Logo tile with online dot */}
@@ -36,10 +42,10 @@ export function AppealListItem({
         <span
           className={cn(
             "flex size-11 items-center justify-center rounded-xl text-base font-semibold",
-            selected && "bg-white/20 text-white",
+            highlight && "bg-white/20 text-white",
           )}
           style={
-            selected
+            highlight
               ? undefined
               : {
                   backgroundColor: appeal.logoBg,
@@ -53,7 +59,7 @@ export function AppealListItem({
           <span
             className={cn(
               "absolute -bottom-0.5 -right-0.5 z-10 size-3 rounded-full border-2 bg-success",
-              selected ? "border-info" : "border-background",
+              highlight ? "border-info" : "border-background",
             )}
           />
         )}
@@ -64,7 +70,7 @@ export function AppealListItem({
           <span
             className={cn(
               "min-w-0 flex-1 truncate text-base font-semibold leading-[22px]",
-              selected ? "text-white" : "text-foreground",
+              highlight ? "text-white" : "text-foreground",
             )}
           >
             {appeal.company}
@@ -72,7 +78,7 @@ export function AppealListItem({
           <span
             className={cn(
               "shrink-0 rounded-md px-2 py-0.5 text-xs font-medium leading-4",
-              selected
+              highlight
                 ? "bg-white/20 text-white"
                 : STATUS_STYLE[appeal.status],
             )}
@@ -84,7 +90,7 @@ export function AppealListItem({
         <span
           className={cn(
             "truncate text-sm leading-5",
-            selected ? "text-white/85" : "text-foreground",
+            highlight ? "text-white/85" : "text-foreground",
           )}
         >
           {appeal.position}
@@ -95,19 +101,19 @@ export function AppealListItem({
             <DoubleCheckIcon
               className={cn(
                 "size-4 shrink-0",
-                selected ? "text-white/70" : "text-info",
+                highlight ? "text-white/70" : "text-info",
               )}
             />
           )}
           <span
             className={cn(
               "min-w-0 flex-1 truncate text-sm leading-5",
-              selected ? "text-white/70" : "text-muted",
+              highlight ? "text-white/70" : "text-muted",
             )}
           >
             {appeal.lastMessage} · {appeal.lastTime}
           </span>
-          {appeal.unread && !selected && <Counter tone="info" />}
+          {appeal.unread && !highlight && <Counter tone="info" />}
         </span>
       </span>
     </button>
