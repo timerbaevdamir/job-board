@@ -9,9 +9,9 @@ import {
   type ReactNode,
 } from "react"
 import { cn } from "@/shared/lib/cn"
-import { useLayoutMode } from "@/shared/lib/useLayoutMode"
 import { useNavVia, useRoute } from "@/shared/lib/router"
 import { showTabBar } from "@/shared/lib/showTabBar"
+import { useLayoutMode } from "@/shared/lib/useLayoutMode"
 
 const HOLD_MS = 3200
 const FADE_MS = 320

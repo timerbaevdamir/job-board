@@ -68,12 +68,30 @@ describe("snackbar host", () => {
     expect(className).not.toContain(ABOVE_HOME)
   })
 
+  it("keeps the tab-bar inset on a vacancy opened from search", () => {
+    resizeTo(390)
+    act(() => navigate({ name: "job", jobId: "j-1" }, { replace: true }))
+    const className = showTitle("Сохранено")?.className ?? ""
+    expect(className).toContain(ABOVE_TAB)
+    expect(className).not.toContain(ABOVE_HOME)
+  })
+
   it("drops the tab-bar inset when the bar is hidden", () => {
     resizeTo(390)
     act(() =>
       navigate({ name: "job", jobId: "j-1" }, { replace: true, via: "appeal" }),
     )
     const className = showTitle("Вакансия удалена из избранного")?.className ?? ""
+    expect(className).toContain(ABOVE_HOME)
+    expect(className).not.toContain(ABOVE_TAB)
+  })
+
+  it("drops the tab-bar inset inside a chat thread", () => {
+    resizeTo(390)
+    act(() =>
+      navigate({ name: "appeals", appealId: "a-1" }, { replace: true }),
+    )
+    const className = showTitle("Сохранено")?.className ?? ""
     expect(className).toContain(ABOVE_HOME)
     expect(className).not.toContain(ABOVE_TAB)
   })
