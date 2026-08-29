@@ -241,16 +241,23 @@ function SearchSheet({
             <CityDrawer />
           </div>
 
-          <SuggestionList
-            shown={shown}
-            suggestions={suggestions}
-            history={history}
-            recommended={recommended}
-            activeIndex={activeIndex}
-            onSelect={choose}
-            onRemoveFromHistory={removeFromHistory}
-            className="scroll-area min-h-0 flex-1 overflow-y-auto p-2"
-          />
+          {/* Own scrollport, not the listbox `<ul>`: that ul is also a column
+              of nested flex groups, and putting overflow on it lets those
+              groups grow the sheet instead of scrolling. `touch-pan-y` keeps
+              the pan on this region so the drawer's swipe-to-dismiss does not
+              eat it. The sheet's keyboard inset (see `.drawer-sheet`) is what
+              actually shortens this box when the keys are up. */}
+          <div className="scroll-area min-h-0 flex-1 overflow-y-auto touch-pan-y p-2">
+            <SuggestionList
+              shown={shown}
+              suggestions={suggestions}
+              history={history}
+              recommended={recommended}
+              activeIndex={activeIndex}
+              onSelect={choose}
+              onRemoveFromHistory={removeFromHistory}
+            />
+          </div>
         </DrawerContent>
       </KeyboardAware>
     </Drawer>

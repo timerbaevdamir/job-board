@@ -303,6 +303,10 @@ body {
     position: fixed;
     display: flex;
     flex-direction: column;
+    /* Flex items default to `min-height: auto`, so a column of header + list
+       would refuse to shrink below the list's content and the list would grow
+       instead of scrolling. Bound the frame; the list inside uses `min-h-0`. */
+    min-height: 0;
     background-color: var(--color-surface);
     pointer-events: auto;
     /* Focus is placed here programmatically so the panel's contents are
@@ -386,7 +390,19 @@ body {
     bottom: 0;
     margin-bottom: calc(var(--bleed) * -1);
     max-height: calc(100dvh - 6rem + var(--bleed));
-    padding-bottom: calc(var(--bleed) + env(safe-area-inset-bottom, 0px));
+    /* `--drawer-keyboard-inset` is published on the viewport by Base UI's
+       VirtualKeyboardProvider (visualViewport, not `dvh` — iOS does not
+       shrink the layout viewport for the software keyboard). Folding it into
+       padding keeps the sheet painted behind the keys while the flex column
+       above — header, then a `min-h-0` list — is only as tall as the visible
+       band. Without it the list's box extends under the keyboard, content
+       fits, and the drawer swallows the pan because the scroller is not
+       overflowing. The `0px` fallback is required: the variable is absent
+       until the first alignment and after cleanup. */
+    padding-bottom: calc(
+      var(--bleed) + env(safe-area-inset-bottom, 0px) +
+        var(--drawer-keyboard-inset, 0px)
+    );
     border-top-left-radius: 28px;
     border-top-right-radius: 28px;
     transform: translateY(var(--drawer-swipe-movement-y, 0px));

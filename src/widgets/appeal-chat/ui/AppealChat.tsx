@@ -336,7 +336,7 @@ function ChatComposer({ resume }: { resume: string }) {
       </div>
       <div
         aria-hidden
-        className="bg-background pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] md:pb-6"
+        className="bg-background pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] md:pb-6"
       />
     </div>
   )
