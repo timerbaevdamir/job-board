@@ -3,8 +3,10 @@ import { APPEALS, AppealListItem } from "@/entities/appeal"
 import { SearchIcon, SlidersIcon } from "@/shared/ui/icons"
 import { Header, HeaderAction } from "@/shared/ui/Header"
 import { SEARCH_WELL } from "@/shared/ui/searchWell"
+import { useScrollRestoration } from "@/shared/lib/useScrollRestoration"
 
-/** Left column of the appeals section: search + scrollable conversation list. */
+/** The appeals list: search + scrollable conversations. Sits as the base
+ *  layer under a thread overlay, the way the job feed sits under a vacancy. */
 export function AppealList({
   selectedId,
   onSelect,
@@ -13,6 +15,7 @@ export function AppealList({
   onSelect: (id: string) => void
 }) {
   const [query, setQuery] = useState("")
+  const listRef = useScrollRestoration<HTMLDivElement>("appeals-list")
 
   const visible = APPEALS.filter(
     (a) =>
@@ -21,11 +24,9 @@ export function AppealList({
   )
 
   return (
-    // Full width when it is the whole screen (mobile), a fixed column once the
-    // chat sits beside it. Tablet `md` is 340, desktop `xl` (same as
-    // `useLayoutMode`) is 400. `h-full`, not `h-screen`: below `md` the shell's
-    // tab bar takes part of the viewport, and 100vh would push the input off-screen.
-    <div className="flex h-full w-full shrink-0 flex-col bg-background md:w-[340px] xl:w-[400px] md:border-r md:border-border">
+    // Fills the nav layer. `h-full`, not `h-screen`: the shell's tab bar takes
+    // part of the viewport, and 100vh would push the input off-screen.
+    <div className="flex h-full w-full flex-col bg-background">
       <Header
         edge
         padTitle
@@ -53,7 +54,10 @@ export function AppealList({
       </Header>
 
       {/* Conversations */}
-      <div className="scroll-area flex-1 overflow-y-auto px-2 pb-4">
+      <div
+        ref={listRef}
+        className="scroll-area flex-1 overflow-y-auto px-2 pb-4"
+      >
         <div className="flex flex-col">
           {visible.map((appeal, i) => (
             <Fragment key={appeal.id}>

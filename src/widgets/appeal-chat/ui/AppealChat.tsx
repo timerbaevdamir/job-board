@@ -133,7 +133,7 @@ function MessageBubble({
   )
 }
 
-/** Right panel of the appeals section: conversation header, thread, composer. */
+/** Thread overlay: conversation header, messages, composer. */
 export function AppealChat({
   appeal,
   onBack,
@@ -141,8 +141,8 @@ export function AppealChat({
   jobInfoOpen = false,
 }: {
   appeal: Appeal
-  /** Shown only when the chat stands alone — i.e. the narrow layout. */
-  onBack?: () => void
+  /** Leaves the thread the same way a vacancy's back leaves the detail. */
+  onBack: () => void
   /** Info action: desktop toggles the vacancy pane; phone/tablet navigate. */
   onJobInfo?: () => void
   /** Desktop: the vacancy column is already open. */
@@ -155,17 +155,13 @@ export function AppealChat({
       <Header
         hairline
         start={
-          /* Only where the list isn't beside the chat: with both columns
-             visible there is nothing to go back to. */
-          onBack ? (
-            <HeaderAction
-              tone="plain"
-              aria-label="К списку откликов"
-              onClick={onBack}
-            >
-              <ArrowLeftIcon className="size-6" />
-            </HeaderAction>
-          ) : undefined
+          <HeaderAction
+            tone="plain"
+            aria-label="К списку откликов"
+            onClick={onBack}
+          >
+            <ArrowLeftIcon className="size-6" />
+          </HeaderAction>
         }
         end={
           <HeaderActions>
@@ -336,7 +332,7 @@ function ChatComposer({ resume }: { resume: string }) {
       </div>
       <div
         aria-hidden
-        className="bg-background pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] md:pb-6"
+        className="bg-background pb-2 md:pb-6"
       />
     </div>
   )
