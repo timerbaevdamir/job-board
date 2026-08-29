@@ -8,22 +8,28 @@ import { cn } from "@/shared/lib/cn"
 function LogoTile({
   initial,
   bg,
+  src,
   className,
 }: {
   initial: string
   bg: string
+  src?: string
   className?: string
 }) {
   return (
     <div
       className={cn(
-        "flex shrink-0 items-center justify-center rounded-xl border border-black/10 font-semibold text-foreground",
+        "flex shrink-0 items-center justify-center overflow-hidden rounded-xl border border-black/10 font-semibold text-foreground",
         "size-11 text-lg sm:size-[60px] sm:text-xl",
         className,
       )}
       style={{ backgroundColor: bg }}
     >
-      {initial}
+      {src ? (
+        <img src={src} alt="" className="size-full object-cover" />
+      ) : (
+        initial
+      )}
     </div>
   )
 }
@@ -120,6 +126,7 @@ export function JobCard({
           <LogoTile
             initial={job.companyInitial}
             bg={job.logoBg}
+            src={job.logoUrl}
             className="sm:absolute sm:right-6 sm:top-6"
           />
           <div className="flex min-w-0 flex-col gap-1">

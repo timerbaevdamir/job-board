@@ -100,10 +100,14 @@ export function CompanyCard({ job }: { job: Job }) {
           )}
         </div>
         <span
-          className="flex size-14 shrink-0 items-center justify-center rounded-xl border border-black/10 text-xl font-semibold text-foreground"
+          className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-black/10 text-xl font-semibold text-foreground"
           style={{ backgroundColor: job.logoBg }}
         >
-          {job.companyInitial}
+          {job.logoUrl ? (
+            <img src={job.logoUrl} alt="" className="size-full object-cover" />
+          ) : (
+            job.companyInitial
+          )}
         </span>
       </div>
       {properties.length > 0 && (

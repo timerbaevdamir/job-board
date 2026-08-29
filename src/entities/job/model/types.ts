@@ -19,6 +19,8 @@ export type Job = {
   companyInitial: string
   /** Brand tint for the logo tile background. */
   logoBg: string
+  /** Company mark from `public/logos`; the tile falls back to the initial. */
+  logoUrl?: string
   verified: boolean
   /** IT-accreditation mark; used by filters, not shown on the card. */
   itAccredited?: boolean

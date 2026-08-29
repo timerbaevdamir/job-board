@@ -1,5 +1,8 @@
 import type { Job } from "../model/types"
 
+/** Files in `public/logos`, rooted at Vite's `base`. */
+const logo = (file: string) => `${import.meta.env.BASE_URL}logos/${file}`
+
 /** Placeholder feed data — realistic enough to design against, replace with API. */
 export const JOBS: Job[] = [
   {
@@ -10,6 +13,7 @@ export const JOBS: Job[] = [
     company: "vc.ru",
     companyInitial: "V",
     logoBg: "#f4e9ff",
+    logoUrl: logo("vcru_logo.png"),
     verified: true,
     itAccredited: true,
     online: true,
@@ -109,6 +113,7 @@ export const JOBS: Job[] = [
     company: "Яндекс",
     companyInitial: "Я",
     logoBg: "#ffe9e3",
+    logoUrl: logo("yandex_logo.png"),
     verified: true,
     itAccredited: true,
     online: true,
@@ -223,6 +228,7 @@ export const JOBS: Job[] = [
     company: "Stripe",
     companyInitial: "S",
     logoBg: "#e9edff",
+    logoUrl: logo("stripe_logo.png"),
     verified: true,
     online: false,
     location: "Санкт-Петербург",
@@ -377,6 +383,7 @@ export const JOBS: Job[] = [
     company: "Тинькофф",
     companyInitial: "Т",
     logoBg: "#fff3d6",
+    logoUrl: logo("tbank_logo.png"),
     verified: true,
     itAccredited: true,
     online: true,
@@ -544,6 +551,7 @@ export const JOBS: Job[] = [
     company: "Авито",
     companyInitial: "А",
     logoBg: "#e6fbef",
+    logoUrl: logo("avito_logo.png"),
     verified: true,
     itAccredited: true,
     online: false,
@@ -627,6 +635,7 @@ export const JOBS: Job[] = [
     company: "Skyeng",
     companyInitial: "S",
     logoBg: "#efeaff",
+    logoUrl: logo("skyeng_logo.png"),
     verified: false,
     online: true,
     location: "Удалённо",
@@ -697,6 +706,7 @@ export const JOBS: Job[] = [
     company: "Самокат",
     companyInitial: "С",
     logoBg: "#ffe6f0",
+    logoUrl: logo("samokat_logo.png"),
     verified: true,
     itAccredited: true,
     online: true,
@@ -779,6 +789,7 @@ export const JOBS: Job[] = [
     company: "Skyeng",
     companyInitial: "S",
     logoBg: "#e8f7ff",
+    logoUrl: logo("skyeng_logo.png"),
     verified: true,
     itAccredited: true,
     online: true,
@@ -862,6 +873,7 @@ export const JOBS: Job[] = [
     company: "Яндекс",
     companyInitial: "Я",
     logoBg: "#fff0e6",
+    logoUrl: logo("yandex_logo.png"),
     verified: true,
     itAccredited: true,
     online: false,
