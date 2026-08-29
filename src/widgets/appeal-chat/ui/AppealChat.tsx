@@ -51,7 +51,7 @@ function MessageTime({
   return (
     <span
       className={cn(
-        "float-right ml-2 translate-y-px align-baseline text-xs leading-5",
+        "float-right ml-2 translate-y-2 align-baseline text-xs leading-5",
         tone === "out" ? "text-background/60" : "text-muted",
       )}
     >
@@ -82,11 +82,11 @@ function MessageBubble({
       <div className="flex justify-end">
         <div
           className={cn(
-            "max-w-[72%] bg-foreground px-4 py-3 text-background",
+            "max-w-[80%] bg-foreground px-4 py-3 text-background md:max-w-[72%]",
             bubbleCorners(true, grouped, showTime),
           )}
         >
-          <p className="flow-root whitespace-pre-line text-sm leading-5">
+          <p className="flow-root whitespace-pre-line text-base leading-6">
             {msg.text}
             <MessageTime time={msg.time} read={msg.read} tone="out" />
           </p>
@@ -100,18 +100,23 @@ function MessageBubble({
   return (
     <div className="flex items-end gap-2">
       {showTime ? (
-        <span className="size-8 shrink-0 rounded-full bg-chip" />
+        <span
+          aria-hidden
+          className="flex size-8 shrink-0 items-center justify-center rounded-full bg-chip text-xs font-semibold text-muted"
+        >
+          {msg.author?.trim().charAt(0)}
+        </span>
       ) : (
         <span className="size-8 shrink-0" aria-hidden />
       )}
       <div
         className={cn(
-          "min-w-0 max-w-[72%] bg-chip px-4 py-3 text-foreground",
+          "min-w-0 max-w-[80%] bg-chip px-4 py-3 text-foreground md:max-w-[72%]",
           bubbleCorners(false, grouped, showTime),
         )}
       >
         {msg.author && !grouped && (
-          <div className="mb-1 flex min-w-0 items-baseline justify-between gap-2">
+          <div className="mb-0.5 flex min-w-0 items-baseline justify-between gap-2">
             <p className="shrink-0 text-sm font-semibold leading-5 text-info">
               {msg.author}
             </p>
@@ -123,9 +128,9 @@ function MessageBubble({
           </div>
         )}
         {msg.title && (
-          <p className="mb-1 text-sm font-semibold leading-5">{msg.title}</p>
+          <p className="mb-1 text-base font-semibold leading-6">{msg.title}</p>
         )}
-        <p className="flow-root whitespace-pre-line text-sm leading-5">
+        <p className="flow-root whitespace-pre-line text-base leading-6">
           {msg.text}
           <MessageTime time={msg.time} tone="in" />
         </p>
@@ -244,7 +249,7 @@ export function AppealChat({
                   <button
                     key={reply}
                     type="button"
-                    className="rounded-full bg-info/10 px-4 py-2 text-sm leading-5 text-info transition-colors hover:bg-info/15"
+                    className="rounded-full bg-info/10 px-4 py-2 text-base font-semibold leading-6 text-info transition-colors hover:bg-info/15"
                   >
                     {reply}
                   </button>
