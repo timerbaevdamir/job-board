@@ -12,7 +12,7 @@ function SectionLabel({ children }: { children: string }) {
   return <p className="text-base leading-[22px] text-muted">{children}</p>
 }
 
-const CARD = "rounded-2xl border border-border-strong/70 bg-surface"
+const CARD = "rounded-[20px] border border-border-strong/70 bg-surface"
 
 function ActivityCard() {
   return (
@@ -32,25 +32,19 @@ function ActivityCard() {
 }
 
 function IconWell({
-  accent,
-  iconBg,
   iconColor,
   icon,
 }: {
-  accent: boolean
-  iconBg?: string
   iconColor?: string
   icon: ReactNode
 }) {
   return (
     <span
       className={cn(
-        "flex size-12 shrink-0 items-center justify-center rounded-full",
-        !accent && "bg-chip text-foreground",
+        "flex size-12 shrink-0 items-center justify-center rounded-full bg-surface",
+        !iconColor && "text-foreground",
       )}
-      style={
-        accent ? { backgroundColor: iconBg, color: iconColor } : undefined
-      }
+      style={iconColor ? { color: iconColor } : undefined}
     >
       {icon}
     </span>
@@ -59,7 +53,7 @@ function IconWell({
 
 /**
  * Unified suggestion card — one layout for both free tips and paid services.
- * A service simply carries an accent icon tint ({@link iconBg}/{@link iconColor})
+ * A service simply carries an accent icon tint ({@link iconColor})
  * and an accent trigger line ({@link cta}); otherwise the card is identical.
  *
  * `stack` is the phone carousel: avatar above the copy, title sized like the
@@ -71,7 +65,6 @@ function RecommendationCard({
   subtitle,
   cta,
   icon,
-  iconBg,
   iconColor,
   layout,
 }: {
@@ -79,22 +72,13 @@ function RecommendationCard({
   subtitle?: string
   cta?: string
   icon: ReactNode
-  iconBg?: string
   iconColor?: string
   layout: "row" | "stack"
 }) {
-  const accent = iconBg != null
   const stacked = layout === "stack"
-  const well = (
-    <IconWell
-      accent={accent}
-      iconBg={iconBg}
-      iconColor={iconColor}
-      icon={icon}
-    />
-  )
+  const well = <IconWell iconColor={iconColor} icon={icon} />
   const copy = (
-    <span className="min-w-0 flex-1">
+    <span className="flex min-w-0 flex-1 flex-col gap-0.5">
       <span
         className={
           stacked
@@ -121,8 +105,7 @@ function RecommendationCard({
     <button
       type="button"
       className={cn(
-        CARD,
-        "text-left transition-colors hover:border-border-strong",
+        "rounded-3xl bg-chip text-left transition-colors hover:bg-chip-hover",
         stacked
           ? "flex w-56 shrink-0 flex-col items-start gap-3 p-4"
           : "flex w-full items-start gap-3 p-4",
@@ -200,14 +183,13 @@ function ExpandToggle({
 
 function RecommendationList({ layout }: { layout: "row" | "stack" }) {
   return RECOMMENDATIONS.map(
-    ({ id, label, subtitle, cta, icon: Icon, iconBg, iconColor }) => (
+    ({ id, label, subtitle, cta, icon: Icon, iconColor }) => (
       <RecommendationCard
         key={id}
         title={label}
         subtitle={subtitle}
         cta={cta}
         icon={<Icon className="size-6" />}
-        iconBg={iconBg}
         iconColor={iconColor}
         layout={layout}
       />
@@ -301,14 +283,13 @@ export function DiscoveryPanel() {
       <section className="flex flex-col gap-3">
         <SectionLabel>Рекомендации</SectionLabel>
         {recs.map(
-          ({ id, label, subtitle, cta, icon: Icon, iconBg, iconColor }) => (
+          ({ id, label, subtitle, cta, icon: Icon, iconColor }) => (
             <RecommendationCard
               key={id}
               title={label}
               subtitle={subtitle}
               cta={cta}
               icon={<Icon className="size-6" />}
-              iconBg={iconBg}
               iconColor={iconColor}
               layout="row"
             />

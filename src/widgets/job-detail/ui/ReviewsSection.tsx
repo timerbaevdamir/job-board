@@ -14,7 +14,7 @@ function ReviewCard({
   return (
     <div
       className={cn(
-        "flex h-auto min-h-full flex-col gap-2 self-stretch rounded-2xl bg-chip p-4",
+        "flex h-auto min-h-full flex-col gap-2 self-stretch rounded-[20px] bg-chip p-4",
         className,
       )}
     >

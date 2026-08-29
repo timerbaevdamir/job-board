@@ -16,7 +16,6 @@ export type Recommendation = {
   subtitle?: string
   icon: ComponentType<SVGProps<SVGSVGElement>>
   /** Accent icon tint — paid services stand out with a coloured icon. */
-  iconBg?: string
   iconColor?: string
   /** Accent call-to-action line (e.g. price) — services only. */
   cta?: string
@@ -24,7 +23,7 @@ export type Recommendation = {
 
 /**
  * Personalised suggestions for the seeker. Plain items are free profile tips;
- * items with {@link Recommendation.iconBg}/{@link Recommendation.cta} are paid
+ * items with {@link Recommendation.iconColor}/{@link Recommendation.cta} are paid
  * services and read with an accent icon + accent trigger. The first
  * {@link RECOMMENDATIONS_VISIBLE} are shown; the rest hide behind "Развернуть".
  */
@@ -65,7 +64,6 @@ export const RECOMMENDATIONS: Recommendation[] = [
     subtitle: "Получите совет от эксперта",
     cta: "всего за 799 ₽",
     icon: SparklesIcon,
-    iconBg: "#edf6ff",
     iconColor: "var(--color-info)",
   },
   {
@@ -74,7 +72,6 @@ export const RECOMMENDATIONS: Recommendation[] = [
     subtitle: "Подготовьтесь к интервью вместе с экспертом",
     cta: "всего за 1 490 ₽",
     icon: SupportIcon,
-    iconBg: "#fff3e6",
     iconColor: "#ff9900",
   },
 ]
