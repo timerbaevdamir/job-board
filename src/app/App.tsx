@@ -2,6 +2,7 @@ import { JOBS } from "@/entities/job"
 import { JobBoardPage } from "@/pages/job-board"
 import { AppealsPage } from "@/pages/appeals"
 import { DevPage } from "@/pages/dev"
+import { PlaceholderPage, isPlaceholderKind } from "@/pages/placeholder"
 import { ApplicationsProvider } from "@/features/apply"
 import { SavedProvider } from "@/features/save-job"
 import { SearchProvider } from "@/features/job-search"
@@ -17,8 +18,8 @@ const INITIAL_SAVED = JOBS.filter((j) => j.saved).map((j) => j.id)
  * picks the screen and supplies what it needs from the URL, so no screen keeps
  * its own idea of "where we are".
  *
- * Sections without a screen of their own (Сохранённые, Активность, Профиль)
- * fall through to the board with that nav item highlighted.
+ * Saved, activity, and profile are placeholder screens until those sections
+ * have real content; search, vacancies, and appeals keep their own pages.
  */
 export default function App() {
   const route = useRoute()
@@ -32,6 +33,8 @@ export default function App() {
               <DevPage />
             ) : route.name === "appeals" ? (
               <AppealsPage appealId={route.appealId} />
+            ) : route.name === "section" && isPlaceholderKind(route.section) ? (
+              <PlaceholderPage kind={route.section} />
             ) : (
               <JobBoardPage
                 openJobId={route.name === "job" ? route.jobId : null}

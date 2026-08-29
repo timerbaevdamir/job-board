@@ -9,7 +9,7 @@ import { useCallback, useSyncExternalStore } from "react"
 export type Route = { name: "search" } | { name: "job"; jobId: string } | {
   name: "appeals"
   appealId?: string
-} | /** A primary-nav section without a screen of its own yet (saved, activity, …). */
+} | /** A primary-nav section that is not search or appeals (saved, activity, profile). */
 { name: "section"; section: string } | { name: "dev" }
 
 /** Parse `window.location.hash` into a {@link Route}. Pure. */

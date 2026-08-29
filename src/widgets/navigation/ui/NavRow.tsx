@@ -22,7 +22,7 @@ export type NavVariant = "full" | "rail" | "tab"
  */
 const ICON_MARK = {
   rail: "absolute right-0 top-0 translate-x-1/2 -translate-y-1/2",
-  tab: "absolute right-0 top-0 translate-x-1/2 -translate-y-1/2",
+  tab: "absolute right-0 top-0.5 translate-x-1/2 -translate-y-1/2",
 } as const
 
 export function NavRow({
