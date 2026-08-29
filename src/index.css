@@ -565,6 +565,29 @@ body {
   .drawer-rail[data-ending-style] {
     opacity: 0;
   }
+
+  /* Mapbox sizes the GL canvas in device pixels. A global canvas
+     `max-width: 100%` / `height: auto` (preflight) collapses that surface to
+     a grey hole while the HTML pin and logo still paint. Keep the override
+     inside `.address-map` so other canvases are untouched. */
+  .address-map .mapboxgl-canvas {
+    display: block;
+    max-width: none;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Drop follows the teardrop, not a box around the 27×41 element
+     (that reads as an outline). */
+  .address-map-pin {
+    width: 27px;
+    height: 41px;
+    filter: drop-shadow(0 2px 4px rgb(0 0 0 / 0.25));
+  }
+
+  .address-map-pin svg {
+    display: block;
+  }
 }
 
 /* One direction for both, because this stack is one screen deep: the detail

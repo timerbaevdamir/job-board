@@ -124,15 +124,12 @@ export function JobCard({
           />
           <div className="flex min-w-0 flex-col gap-1">
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm leading-5">
-              <span className="text-foreground">{job.company}</span>
-              {job.verified && (
-                <VerifiedIcon className="size-4 text-muted" strokeWidth={1.5} />
-              )}
-              {job.itAccredited && (
-                <span className="rounded bg-chip px-1 text-[11px] font-semibold text-muted">
-                  IT
-                </span>
-              )}
+              <span className="inline-flex items-center gap-1">
+                <span className="text-foreground">{job.company}</span>
+                {job.verified && (
+                  <VerifiedIcon className="size-4 text-muted" strokeWidth={1.5} />
+                )}
+              </span>
               {job.online && <span className="text-success">онлайн</span>}
             </div>
             <span className="text-sm leading-5 text-foreground">

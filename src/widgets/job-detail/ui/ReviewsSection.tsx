@@ -12,7 +12,12 @@ function ReviewCard({
   className?: string
 }) {
   return (
-    <div className={cn("flex flex-col gap-2 rounded-2xl bg-chip p-4", className)}>
+    <div
+      className={cn(
+        "flex h-auto min-h-full flex-col gap-2 self-stretch rounded-2xl bg-chip p-4",
+        className,
+      )}
+    >
       <div className="flex flex-col gap-1">
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium leading-5 text-foreground">
@@ -22,7 +27,7 @@ function ReviewCard({
         </div>
         <p className="text-sm leading-6 text-foreground">{review.text}</p>
       </div>
-      <span className="text-xs leading-4 text-muted">{review.date}</span>
+      <span className="mt-auto text-xs leading-4 text-muted">{review.date}</span>
     </div>
   )
 }
@@ -78,7 +83,7 @@ export function ReviewsSection({
               className={
                 mobile
                   ? cn(
-                      "w-[85%] shrink-0 snap-start",
+                      "w-[72%] shrink-0 snap-start",
                       i < reviews.length - 1 && "mr-3",
                     )
                   : "min-w-0 flex-1"
@@ -90,14 +95,9 @@ export function ReviewsSection({
           {mobile ? <div className="w-4 shrink-0" aria-hidden /> : null}
         </div>
       </div>
-      <div className="flex flex-wrap gap-3">
-        <Button variant="secondary" size="sm">
-          Оставить отзыв
-        </Button>
-        <Button variant="link" size="sm">
-          Все отзывы
-        </Button>
-      </div>
+      <Button variant="secondary" size="sm" className="w-full self-start md:w-auto">
+        Все отзывы
+      </Button>
     </section>
   )
 }

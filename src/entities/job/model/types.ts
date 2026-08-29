@@ -20,7 +20,7 @@ export type Job = {
   /** Brand tint for the logo tile background. */
   logoBg: string
   verified: boolean
-  /** IT-accreditation badge next to the company name. */
+  /** IT-accreditation mark; used by filters, not shown on the card. */
   itAccredited?: boolean
   online: boolean
   location: string
