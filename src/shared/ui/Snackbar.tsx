@@ -30,7 +30,9 @@ type SnackbarContextValue = {
 const SnackbarContext = createContext<SnackbarContextValue | null>(null)
 
 /**
- * Black toast card used for every transient confirmation. On a phone it sits
+ * Contrast toast card used for every transient confirmation — the ground and
+ * text tokens inverted, so it reads as black-on-white in the light theme and
+ * flips with it. On a phone it sits
  * 16px above the tab bar — or 16px above the home indicator when that bar is
  * off (a thread, or a vacancy opened from one) — and spans the screen with
  * 16px insets. Wider layouts keep a 340px card in the corner. `cn` does not
@@ -59,7 +61,7 @@ function SnackbarCard({
       role="status"
       aria-live="polite"
       className={cn(
-        "pointer-events-none fixed z-50 rounded-2xl bg-black p-4 text-white shadow-xl transition-all duration-300 ease-out",
+        "pointer-events-none fixed z-50 rounded-2xl bg-foreground p-4 text-background shadow-xl transition-all duration-300 ease-out",
         bottom,
         visible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0",
       )}
@@ -69,13 +71,13 @@ function SnackbarCard({
           {content.title}
         </p>
         {content.trailing != null && (
-          <span className="shrink-0 text-sm leading-5 tabular-nums text-white/70">
+          <span className="shrink-0 text-sm leading-5 tabular-nums text-background/70">
             {content.trailing}
           </span>
         )}
       </div>
       {content.subtitle != null && (
-        <p className="mt-0.5 text-sm leading-5 text-white/70">
+        <p className="mt-0.5 text-sm leading-5 text-background/70">
           {content.subtitle}
         </p>
       )}

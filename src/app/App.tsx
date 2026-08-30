@@ -6,6 +6,7 @@ import { PlaceholderPage, isPlaceholderKind } from "@/pages/placeholder"
 import { ApplicationsProvider } from "@/features/apply"
 import { SavedProvider } from "@/features/save-job"
 import { SearchProvider } from "@/features/job-search"
+import { ThemeProvider } from "@/features/theme"
 import { SnackbarProvider } from "@/shared/ui/Snackbar"
 import { useNavVia, useRoute } from "@/shared/lib/router"
 import { useLayoutMode } from "@/shared/lib/useLayoutMode"
@@ -36,27 +37,29 @@ export default function App() {
     route.name === "job" && via === "appeal" && mode === "mobile"
 
   return (
-    <SnackbarProvider>
-      <ApplicationsProvider>
-        <SavedProvider initialSaved={INITIAL_SAVED}>
-          <SearchProvider>
-            {route.name === "dev" ? (
-              <DevPage />
-            ) : route.name === "appeals" || jobFromChat ? (
-              <AppealsPage
-                appealId={route.name === "appeals" ? route.appealId : undefined}
-                openJobId={route.name === "job" ? route.jobId : null}
-              />
-            ) : route.name === "section" && isPlaceholderKind(route.section) ? (
-              <PlaceholderPage kind={route.section} />
-            ) : (
-              <JobBoardPage
-                openJobId={route.name === "job" ? route.jobId : null}
-              />
-            )}
-          </SearchProvider>
-        </SavedProvider>
-      </ApplicationsProvider>
-    </SnackbarProvider>
+    <ThemeProvider>
+      <SnackbarProvider>
+        <ApplicationsProvider>
+          <SavedProvider initialSaved={INITIAL_SAVED}>
+            <SearchProvider>
+              {route.name === "dev" ? (
+                <DevPage />
+              ) : route.name === "appeals" || jobFromChat ? (
+                <AppealsPage
+                  appealId={route.name === "appeals" ? route.appealId : undefined}
+                  openJobId={route.name === "job" ? route.jobId : null}
+                />
+              ) : route.name === "section" && isPlaceholderKind(route.section) ? (
+                <PlaceholderPage kind={route.section} />
+              ) : (
+                <JobBoardPage
+                  openJobId={route.name === "job" ? route.jobId : null}
+                />
+              )}
+            </SearchProvider>
+          </SavedProvider>
+        </ApplicationsProvider>
+      </SnackbarProvider>
+    </ThemeProvider>
   )
 }

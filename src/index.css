@@ -95,6 +95,12 @@
   --color-accent: #883be9;
   --color-accent-soft: #f7f4ff;
 
+  /* The selected conversation row. Solid info on the light ground; the dark
+     theme re-declares both as a muted deep blue with light text, so the row
+     reads as selected without shouting over the feed. */
+  --color-chat-active: #0070ff;
+  --color-chat-active-foreground: #ffffff;
+
   /* Heading sizes above Tailwind's `xl` (20). `display` is the page title
      (vacancy H1, kit H1); `title` is the step between that and `xl` — the
      discovery heading on a phone. Line-height is baked into the text token so
@@ -109,6 +115,63 @@
 
 :root {
   color-scheme: light;
+}
+
+/* Dark palette. The theme flips by re-declaring the `@theme` tokens on the
+   root element; every utility already resolves through `var(--color-…)`, so
+   one block re-paints the whole app. Unlayered on purpose — `@theme` emits
+   its variables inside `@layer theme`, and an unlayered declaration wins the
+   cascade regardless of specificity. */
+.dark {
+  color-scheme: dark;
+
+  /* Ground */
+  --color-background: #0c1118;
+  --color-foreground: #eef2f7;
+
+  /* Surfaces */
+  --color-surface: #121924;
+  --color-surface-muted: #1a2331;
+
+  /* Text */
+  --color-muted: #8b9aad;
+  --color-subtle: #7d8da1;
+  --color-faint: #50607a;
+  --color-chip-foreground: #a9b7c6;
+
+  /* Structure. On dark ground hairlines sit a step lighter than the surface
+     they separate, or they disappear into it. */
+  --color-border: #253143;
+  --color-border-strong: #32415a;
+
+  /* Neutral chip / fill */
+  --color-chip: #1f2937;
+  --color-chip-hover: #283547;
+
+  /* Accents — lifted a step so they hold contrast on the dark ground. */
+  --color-brand: #8f6bff;
+  --color-brand-soft: #2a2352;
+  --color-danger: #ff6250;
+  --color-info: #3b93ff;
+  --color-success: #2fc078;
+  --color-success-soft: #103423;
+  --color-accent: #a86ef2;
+  --color-accent-soft: #2c2145;
+
+  /* Selected conversation: a share of the accent blue mixed into the surface,
+     not the full-strength fill the light theme uses. */
+  --color-chat-active: color-mix(
+    in srgb,
+    var(--color-info) 30%,
+    var(--color-surface)
+  );
+  --color-chat-active-foreground: #eef2f7;
+
+  /* Shadows are black on black in light theme terms; restate them with room
+     to read against a dark ground. */
+  --shadow-field: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 28px -18px rgb(0 0 0 / 0.5);
+  --shadow-popover: 0 12px 40px rgb(0 0 0 / 0.5);
+  --shadow-bar: 0 -4px 16px rgb(0 0 0 / 0.35);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -211,6 +274,25 @@ body {
     }
   }
 
+  /* The material fade above is written in literal white; restate it against
+     the dark ground so the vacancy header dissolves into the same color it
+     sits on. */
+  .dark .header-fade-material {
+    background-image: linear-gradient(
+      to bottom,
+      rgb(12 17 24 / 0.9) 0%,
+      rgb(12 17 24 / 0.82) 24%,
+      rgb(12 17 24 / 0.66) 46%,
+      rgb(12 17 24 / 0.44) 66%,
+      rgb(12 17 24 / 0.2) 84%,
+      transparent 100%
+    );
+  }
+
+  .dark .header-fade-material::before {
+    background: rgb(255 255 255 / 0.04);
+  }
+
   /* Opaque through the arrow, then a short drop — the old smoothstep ramp
      was still a window at the circle, which read as a hole in outlined chips. */
   .edge-fade-start {
@@ -297,6 +379,12 @@ body {
   .drawer-backdrop[data-starting-style],
   .drawer-backdrop[data-ending-style] {
     opacity: 0;
+  }
+
+  /* The scrim is a mix of the foreground token — on the dark theme that is
+     nearly white, which would lighten the page instead of dimming it. */
+  .dark .drawer-backdrop {
+    background-color: rgb(0 0 0 / 0.55);
   }
 
   .drawer-popup {
@@ -503,6 +591,12 @@ body {
 
   .nav-base[data-covered]::after {
     opacity: 0.12;
+  }
+
+  /* Same inversion as the drawer scrim: the shade is a mix of the foreground
+     token, which is nearly white on the dark theme. */
+  .dark .nav-base::after {
+    background-color: #000;
   }
 
   /* Opaque, and it has to be: the covered screen is still painted underneath,

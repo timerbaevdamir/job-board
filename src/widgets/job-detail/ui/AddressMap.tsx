@@ -8,12 +8,16 @@ import {
   mapboxAccessToken,
 } from "@/shared/lib/geocodeAddress"
 import { ExpandIcon, MapPinIcon } from "@/shared/ui/icons"
+import { useTheme, type Theme } from "@/features/theme"
 import { SectionHeading } from "./primitives"
 
 type Metro = NonNullable<JobDetail["metro"]>
 
-const MAP_STYLE =
-  "https://api.mapbox.com/styles/v1/mapbox/streets-v12"
+/** One style per theme; the map rebuilds when the choice flips. */
+const MAP_STYLE: Record<Theme, string> = {
+  light: "https://api.mapbox.com/styles/v1/mapbox/streets-v12",
+  dark: "https://api.mapbox.com/styles/v1/mapbox/dark-v11",
+}
 
 function mapsSearchUrl(address: string): string {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`
@@ -82,7 +86,7 @@ function ExpandControl({ address }: { address: string }) {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Открыть карту"
-      className="absolute right-3 top-3 z-10 hidden size-9 items-center justify-center rounded-lg bg-white text-foreground shadow-[0_2px_8px_rgba(0,0,0,0.15)] transition-colors hover:bg-surface-muted md:flex"
+      className="absolute right-3 top-3 z-10 hidden size-9 items-center justify-center rounded-lg bg-surface text-foreground shadow-[0_2px_8px_rgba(0,0,0,0.15)] transition-colors hover:bg-surface-muted md:flex"
     >
       <ExpandIcon className="size-4" />
     </a>
@@ -111,9 +115,11 @@ function StaticMap({ src }: { src: string }) {
 
 function LiveMap({
   address,
+  styleUrl,
   onFail,
 }: {
   address: string
+  styleUrl: string
   onFail: () => void
 }) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -145,7 +151,7 @@ function LiveMap({
       const instance = new mapboxgl.Map({
         accessToken: token,
         container: node,
-        style: MAP_STYLE,
+        style: styleUrl,
         center: [coords.lng, coords.lat],
         zoom: 16,
         scrollZoom: false,
@@ -193,7 +199,7 @@ function LiveMap({
       marker?.remove()
       map?.remove()
     }
-  }, [address])
+  }, [address, styleUrl])
 
   return (
     <div
@@ -217,6 +223,7 @@ export function AddressMap({
 }) {
   const [liveFailed, setLiveFailed] = useState(false)
   const onLiveFail = useCallback(() => setLiveFailed(true), [])
+  const { theme } = useTheme()
   const showLive = hasMapboxToken() && !liveFailed
 
   useEffect(() => {
@@ -229,7 +236,11 @@ export function AddressMap({
       <div className="overflow-hidden rounded-3xl border border-border bg-surface">
         <div className="relative overflow-hidden">
           {showLive ? (
-            <LiveMap address={address} onFail={onLiveFail} />
+            <LiveMap
+              address={address}
+              styleUrl={MAP_STYLE[theme]}
+              onFail={onLiveFail}
+            />
           ) : mapImage ? (
             <StaticMap src={mapImage} />
           ) : (

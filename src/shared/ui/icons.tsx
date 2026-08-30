@@ -91,6 +91,22 @@ export function ChevronRightIcon(props: IconProps) {
   )
 }
 
+export function ChevronsRightIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="m6 6 6 6-6 6M13 6l6 6-6 6" />
+    </svg>
+  )
+}
+
+export function ChevronsLeftIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="m18 6-6 6 6 6M11 6l-6 6 6 6" />
+    </svg>
+  )
+}
+
 export function ChevronLeftIcon(props: IconProps) {
   // Left-pointing chevron; mirrors ChevronRightIcon.
   return (
@@ -154,6 +170,14 @@ export function BarsIcon(props: IconProps) {
   return (
     <svg {...base} {...props}>
       <path d="M5 12H19M5 6H19M5 18H19" />
+    </svg>
+  )
+}
+
+export function MoonIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" />
     </svg>
   )
 }

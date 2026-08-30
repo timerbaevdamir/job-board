@@ -16,7 +16,8 @@ export function AppealLogo({
     <span
       className={cn(
         "relative flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-xl text-base font-semibold",
-        invertLetter && "bg-white/20 text-white",
+        invertLetter &&
+          "bg-chat-active-foreground/20 text-chat-active-foreground",
       )}
       style={
         invertLetter

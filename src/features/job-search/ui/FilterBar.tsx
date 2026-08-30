@@ -270,7 +270,11 @@ function StripEdge({
         aria-label={isStart ? "Предыдущие фильтры" : "Следующие фильтры"}
         onClick={onClick}
         className={cn(
-          "pointer-events-auto absolute inset-y-0 z-10 my-auto flex size-8 items-center justify-center rounded-full bg-surface text-foreground shadow-[0_1px_4px_rgba(13,21,32,0.12)] ring-1 ring-black/[0.06] transition-[opacity,transform] hover:bg-chip motion-reduce:transition-none",
+          // The hairline is the border token rather than a black alpha: on the
+          // dark ground a 6% black ring disappears and the disc melts into
+          // the strip, while the token stays a step off the surface in both
+          // themes.
+          "pointer-events-auto absolute inset-y-0 z-10 my-auto flex size-8 items-center justify-center rounded-full bg-surface text-foreground shadow-[0_1px_4px_rgb(0_0_0/0.12)] ring-1 ring-border transition-[opacity,transform] hover:bg-chip motion-reduce:transition-none",
           isStart ? "left-2" : "right-2.5",
           visible
             ? "scale-100 opacity-100 duration-150 ease-soft"

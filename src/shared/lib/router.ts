@@ -175,7 +175,12 @@ export function navigate(
 ): void {
   install()
   const hash = routeToHash(route)
-  if (hash === window.location.hash) return
+  const sameEntry = hash === window.location.hash
+  if (sameEntry && !via && !from) return
+  // A repeat navigation to the same destination can still carry new context —
+  // the vacancy that is already open, reopened from a thread. Rewrite the
+  // current entry rather than pushing a duplicate of it.
+  if (sameEntry) replace = true
 
   const url = `${window.location.pathname}${window.location.search}${hash}`
   if (replace) {

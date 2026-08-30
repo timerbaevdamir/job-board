@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react"
 import { Sidebar, TabBar } from "@/widgets/navigation"
+import { MoreMenu } from "@/widgets/more-menu"
 import { Drawer, DrawerContent } from "@/shared/ui/Drawer"
 import {
   activeSection,
@@ -56,6 +57,7 @@ export function AppShell({
   const via = useNavVia()
   const mode = useLayoutMode()
   const [panelOpen, setPanelOpen] = useState(false)
+  const [moreOpen, setMoreOpen] = useState(false)
 
   const active = activeSection(route)
   const go = (id: string) =>
@@ -96,6 +98,7 @@ export function AppShell({
           active={active}
           onNavigate={go}
           onExpand={rail ? () => setPanelOpen(true) : undefined}
+          onMore={() => setMoreOpen(true)}
         />
       )}
 
@@ -128,9 +131,15 @@ export function AppShell({
               setPanelOpen(false)
             }}
             onCollapse={() => setPanelOpen(false)}
+            onMore={() => {
+              setPanelOpen(false)
+              setMoreOpen(true)
+            }}
           />
         </DrawerContent>
       </Drawer>
+
+      <MoreMenu open={moreOpen} onOpenChange={setMoreOpen} />
     </div>
   )
 }

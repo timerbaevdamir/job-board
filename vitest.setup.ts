@@ -85,3 +85,30 @@ window.addEventListener("resize", () => {
     entry.listeners.forEach((fn) => fn(event))
   }
 })
+
+/**
+ * The jsdom this environment provides has a `localStorage` with none of the
+ * Storage methods on it, so a store that persists into it can't be exercised.
+ * An in-memory substitute implements the interface; it resets per file the
+ * way a fresh document would.
+ */
+function createMemoryStorage(): Storage {
+  const data = new Map<string, string>()
+  return {
+    get length() {
+      return data.size
+    },
+    clear: () => data.clear(),
+    getItem: (key) => (data.has(key) ? (data.get(key) as string) : null),
+    key: (index) => [...data.keys()][index] ?? null,
+    removeItem: (key) => data.delete(key),
+    setItem: (key, value) => data.set(key, String(value)),
+  }
+}
+
+if (typeof window.localStorage.getItem !== "function") {
+  Object.defineProperty(window, "localStorage", {
+    value: createMemoryStorage(),
+    configurable: true,
+  })
+}

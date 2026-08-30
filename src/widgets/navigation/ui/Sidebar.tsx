@@ -1,5 +1,10 @@
+import type { ComponentType, SVGProps } from "react"
 import { PRIMARY_NAV } from "@/shared/config/navigation"
-import { BarsIcon } from "@/shared/ui/icons"
+import {
+  BarsIcon,
+  ChevronsLeftIcon,
+  ChevronsRightIcon,
+} from "@/shared/ui/icons"
 import { cn } from "@/shared/lib/cn"
 import { NavRow } from "./NavRow"
 
@@ -19,13 +24,15 @@ function BrandMark() {
 
 /** The bottom "Ещё" cell — same shape as a nav row, without active/selection. */
 function MoreRow({
-  collapsed,
+  collapsed = false,
   onClick,
   label = "Ещё",
+  icon: Icon = BarsIcon,
 }: {
-  collapsed: boolean
+  collapsed?: boolean
   onClick?: () => void
   label?: string
+  icon?: ComponentType<SVGProps<SVGSVGElement>>
 }) {
   return (
     <button
@@ -38,7 +45,7 @@ function MoreRow({
         collapsed ? "justify-center" : "w-full",
       )}
     >
-      <BarsIcon className="size-6 shrink-0 text-foreground" />
+      <Icon className="size-6 shrink-0 text-foreground" />
       {!collapsed && (
         <span className="flex-1 text-base leading-[22px]">{label}</span>
       )}
@@ -62,6 +69,7 @@ export function Sidebar({
   floating = false,
   onExpand,
   onCollapse,
+  onMore,
 }: {
   active: string
   onNavigate: (id: string) => void
@@ -71,6 +79,8 @@ export function Sidebar({
   onExpand?: () => void
   /** Given to the floating panel, turns the same row into its closer. */
   onCollapse?: () => void
+  /** Opens the "Ещё" menu; given to every expanded form of the rail. */
+  onMore?: () => void
 }) {
   return (
     <nav
@@ -102,17 +112,40 @@ export function Sidebar({
         </div>
       </div>
 
-      <div className={cn(collapsed && "flex justify-center")}>
-        {/* One row, one place, both directions: whatever opened the panel is
-            what closes it, so the control doesn't move between states. */}
-        <MoreRow
-          collapsed={collapsed}
-          onClick={onExpand ?? onCollapse}
-          label={
-            onExpand ? "Показать меню" : onCollapse ? "Скрыть меню" : "Ещё"
-          }
-        />
-      </div>
+      {collapsed ? (
+        // The expander sits directly above "Ещё", one frame, a 4px gap: both
+        // are rail-level actions rather than destinations, and the hamburger
+        // keeps its "Ещё" meaning everywhere in the app while the double
+        // chevron says "widen".
+        <div className="flex flex-col items-center gap-1">
+          {onExpand && (
+            <button
+              type="button"
+              onClick={onExpand}
+              title="Показать меню"
+              aria-label="Показать меню"
+              className="flex items-center justify-center rounded-xl px-3 py-2.5 text-muted transition-colors hover:bg-chip/60 hover:text-foreground"
+            >
+              <ChevronsRightIcon className="size-6 shrink-0" />
+            </button>
+          )}
+          {onMore && <MoreRow collapsed onClick={onMore} label="Ещё" />}
+        </div>
+      ) : (
+        // The collapse control sits above "Ещё", mirroring the collapsed
+        // rail where the expander is above it — the control keeps its place
+        // between the two states.
+        <div className="flex flex-col gap-1">
+          {onCollapse && (
+            <MoreRow
+              onClick={onCollapse}
+              label="Скрыть меню"
+              icon={ChevronsLeftIcon}
+            />
+          )}
+          {onMore && <MoreRow onClick={onMore} label="Ещё" />}
+        </div>
+      )}
     </nav>
   )
 }

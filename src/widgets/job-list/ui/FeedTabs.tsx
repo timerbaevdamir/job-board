@@ -31,7 +31,7 @@ export function FeedTabs({
               className={cn(
                 "shrink-0 px-3.5 py-1.5 text-sm font-semibold leading-5",
                 selected
-                  ? "rounded-full bg-foreground text-white"
+                  ? "rounded-full bg-foreground text-background"
                   : "text-foreground",
               )}
             >

@@ -19,7 +19,7 @@ type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "type"> & {
 // secondary — серая заливка, без обводки; tertiary — «призрачная»;
 // link — синяя, как ссылка.
 const VARIANTS: Record<ButtonVariant, string> = {
-  primary: "border-transparent bg-black text-white hover:opacity-90",
+  primary: "border-transparent bg-foreground text-background hover:opacity-90",
   secondary: "border-transparent bg-chip text-foreground hover:bg-chip-hover",
   tertiary: "border-transparent text-foreground hover:bg-surface-muted",
   link: "border-transparent text-info hover:bg-surface-muted",

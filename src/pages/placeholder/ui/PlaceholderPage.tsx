@@ -1,7 +1,11 @@
+import { useState } from "react"
 import type { ComponentType, SVGProps } from "react"
 import { AppShell } from "@/widgets/app-shell"
-import { Header } from "@/shared/ui/Header"
+import { MoreMenu } from "@/widgets/more-menu"
+import { Header, HeaderAction } from "@/shared/ui/Header"
 import { PRIMARY_NAV } from "@/shared/config/navigation"
+import { BarsIcon } from "@/shared/ui/icons"
+import { useLayoutMode } from "@/shared/lib/useLayoutMode"
 
 export const PLACEHOLDER_KINDS = ["saved", "activity", "profile"] as const
 export type PlaceholderKind = (typeof PLACEHOLDER_KINDS)[number]
@@ -39,8 +43,15 @@ function UnderDevelopment({
  * Stand-in screen for a primary-nav section that has nowhere to go yet.
  * The nav item's label and icon come from {@link PRIMARY_NAV}, so the header
  * and the faded mark stay in lockstep with the rail and the tab bar.
+ *
+ * On a phone the profile doubles as the home of the "Ещё" menu: the rail
+ * that carries it on wider layouts doesn't exist there, so the header gets
+ * the action instead.
  */
 export function PlaceholderPage({ kind }: { kind: PlaceholderKind }) {
+  const onPhone = useLayoutMode() === "mobile"
+  const [moreOpen, setMoreOpen] = useState(false)
+
   const item = PRIMARY_NAV.find((entry) => entry.id === kind)
   if (!item) return null
   const Icon = item.icon
@@ -48,7 +59,21 @@ export function PlaceholderPage({ kind }: { kind: PlaceholderKind }) {
   return (
     <AppShell>
       <main className="flex min-h-0 min-w-0 flex-1 flex-col bg-background">
-        <Header edge padTitle>
+        <Header
+          edge
+          padTitle
+          end={
+            kind === "profile" && onPhone ? (
+              <HeaderAction
+                tone="plain"
+                aria-label="Ещё"
+                onClick={() => setMoreOpen(true)}
+              >
+                <BarsIcon className="size-6" />
+              </HeaderAction>
+            ) : undefined
+          }
+        >
           <h1 className="text-[22px] font-semibold leading-7 tracking-[-0.2px] text-foreground">
             {item.label}
           </h1>
@@ -59,9 +84,10 @@ export function PlaceholderPage({ kind }: { kind: PlaceholderKind }) {
           </div>
         </div>
       </main>
+
+      <MoreMenu open={moreOpen} onOpenChange={setMoreOpen} />
     </AppShell>
   )
 }
 
 export default PlaceholderPage
-
